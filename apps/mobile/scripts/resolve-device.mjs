@@ -26,5 +26,5 @@ try {
 } catch {}
 if (wantName && wantName !== 'auto') name = wantName;
 if (wantOs && wantOs !== 'auto') osv = wantOs;
-writeFileSync(out, `DEVICE_NAME=${name}\nOS_VERSION=${osv}\n`);
+writeFileSync(out, `DEVICE_NAME="${name.replace(/"/g, '')}"\nOS_VERSION="${osv.replace(/"/g, '')}"\n`);
 console.log(`resolved device: ${name || '(none)'} / ${osv || '(none)'}`);
