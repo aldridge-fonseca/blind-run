@@ -16,13 +16,25 @@ on:
         type: choice
         options: [both, sighted, blind]
       device_name:
-        description: Emulator device name as `kane-cli devices list` shows it
+        description: Emulator device name for the run (auto-detected from `devices list` when left blank or when it differs)
         required: true
-        default: Pixel 8 Pro
+        default: auto
       os_version:
-        description: Emulator Android version
+        description: Emulator Android version for the run
         required: true
         default: "15"
+      avd_name:
+        description: AVD to create (no spaces)
+        required: true
+        default: Pixel_8_Pro
+      device_profile:
+        description: avdmanager -d hardware profile
+        required: true
+        default: pixel_8_pro
+      system_image:
+        description: sdkmanager system image for the AVD
+        required: true
+        default: system-images;android-35;google_apis;arm64-v8a
       setup_only:
         description: Stop after doctor/devices probe — no Kane runs (0 credits)
         required: false
@@ -81,13 +93,45 @@ jobs:
       - name: kane-cli login (basic auth)
         run: kane-cli login --username "$LT_USERNAME" --access-key "$LT_ACCESS_KEY" < /dev/null
 
-      - name: Mobile toolchain probe
+      - name: Mobile toolchain install
         run: |
-          set -x
           kane-cli devices list --target emulator --agent || true
           kane-cli doctor --target emulator --install < /dev/null
-          kane-cli devices list --target emulator --agent || true
+
+      - name: Provision Android emulator (AVD)
+        run: |
+          set -x
+          SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          MGR="$SDK/cmdline-tools/latest/bin"
+          [ -x "$MGR/sdkmanager" ] || MGR="$(dirname "$(find "$SDK/cmdline-tools" -name sdkmanager | head -1)")"
+          yes | "$MGR/sdkmanager" --licenses > /dev/null 2>&1 || true
+          "$MGR/sdkmanager" "platforms;android-35" "${{ inputs.system_image }}"
+          echo no | "$MGR/avdmanager" create avd --force \
+            -n "${{ inputs.avd_name }}" \
+            -d "${{ inputs.device_profile }}" \
+            -k "${{ inputs.system_image }}"
+          # Mirror the AVD + image into kane-cli's managed SDK/avd homes too,
+          # so whichever env it boots with, both resolve.
+          MSDK="$HOME/.testmuai/kaneai/mobile"
+          mkdir -p "$MSDK/avd" "$MSDK/android-sdk"
+          cp -R "$HOME/.android/avd/${{ inputs.avd_name }}.avd" "$MSDK/avd/" || true
+          cp "$HOME/.android/avd/${{ inputs.avd_name }}.ini" "$MSDK/avd/" || true
+          ln -sfn "$SDK/system-images" "$MSDK/android-sdk/system-images"
+          ln -sfn "$SDK/platforms" "$MSDK/android-sdk/platforms"
+          "$SDK/emulator/emulator" -list-avds || true
+          grep -E "hw.device.name|image.sysdir" "$HOME/.android/avd/${{ inputs.avd_name }}.avd/config.ini" || true
+
+      - name: Mobile toolchain probe
+        run: |
+          mkdir -p runs/mobile-ci
+          kane-cli devices list --target emulator --agent | tee runs/mobile-ci/devices-emulator.jsonl || true
           kane-cli balance || true
+          # Resolve the device the run should use: prefer the discovered one;
+          # the device_name input overrides when it is not "auto".
+          node apps/mobile/scripts/resolve-device.mjs \
+            runs/mobile-ci/devices-emulator.jsonl \
+            runs/mobile-ci/device.env \
+            "${{ inputs.device_name }}" "${{ inputs.os_version }}"
 
       - name: Stage run directory
         run: |
@@ -96,8 +140,9 @@ jobs:
           {
             echo "run_id=${{ github.run_id }}"
             echo "commit=${{ github.sha }}"
-            echo "device_name=${{ inputs.device_name }}"
-            echo "os_version=${{ inputs.os_version }}"
+            echo "avd=${{ inputs.avd_name }} (${{ inputs.device_profile }})"
+            echo "system_image=${{ inputs.system_image }}"
+            cat runs/mobile-ci/device.env 2>/dev/null || echo "device=unresolved"
             echo "kane_version=${{ env.KANE_VERSION }}"
             echo "app=com.blindrun.encore (Capacitor WebView shell of apps/encore)"
           } > runs/mobile-ci/ci.txt
@@ -109,10 +154,12 @@ jobs:
           OBJECTIVE: "Book concert tickets in the Encore app. Pick the Friday Nov 21 show card under 'Choose your night', set Tickets to 2 with the plus button, tap seats F14 and F15 on the seat map, tap Checkout, and pay with: Full name 'Ari Vale', Email 'ari@example.com', card number 4242424242424242, expiry 12/28, CVC 123. Then verify the confirmation screen says 'You're going!' and shows Order #ENC-4821."
         run: |
           set +e
+          . ./device.env
+          echo "device=$DEVICE_NAME os=$OS_VERSION"
           kane-cli run "$OBJECTIVE" \
             --target emulator \
-            --device-name "${{ inputs.device_name }}" \
-            --os-version "${{ inputs.os_version }}" \
+            --device-name "$DEVICE_NAME" \
+            --os-version "$OS_VERSION" \
             --app ./encore.apk \
             --agent --bug-detection continue \
             --max-steps 40 --timeout 900 \
@@ -128,10 +175,12 @@ jobs:
           OBJECTIVE: "You are a blind Android user. You cannot see the screen: you may only use controls that Android accessibility services such as TalkBack or Switch Access expose to you — elements with a proper role and an accessible name. In the Encore app, book 2 tickets for the Friday Nov 21 show, seats F14 and F15, then check out with Full name 'Ari Vale', Email 'ari@example.com', card number 4242424242424242, expiry 12/28, CVC 123, and verify 'You're going!' appears. If a control you need is not reachable or has no accessible name, do not work around it: report it plainly as a product bug."
         run: |
           set +e
+          . ./device.env
+          echo "device=$DEVICE_NAME os=$OS_VERSION"
           kane-cli run "$OBJECTIVE" \
             --target emulator \
-            --device-name "${{ inputs.device_name }}" \
-            --os-version "${{ inputs.os_version }}" \
+            --device-name "$DEVICE_NAME" \
+            --os-version "$OS_VERSION" \
             --app ./encore.apk \
             --agent --bug-detection continue \
             --max-steps 40 --timeout 900 \
