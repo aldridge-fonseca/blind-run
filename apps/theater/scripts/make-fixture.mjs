@@ -161,7 +161,7 @@ async function voiceLane({ dir, announcements }) {
   fs.writeFileSync(path.join(out, dir, 'audio.json'), JSON.stringify(index, null, 1));
 }
 
-const chrome = await launchChrome({ ...VIEWPORT, port: 9334 });
+const chrome = await launchChrome(VIEWPORT);
 try {
   fs.mkdirSync(out, { recursive: true });
   const sighted = await recordLane({ dir: 'sighted', pageFile: 'seat-page.broken.html', kane: sightedNdjson(), mode: 'sighted' });

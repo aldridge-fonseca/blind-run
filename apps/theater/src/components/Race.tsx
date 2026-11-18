@@ -305,6 +305,14 @@ function BlindPanel({ view, local, revealPage, analyser, expect, round, sighted 
         <div className="absolute inset-x-8 bottom-6 flex items-center gap-4">
           <Waveform analyser={analyser} fallback={speaking * 0.9} width={PANEL_W - 64} height={64} />
         </div>
+        {failed && (
+          <div className="absolute inset-x-0 top-[38%] flex justify-center" style={{ opacity: clamp(pop * 1.5), transform: `scale(${0.9 + 0.1 * pop})` }}>
+            <div className="flex items-center gap-4 rounded-full border border-fail/50 bg-[#1a0606]/90 py-3 pl-3 pr-7 text-[24px] font-semibold text-white shadow-[0_20px_60px_-10px_rgb(255_69_58_/_.5)] backdrop-blur-xl">
+              <span className="grid size-11 place-items-center rounded-full bg-fail text-black"><Cross size={22} /></span>
+              Blocked · Kane stopped after {(lane.durationMs / 1000).toFixed(1)} s
+            </div>
+          </div>
+        )}
         {passed && (
           <div className="absolute right-6 top-5" style={{ opacity: clamp(pop * 1.5), transform: `scale(${0.85 + 0.15 * pop})` }}>
             <div className="flex items-center gap-3 rounded-full border border-pass/40 bg-black/80 py-2 pl-2 pr-5 text-[18px] font-semibold backdrop-blur-xl">

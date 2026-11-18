@@ -7,7 +7,12 @@
     "dev": "vite --port 4320 --strictPort",
     "build": "tsc -b && vite build",
     "preview": "vite preview --port 4320 --strictPort",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "a11y": "node scripts/a11y.mjs",
+    "test:keys": "node scripts/keys-test.mjs",
+    "shoot": "node scripts/shoot.mjs",
+    "record": "node scripts/record.mjs",
+    "fixture": "node scripts/make-fixture.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "5.3.0",

@@ -9,7 +9,7 @@ import { launchChrome, openPage, sleep } from './cdp.mjs';
 const [outDir, runId, from = 'intro', seconds = '12', speed = '1'] = process.argv.slice(2);
 const base = process.env.THEATER_URL || 'http://localhost:4320/';
 fs.mkdirSync(outDir, { recursive: true });
-const chrome = await launchChrome({ port: 9339 });
+const chrome = await launchChrome();
 try {
   const page = await openPage(chrome.endpoint, { width: 1920, height: 1080 });
   await page.goto(`${base}?run=${encodeURIComponent(runId)}&present=1&autoplay=0&speed=${speed}&t=${encodeURIComponent(from)}`);

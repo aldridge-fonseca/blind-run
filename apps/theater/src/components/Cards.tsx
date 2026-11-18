@@ -142,7 +142,7 @@ function TimeBars({ run, local }: { run: Run; local: number }) {
           <div key={r.label} style={{ opacity: clamp(p * 2) }}>
             <div className="mb-2 flex items-baseline justify-between text-[17px]">
               <span className="text-dim">{r.label}</span>
-              <span className="font-medium tabular" style={{ color }}>{failed ? `gave up at ${fmtSeconds(r.lane.durationMs)}` : fmtSeconds(r.lane.durationMs)}</span>
+              <span className="font-medium tabular" style={{ color }}>{failed ? `blocked, stopped at ${fmtSeconds(r.lane.durationMs)}` : fmtSeconds(r.lane.durationMs)}</span>
             </div>
             <div className="relative h-3 rounded-full bg-white/[0.06]">
               <div className="absolute inset-y-0 left-0 rounded-full" style={{ width: w, background: color }} />

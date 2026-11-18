@@ -14,7 +14,7 @@ const html = `<!doctype html><body style="margin:0;background:#222;display:grid;
   .join('')}</body>`;
 const file = path.join(dir, 'sheet.html');
 fs.writeFileSync(file, html);
-const chrome = await launchChrome({ port: 9340 });
+const chrome = await launchChrome();
 try {
   const rows = Math.ceil(n / 3);
   const page = await openPage(chrome.endpoint, { width: 1928, height: rows * 364 });

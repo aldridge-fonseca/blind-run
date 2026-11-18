@@ -15,7 +15,7 @@ const pages = [
   ['present', `?run=${runId}&present=1&autoplay=0&t=race%2B12`],
 ];
 
-const chrome = await launchChrome({ port: 9337 });
+const chrome = await launchChrome();
 let failures = 0;
 try {
   const page = await openPage(chrome.endpoint, { width: 1440, height: 900 });

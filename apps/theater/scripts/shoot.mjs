@@ -9,7 +9,7 @@ const [outDir, runId, ...moments] = process.argv.slice(2);
 const base = process.env.THEATER_URL || 'http://localhost:4320/';
 const extra = process.env.EXTRA || '';
 fs.mkdirSync(outDir, { recursive: true });
-const chrome = await launchChrome({ port: 9335 });
+const chrome = await launchChrome();
 try {
   const page = await openPage(chrome.endpoint, { width: 1920, height: 1080 });
   for (const m of moments) {

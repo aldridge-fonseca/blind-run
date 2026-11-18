@@ -6,21 +6,29 @@ import path from 'node:path';
 
 const CHROME = process.env.CHROME_BIN || '/usr/bin/google-chrome';
 
-export async function launchChrome({ width = 1920, height = 1080, port = 9333, extraArgs = [] } = {}) {
+export async function launchChrome({ width = 1920, height = 1080, extraArgs = [] } = {}) {
   // Chrome's singleton socket path must stay short, so keep the profile under /tmp.
   const userDir = fs.mkdtempSync(path.join('/tmp', 'theater-chrome-'));
+  // Port 0 lets Chrome pick a free port and write it to DevToolsActivePort, so parallel or
+  // back-to-back runs never attach to another (still exiting) browser.
   const proc = spawn(CHROME, [
-    '--headless=new', `--remote-debugging-port=${port}`, `--user-data-dir=${userDir}`,
+    '--headless=new', '--remote-debugging-port=0', `--user-data-dir=${userDir}`,
     `--window-size=${width},${height}`, '--hide-scrollbars', '--no-first-run', '--no-default-browser-check',
     '--autoplay-policy=no-user-gesture-required', '--disable-gpu', '--mute-audio', ...extraArgs, 'about:blank',
   ], { stdio: ['ignore', 'ignore', 'pipe'], env: { ...process.env, TMPDIR: '/tmp' } });
-  let errLog = ''; proc.stderr.on('data', (d) => { errLog += d; });
-  const endpoint = `http://127.0.0.1:${port}`;
-  let up = false;
-  for (let i = 0; i < 300 && !up; i++) {
-    try { await (await fetch(`${endpoint}/json/version`)).json(); up = true; } catch { await sleep(100); }
+  let errLog = '';
+  proc.stderr.on('data', (d) => { errLog += d; });
+  let endpoint = null;
+  for (let i = 0; i < 300 && !endpoint; i++) {
+    try {
+      const port = fs.readFileSync(path.join(userDir, 'DevToolsActivePort'), 'utf8').split('\n')[0].trim();
+      if (port) {
+        await (await fetch(`http://127.0.0.1:${port}/json/version`)).json();
+        endpoint = `http://127.0.0.1:${port}`;
+      }
+    } catch { await sleep(100); }
   }
-  if (!up) { proc.kill('SIGTERM'); throw new Error(`Chrome did not start on port ${port}: ${errLog.slice(-800)}`); }
+  if (!endpoint) { proc.kill('SIGTERM'); throw new Error(`Chrome did not start: ${errLog.slice(-800)}`); }
   const close = () => { try { proc.kill('SIGTERM'); } catch {} try { fs.rmSync(userDir, { recursive: true, force: true }); } catch {} };
   process.on('exit', close);
   return { endpoint, close, pid: proc.pid };
