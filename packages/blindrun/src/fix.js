@@ -1,7 +1,7 @@
 // The closed loop: Kane's blind verdict -> a fix brief -> headless Claude Code edits the app's src only ->
 // rebuild -> Kane reruns the same task blind. Only a green blind run ends the loop.
 import { spawn } from 'node:child_process';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { collectProcess, runLane, saveJson } from './engine.js';
 import { parseKaneNdjson } from './parsers.js';
@@ -155,7 +155,21 @@ export async function fixLoop({ runDir, repoRoot, srcDir, url, task, expect, fai
     }
     log(`fix ${attempt}: blind rerun`);
     last = await runLane({ url, task, expect, laneDir: fixDir, blind: true, log });
-    await finish({ status: last.status, resultCode: last.resultCode, credits: last.credits, durationMs: last.durationMs });
+    let recheck;
+    // Kane can blame its own run (family automation_bug, not confirmed). That is not evidence against the app,
+    // so verify once more before involving the agent. The discarded try stays on disk as evidence.
+    if (last.status !== 'passed' && last.verdict && last.verdict.family !== 'application_issue' && last.verdict.confirmed !== true) {
+      const discarded = join(fixDir, 'discarded-try');
+      await mkdir(discarded, { recursive: true });
+      for (const file of ['kane.ndjson', 'lane.json', 'announcements.jsonl']) await rename(join(fixDir, file), join(discarded, file)).catch(() => {});
+      await rm(join(fixDir, 'frames'), { recursive: true, force: true }); // frames of the discarded try are not kept
+      recheck = { reason: `Kane classified the failure as ${last.verdict.family} (confirmed: ${last.verdict.confirmed}), not a product bug`, first: { resultCode: last.resultCode, credits: last.credits, reason: last.reason } };
+      log(`fix ${attempt}: ${recheck.reason}; re-verifying once`);
+      const extra = last.credits;
+      last = await runLane({ url, task, expect, laneDir: fixDir, blind: true, log });
+      recheck.extraCredits = extra;
+    }
+    await finish({ status: last.status, resultCode: last.resultCode, credits: last.credits, durationMs: last.durationMs, ...(recheck ? { recheck } : {}) });
     log(`fix ${attempt}: blind rerun ${last.status} (${last.resultCode})`);
     history.push({ attempt, summary: `changed ${files.join(', ')}; Kane's blind rerun ${last.status}${last.reason ? `: ${last.reason}` : ''}` });
     current = { dir, lane: last };

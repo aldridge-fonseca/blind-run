@@ -10,6 +10,7 @@ import { CdpConnection } from './cdp.js';
 import { axNodeToAnnouncement } from './parsers.js';
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const debug = (message) => { if (process.env.BLINDRUN_DEBUG) process.stderr.write(`[chrome] ${message}\n`); };
 
 // Blocks real pointer input (keyboard-initiated clicks have detail === 0 and still pass) and paints the
 // whole page black. Kane's screenshots therefore really are black during a blind lane.
@@ -86,7 +87,7 @@ export async function withRecordedChrome({ url, laneDir, blind, chromePath, fram
   const endpoint = `http://127.0.0.1:${port}`;
   const chrome = spawn(chromePath ?? process.env.CHROME_PATH ?? 'google-chrome', [
     '--headless=new', '--disable-gpu', '--disable-dev-shm-usage', '--no-first-run', '--no-default-browser-check',
-    '--disable-background-networking', '--disable-renderer-backgrounding', '--disable-background-timer-throttling',
+    '--disable-background-networking', '--password-store=basic', '--disable-extensions', '--disable-component-update', '--disable-sync', '--disable-default-apps', '--disable-renderer-backgrounding', '--disable-background-timer-throttling',
     '--hide-scrollbars', '--mute-audio', `--window-size=${window}`, `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, 'about:blank',
   ], { stdio: 'ignore' });
   const recorder = { frames: [], announcements: [], viewport: null, chromePid: chrome.pid };
@@ -109,15 +110,16 @@ export async function withRecordedChrome({ url, laneDir, blind, chromePath, fram
     const prime = async (sessionId) => {
       if (sessions.has(sessionId)) return;
       sessions.set(sessionId, { url: '' });
-      const call = (method, params = {}) => cdp.call(method, params, sessionId).catch(() => ({}));
+      const call = (method, params = {}) => cdp.call(method, params, sessionId).catch((error) => { debug(`prime ${method}: ${error.message}`); return {}; });
+      debug(`prime ${sessionId}`);
       await Promise.all([call('Page.enable'), call('Runtime.enable'), call('DOM.enable'), call('Accessibility.enable')]);
       await call('Runtime.addBinding', { name: '__blindrunAnnounce' });
-      for (const source of blind ? [BLINDFOLD, HOOKS] : [HOOKS]) {
-        await call('Page.addScriptToEvaluateOnNewDocument', { source, runImmediately: true });
-        await call('Runtime.evaluate', { expression: source });
-      }
+      const sources = blind ? [BLINDFOLD, HOOKS] : [HOOKS];
+      for (const source of sources) await call('Page.addScriptToEvaluateOnNewDocument', { source, runImmediately: true });
       await call('Page.startScreencast', { format: 'jpeg', quality, maxWidth: frameWidth, maxHeight: 1200, everyNthFrame: 1 });
+      // Resume a target that auto-attach paused before evaluating anything in it: evaluate cannot finish on a paused page.
       await call('Runtime.runIfWaitingForDebugger');
+      for (const source of sources) await call('Runtime.evaluate', { expression: source });
     };
 
     cdp.on('Target.attachedToTarget', ({ sessionId, targetInfo }) => {
@@ -126,6 +128,7 @@ export async function withRecordedChrome({ url, laneDir, blind, chromePath, fram
     });
     cdp.on('Page.frameNavigated', ({ frame }, sessionId) => {
       if (!frame.parentId && sessions.has(sessionId)) sessions.get(sessionId).url = frame.url;
+      debug(`navigated ${sessionId} ${frame.parentId ? '(child) ' : ''}${frame.url}`);
     });
     cdp.on('Page.screencastFrame', ({ data, metadata, sessionId: ackId }, sessionId) => {
       cdp.call('Page.screencastFrameAck', { sessionId: ackId }, sessionId).catch(() => {});
@@ -164,7 +167,8 @@ export async function withRecordedChrome({ url, laneDir, blind, chromePath, fram
     }
     // Load the app in the existing tab so the recording starts with the real page; Kane navigates again itself.
     const [first] = sessions.keys();
-    if (first && url) await cdp.call('Page.navigate', { url }, first).catch(() => {});
+    // Not awaited: headless Chrome occasionally never answers a first navigation, and Kane navigates anyway.
+    if (first && url) cdp.call('Page.navigate', { url }, first, 10000).then((r) => debug(`navigate ${JSON.stringify(r)}`), (error) => debug(`navigate: ${error.message}`));
 
     const result = await body({ endpoint, recorder });
     if (pendingFrame) keepFrame(pendingFrame.data, pendingFrame.at);

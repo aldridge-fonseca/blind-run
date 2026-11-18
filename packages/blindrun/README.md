@@ -1,83 +1,67 @@
 # blindrun
 
-**Blind Run** checks a browser task in a normal lane and a keyboard-only blind lane, keeps Kane CLI's raw evidence, and can ask Claude Code to fix the confirmed issue before replaying it.
+**Your app works when you can see it. `blindrun` proves whether it works with your eyes closed.**
+
+`blindrun` gives [Kane CLI](https://www.lambdatest.com/kane-cli) the same task twice: once as a sighted user, and once as a blind user (black screen, mouse disabled, keyboard only). It records what a screen reader would say at every focus change. When the blind run fails, it hands Kane's verdict to Claude Code, rebuilds the app and makes Kane run the task blind again. A fix only counts when that run is green.
 
 ## Requirements
 
-- Node.js 24 or newer
-- Google Chrome or Chromium
-- [Kane CLI](https://github.com/LambdaTest/kane-cli), authenticated on your machine
-- Claude Code for `fix` and `demo`
-- ElevenLabs API key for `voice`
+- Node.js 24+, Google Chrome (headless is fine)
+- Kane CLI 0.10+, logged in (`kane-cli whoami`)
+- Claude Code (`claude`) for `fix` and `demo`
+- `ELEVENLABS_API_KEY` for `voice` (optional)
 
-The package is ESM and has no runtime npm dependencies. From a checkout of Blind Run:
+No runtime npm dependencies. From the repo root: `node packages/blindrun/bin/blindrun.js --help` (or `pnpm --filter @blind-run/blindrun exec blindrun --help`).
 
-```sh
-pnpm --filter @blind-run/blindrun build
-pnpm --filter @blind-run/blindrun link --global
-blindrun --help
-```
-
-You can also run it without linking:
+## Commands
 
 ```sh
-node packages/blindrun/bin/blindrun.js --help
-```
+# Sighted + blind lanes on any URL
+blindrun run http://127.0.0.1:4310/ "Book 2 seats in row F for Friday's show." \
+  --expect "You're going!" --out runs/my-check
 
-## Run sighted and blind lanes
+# Close the loop: Claude Code fixes <app>/src, the app is rebuilt and Kane reruns blind (≤ 3 attempts)
+blindrun fix runs/my-check --app apps/encore --build "pnpm build" --serve "pnpm preview"
 
-```sh
-blindrun run http://127.0.0.1:4310/ \
-  "Book two adjacent seats in row F, seats 14–15" \
-  --expect "You're going! Order #ENC-4821, Row F · Seats 14–15" \
-  --out runs/my-check
-```
-
-Each lane gets a fresh headless Chrome process, CDP screencast frames, accessibility-tree announcements, and raw Kane NDJSON. Kane's blind lane runs with a black screen overlay and trusted pointer input blocked; keyboard input remains available. Kane commands are serialized through `/home/aldridge/kane-cli-hackathon/build/kane.lock` in the hackathon environment.
-
-Select lanes or tune the run:
-
-```sh
-blindrun run https://example.test/ "Open the menu" --expect "Menu" \
-  --lanes blind --timeout 180 --max-steps 10
-```
-
-## Explore accessibility findings
-
-```sh
-blindrun explore http://127.0.0.1:4310/ --out runs/my-check/explore
-```
-
-This runs a one-lease, read-only local Kane exploration. If the account or plan rejects exploration, Blind Run records the error and falls back to analyzer-only accessibility conditions.
-
-## Close the loop with a fix
-
-Keep the app server running, then point `fix` at the run and the app directory:
-
-```sh
-blindrun fix runs/my-check --app apps/encore --max-attempts 3
-```
-
-Claude Code runs headlessly in the app's `src` directory with only Read, Edit, and Write tools. Blind Run rebuilds the app and accepts a fix only after the blind Kane replay passes. Every attempt records `brief.md`, `diff.patch`, `agent.log`, `kane.ndjson`, `lane.json`, and `result.json`. Unresolved runs get a `BLOCKED_NEEDS_HUMAN` marker.
-
-## Speak announcements
-
-```sh
-blindrun voice runs/my-check
-```
-
-The command reads `ELEVENLABS_API_KEY` from the process environment or `/home/aldridge/kane-cli-hackathon/.env`, sends announcement text to ElevenLabs, and caches MP3s by voice and text hash under the run's `audio/` directory. The key is never written to run artifacts.
-
-## Reproduce the Encore demo
-
-Once the `encore-baseline` tag and Encore app are available:
-
-```sh
+# The showcase, end to end, from the encore-baseline tag
 blindrun demo
+
+# Screen-reader voice for a run (ElevenLabs, cached by text hash)
+blindrun voice runs/my-check
+
+# kane-cli explore, local and read-only
+blindrun explore http://127.0.0.1:4310/
 ```
 
-The command creates a detached worktree at the baseline tag, starts Encore on port 4310, records sighted and blind runs, invokes the fix loop, records a final blind replay, and removes its temporary worktree and dev server. Use `--out` to choose a run directory or `--base-url` to change the local port.
+## How it works
+
+**Blind lane.** Each lane gets its own headless Chrome. `blindrun` attaches over CDP with auto-attach, so it covers every page, including the one Kane opens. Before any page script runs, it injects two scripts:
+
+- The **blindfold** blocks trusted pointer and mouse events. Clicks made by the keyboard (`detail === 0`) still go through. It also paints a black `html::after` overlay, so Kane's screenshots are really black.
+- The **screen-reader hooks** report every `focusin`, with the element's bounding box, and every live-region change. For each one, `blindrun` reads the node from Chrome's accessibility tree (`Accessibility.getPartialAXTree`) and writes an NVDA-style line: `button`, `Card number, edit, blank`, `Seat F14, button, not pressed`. An icon-only button really is announced as just "button".
+
+Kane attaches to the same Chrome with `--cdp-endpoint` and runs with `--agent --bug-detection continue`. Its NDJSON is saved byte for byte. A confirmed keyboard barrier comes back as `result_code 740` (`assertion_error.confirmed_product_bug`) with a verdict: bug title, root cause, suggestion and relevant steps.
+
+**Fix loop.** `fix-N/brief.md` is built from Kane's verdict, Kane's steps and what the screen reader said. Claude Code then runs headless:
+
+```
+claude -p "<rules + brief>" --restricted --safe-mode --no-session-persistence \
+  --permission-mode acceptEdits --permission-prompts none \
+  --tools Read,Edit,Write,Glob,Grep --output-format stream-json --verbose
+```
+
+It runs with its working directory set to the app's `src/`:
+
+- `--restricted` removes Bash and every other code-running tool, and ignores user and project settings.
+- `acceptEdits` allows edits inside the working directory only.
+- `--permission-prompts none` denies anything that would prompt.
+
+Afterwards `blindrun` checks `git status`. Any change outside `src/` voids the attempt. It saves the diff, rebuilds, restarts the app and reruns the blind lane in `fix-N/`. If no attempt is green after three tries, it writes `BLOCKED_NEEDS_HUMAN`.
+
+**Demo.** `blindrun demo` checks out `encore-baseline` into a throwaway `git worktree`, so there are no toggles or flags. It builds and serves Encore on :4310 and audits the planted barriers. Then it runs the sighted and blind lanes and the fix loop, audits again and voices the blind lanes. The audit reads the accessibility tree through stable `data-testid`s, before and after the fix. That is how `run.json` knows which barriers were really removed.
+
+**Kane lock.** Every `kane-cli` call is wrapped in `flock $BLINDRUN_KANE_LOCK`, so parallel jobs never share a Kane session.
 
 ## Artifacts
 
-See [ARTIFACTS.md](./ARTIFACTS.md) for the versioned run directory contract and timing semantics. A run can be inspected from its JSON and NDJSON files without credentials; only generating new voice clips needs an ElevenLabs key.
+Everything is plain files that the Theater (`apps/theater`) replays without keys. See [ARTIFACTS.md](./ARTIFACTS.md).

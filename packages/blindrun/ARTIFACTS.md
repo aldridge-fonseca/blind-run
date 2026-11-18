@@ -1,37 +1,33 @@
-# Blind Run artifact contract
+# Run artifacts
 
-Every invocation writes evidence as files so a viewer can replay the result without Kane CLI or API keys. Paths below are relative to `runs/<runId>/`.
+A run directory replays without Kane CLI or API keys. Times (`t`) are milliseconds since the lane's Kane `stream_start`; `t0`/`t1` in `run.json` are milliseconds since the run started.
 
 ```text
-run.json
-<lane>/
-  lane.json
-  kane.ndjson
-  kane.stderr.txt                 # optional diagnostics, never substituted for stdout
-  frames/00000.jpg, ...
-  frames.json                     # [{"file":"00000.jpg","t":0}]
-  announcements.jsonl             # one JSON object per line
-  audio/<sha256>.mp3               # created by `blindrun voice`
-  audio.json                      # created by `blindrun voice`
-fix-1/, fix-2/, ...
-  brief.md
-  diff.patch
-  agent.log
-  kane.ndjson
-  lane.json
-  frames/, frames.json, announcements.jsonl
-  result.json
-explore/
-  explore.ndjson
-  findings.json
+runs/<id>/
+  run.json                 id, title, createdAt, url, task, expect, app{name,path,baseline,commit}, kaneVersion,
+                           sequence[{kind:"lane",lane,dir,t0,t1} | {kind:"fix",attempt,dir,t0,t1}],
+                           outcome{blindBefore, blindAfter, barriers[{id,wcag,title,planted,foundBy,presentBefore,fixed}]}
+  audit/before.json        planted-barrier probe on the baseline (accessibility tree via data-testid)
+  audit/after.json         the same probe after the fix loop
+  fix.patch                the whole fix: baseline -> final src
+  audio.json               [{t, file, text, lane, source, voice}]  (lane = the lane's directory)
+  audio/<hash>.mp3         ElevenLabs clips
+  sighted/  blind/         one lane each:
+    lane.json              lane, status, resultCode, reasonCode, durationMs, steps, credits, verdict, reason,
+                           oneLiner, testUrl, startedAt, viewport{width,height}, objective, exitCode, kaneVersion
+    kane.ndjson            Kane's stdout, verbatim
+    kane.stderr.txt        Kane's stderr (diagnostics)
+    frames.json            [{file:"frames/00000.jpg", t}]   throttled CDP screencast (blind frames are the black screen Kane saw)
+    announcements.jsonl    {t, text, role, name, states[], source:"focus"|"live", rect{x,y,w,h}, tag}
+  fix-N/                   one closed-loop attempt
+    brief.md               what the agent was given (Kane verdict, Kane steps, screen-reader log)
+    agent.log              the agent's tool calls and summary (no file contents)
+    diff.patch             this attempt's change to src/
+    build.log              only when the build failed
+    result.json            attempt, status, resultCode, credits, agent{turns,durationMs,costUsd,summary}, files
+    lane.json, kane.ndjson, frames.json, frames/, announcements.jsonl   the blind rerun
+  explore/                 kane-cli explore: explore.ndjson (verbatim), findings.json
+  BLOCKED_NEEDS_HUMAN      present only if no attempt passed
 ```
 
-`run.json` contains `id`, `createdAt`, `url`, `task`, `expect`, `app` (`name`, `commit`), `kaneVersion`, a chronological `sequence` of `{kind:"lane", lane, dir, t0, t1}` and `{kind:"fix", attempt, dir, t0, t1}`, and `outcome` (`blindBefore`, `blindAfter`, `barriers`). `t0` and `t1` are milliseconds since the run started.
-
-Each `lane.json` contains the lane name, `status` (`passed`, `failed`, or `unknown`), Kane `resultCode`, `durationMs`, step count, credits, verdict object, and `startedAt`. `kane.ndjson` is Kane's stdout byte-for-byte, including its own NDJSON records. Diagnostics go in the optional stderr file.
-
-Each announcement has `{t, text, role, name, states, source}`. `source` is `focus` or `live`; `t` is elapsed milliseconds from the lane start. A blind lane's captured frames contain the actual black overlay seen by Kane. A theater may show its own black panel or mask the frame; it must not reveal these frames as an unoccluded view of the page.
-
-The closed loop records a concise verdict brief, the agent's log, a real source diff, and the blind verification result for every attempt. After three failed or unusable attempts, `BLOCKED_NEEDS_HUMAN` marks the unresolved run. `explore/findings.json` keeps the selected mode and the parsed Kane records; an analyzer-only fallback is identified explicitly.
-
-Optional fields and directories may be absent. Consumers should use `run.json` sequence entries to locate lane directories and tolerate missing audio, frames, or exploration results.
+`rect` is `getBoundingClientRect()` of the focused element in CSS pixels of the viewport in `lane.json`. Consumers must tolerate missing optional files.

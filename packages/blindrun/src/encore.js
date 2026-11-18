@@ -52,10 +52,17 @@ async function freePort() {
 }
 
 /** Returns [{id, wcag, title, present, detail}] for the planted barriers at `url`. */
-export async function auditEncore(url, { chromePath } = {}) {
+export async function auditEncore(url, options = {}) {
+  // Headless Chrome occasionally stalls on the first navigation; a fresh browser fixes it.
+  for (let attempt = 1; ; attempt++) {
+    try { return await auditOnce(url, options); } catch (error) { if (attempt >= 3) throw error; }
+  }
+}
+
+async function auditOnce(url, { chromePath } = {}) {
   const profile = await mkdtemp(join(tmpdir(), 'blindrun-audit-'));
   const port = await freePort();
-  const chrome = spawn(chromePath ?? process.env.CHROME_PATH ?? 'google-chrome', ['--headless=new', '--disable-gpu', '--no-first-run', '--window-size=1280,860', `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, 'about:blank'], { stdio: 'ignore' });
+  const chrome = spawn(chromePath ?? process.env.CHROME_PATH ?? 'google-chrome', ['--headless=new', '--disable-gpu', '--no-first-run', '--disable-background-networking', '--password-store=basic', '--disable-extensions', '--disable-component-update', '--disable-sync', '--disable-default-apps', '--window-size=1280,860', `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, 'about:blank'], { stdio: 'ignore' });
   let cdp;
   try {
     let version;
@@ -65,11 +72,11 @@ export async function auditEncore(url, { chromePath } = {}) {
     cdp = await CdpConnection.connect(version.webSocketDebuggerUrl);
     const { targetInfos } = await cdp.call('Target.getTargets');
     const { sessionId: s } = await cdp.call('Target.attachToTarget', { targetId: targetInfos.find((t) => t.type === 'page').targetId, flatten: true });
-    const call = (m, p = {}) => cdp.call(m, p, s);
+    const call = (m, p = {}) => cdp.call(m, p, s, 15000);
     await call('Page.enable'); await call('DOM.enable'); await call('Accessibility.enable');
     const loaded = new Promise((resolve) => { const off = cdp.on('Page.loadEventFired', () => { off(); resolve(); }); });
     await call('Page.navigate', { url });
-    await loaded;
+    await Promise.race([loaded, new Promise((_, reject) => setTimeout(() => reject(new Error('page load timed out')), 15000))]);
     await new Promise((r) => setTimeout(r, 800));
     const ax = async (selector) => {
       const { root } = await call('DOM.getDocument', { depth: 0 });

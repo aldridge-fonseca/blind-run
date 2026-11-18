@@ -20,10 +20,12 @@ export class CdpConnection {
     return new CdpConnection(socket);
   }
 
-  call(method, params = {}, sessionId) {
+  call(method, params = {}, sessionId, timeoutMs = 20000) {
     const id = ++this.nextId;
     return new Promise((resolve, reject) => {
-      this.pending.set(id, { resolve, reject, method });
+      // A target that is gone or paused never answers; never let one call hang a lane.
+      const timer = setTimeout(() => { this.pending.delete(id); reject(new Error(`${method}: no reply in ${timeoutMs} ms`)); }, timeoutMs);
+      this.pending.set(id, { resolve: (v) => { clearTimeout(timer); resolve(v); }, reject: (e) => { clearTimeout(timer); reject(e); }, method });
       this.socket.send(JSON.stringify({ id, method, params, ...(sessionId ? { sessionId } : {}) }));
     });
   }

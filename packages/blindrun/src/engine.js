@@ -14,7 +14,8 @@ export function kaneCommand(args) {
 }
 
 export function blindObjective(task, expect) {
-  return `You are a blind user who navigates with the keyboard only (Tab, Shift+Tab, Enter, Space, arrow keys).\nThe mouse does not work and the screen is black.\n${task}\nVerify the page says ${JSON.stringify(expect)}.`;
+  // The final check must read the page's text, as a screen reader does: a visual check of a black screen always fails.
+  return `You are a blind user who navigates with the keyboard only (Tab, Shift+Tab, Enter, Space, arrow keys).\nThe mouse does not work and the screen is black.\n${task}\nVerify, by reading the page text as a screen reader would, that the page says ${JSON.stringify(expect)}.`;
 }
 
 export function sightedObjective(task, expect) {
@@ -41,12 +42,21 @@ const rebase = (items, origin) => {
   return kept;
 };
 
+/** Keeps frames at least `gap` ms apart (always the first and the last). */
+export function thin(frames, gap) {
+  const out = [];
+  for (const [i, frame] of frames.entries()) {
+    if (!out.length || frame.t - out.at(-1).t >= gap || i === frames.length - 1) out.push(frame);
+  }
+  return out;
+}
+
 /** Runs one Kane lane (sighted or blind) in a fresh recorded Chrome and writes the lane directory. */
 export async function runLane({ url, task, expect, laneDir, blind, timeout = 600, maxSteps = 60, chromePath, frameIntervalMs, log = () => {} }) {
   await mkdir(laneDir, { recursive: true });
   const objective = blind ? blindObjective(task, expect) : sightedObjective(task, expect);
   const lane = await withRecordedChrome({ url, laneDir, blind, chromePath, frameIntervalMs: frameIntervalMs ?? (blind ? 1000 : 900) }, async ({ endpoint, recorder }) => {
-    const args = ['run', objective, '--url', url, '--cdp-endpoint', endpoint, '--agent', '--bug-detection', 'continue', '--max-steps', String(maxSteps), '--timeout', String(timeout)];
+    const args = ['run', objective, '--url', url, '--cdp-endpoint', endpoint, '--agent', '--bug-detection', 'continue', '--assertion-mode', 'dom', '--max-steps', String(maxSteps), '--timeout', String(timeout)];
     const [cmd, cmdArgs] = kaneCommand(args);
     log(`kane ${blind ? 'blind' : 'sighted'} lane: waiting for the Kane lock, then running (max ${maxSteps} steps)`);
     const spawnedAt = Date.now();
@@ -72,11 +82,14 @@ export async function runLane({ url, task, expect, laneDir, blind, timeout = 600
   const summary = summarizeKane(parsed.records, lane.exitCode);
   const start = parsed.records.find((record) => record.type === 'stream_start');
   const origin = start?.ts ? Date.parse(start.ts) : lane.firstOutputAt ?? lane.spawnedAt;
-  const lastTs = parsed.records.map((record) => Date.parse(record.ts)).filter(Number.isFinite).at(-1) ?? origin;
+  // The lane ends shortly after Kane's last step; Kane's upload and verdict tail is not user time.
+  const stepTs = parsed.records.filter((record) => Number.isFinite(record.step)).map((record) => Date.parse(record.ts)).filter(Number.isFinite);
+  const lastTs = (stepTs.at(-1) ?? origin) + 2500;
   const { recorder } = lane;
   // The frame showing the page at t=0 is the newest one captured before Kane started.
   const before = recorder.frames.filter((frame) => frame.at < origin).at(-1);
-  const frames = [...(before ? [{ file: before.file, t: 0 }] : []), ...rebase(recorder.frames, origin)];
+  const laneEnd = Math.max(summary.durationMs ?? 0, lastTs - origin);
+  const frames = thin([...(before ? [{ file: before.file, t: 0 }] : []), ...rebase(recorder.frames, origin)].filter((frame) => frame.t <= laneEnd + 1000), blind ? 1000 : 1200);
   const announcements = rebase(recorder.announcements, origin);
   await saveJson(join(laneDir, 'frames.json'), frames);
   await writeFile(join(laneDir, 'announcements.jsonl'), announcements.map((item) => JSON.stringify(item)).join('\n') + (announcements.length ? '\n' : ''));
@@ -86,6 +99,7 @@ export async function runLane({ url, task, expect, laneDir, blind, timeout = 600
     resultCode: summary.resultCode,
     reasonCode: summary.reasonCode,
     durationMs: Math.max(summary.durationMs ?? 0, lastTs - origin),
+    kaneDurationMs: summary.durationMs,
     steps: summary.steps,
     credits: summary.credits,
     verdict: summary.verdict,
