@@ -28,11 +28,21 @@ type RaceProps = {
 };
 
 export function Race({ sighted, blind, local, round, expect, lens, revealPage, analyser }: RaceProps) {
+  // A rerun opens on a beat of its own so the viewer knows the code has changed.
+  const card = round > 1 ? 1 - clamp((local - 1500) / 500) : 0;
   return (
+    <>
+    {card > 0 && (
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-ink text-center" style={{ opacity: card }}>
+        <p className="text-[84px] font-semibold tracking-[-0.04em]" style={rise(local, 0, 600, 16)}>After the fix.</p>
+        <p className="mt-3 text-[26px] text-dim" style={rise(local, 250, 600, 10)}>Same task, same blind rules. Kane runs it again.</p>
+      </div>
+    )}
     <div className="absolute inset-x-0 top-[100px] bottom-[96px] flex items-center justify-center gap-[56px]">
       {sighted ? <SightedPanel view={sighted} local={local} lens={lens} expect={expect} replay={round > 1} /> : <MissingPanel label="Sighted" />}
       {blind ? <BlindPanel view={blind} local={local} revealPage={revealPage} analyser={analyser} expect={expect} round={round} sighted={sighted?.lane ?? null} /> : <MissingPanel label="Blind" />}
     </div>
+    </>
   );
 }
 
@@ -52,9 +62,9 @@ function MissingPanel({ label }: { label: string }) {
 }
 
 function PanelHeader({ icon, label, sub, status, laneT, rate, tone }: {
-  icon: ReactNode; label: string; sub: string; status: ReactNode; laneT: number; rate: number; tone: 'run' | 'pass' | 'fail';
+  icon: ReactNode; label: string; sub: string; status: ReactNode; laneT: number; rate: number; tone: 'run' | 'pass' | 'fail' | 'warn' | 'dim';
 }) {
-  const color = tone === 'pass' ? 'text-pass' : tone === 'fail' ? 'text-fail' : 'text-fg';
+  const color = { pass: 'text-pass', fail: 'text-fail', warn: 'text-warn', dim: 'text-dim', run: 'text-fg' }[tone];
   return (
     <div className="mb-5 flex items-end justify-between px-1">
       <div className="flex items-center gap-4">
@@ -69,8 +79,8 @@ function PanelHeader({ icon, label, sub, status, laneT, rate, tone }: {
         <div className={`relative text-[46px] font-medium leading-none tracking-[-0.02em] tabular ${color}`} aria-hidden="true">
           {fmtClock(laneT)}
           {rate > 1 && (
-            <span className="absolute -top-6 right-0 flex items-center gap-1 text-[13px] font-semibold tracking-wider text-faint">
-              <FastForward size={13} /> {rate}× idle skipped
+            <span className="absolute -bottom-6 right-0 flex items-center gap-1.5 whitespace-nowrap text-[14px] font-medium tracking-normal text-faint">
+              <FastForward size={13} /> idle time fast-forwarded
             </span>
           )}
         </div>
@@ -167,33 +177,30 @@ function SightedPanel({ view, local, lens, expect, replay }: { view: LaneView; l
   const lensName = LENSES.find((l) => l.id === lens)!.label;
   const passed = ended && lane.status === 'passed';
   const pop = easeOutBack((sinceEnd - 150) / 650);
+  const glow = passed && !replay;
 
   return (
-    <article aria-label="Sighted lane" style={{ width: PANEL_W }}>
-      <PanelHeader icon={<Eye size={22} />} label={replay ? 'Sighted · replay' : 'Sighted'} sub="Sees the screen · uses the mouse" laneT={laneT} rate={rate} tone={passed ? 'pass' : ended ? 'fail' : 'run'} status={<StatusPill tone={st.tone}>{st.tone === 'pass' && <Check size={16} />}{st.text}</StatusPill>} />
-      <Screen lane={lane} className={`border bg-[#0d0d12] ${passed ? 'border-pass/50' : 'border-line-strong'}`} style={{ boxShadow: passed ? '0 0 0 1px rgb(48 209 88 / .25), 0 30px 80px -20px rgb(48 209 88 / .25)' : '0 30px 80px -30px rgb(0 0 0 / .8)' }}>
+    <article aria-label="Sighted lane" style={{ width: PANEL_W, opacity: replay ? 0.6 : 1 }}>
+      <PanelHeader icon={<Eye size={22} />} label={replay ? 'Sighted · replay for comparison' : 'Sighted'} sub="Sees the screen · uses the mouse" laneT={laneT} rate={rate} tone={replay ? 'dim' : passed ? 'pass' : ended ? 'fail' : 'run'} status={<StatusPill tone={st.tone}>{st.tone === 'pass' && <Check size={16} />}{st.text}</StatusPill>} />
+      <Screen lane={lane} className={`border bg-[#0d0d12] ${glow ? 'border-pass/50' : 'border-line-strong'}`} style={{ boxShadow: glow ? '0 0 0 1px rgb(48 209 88 / .25), 0 30px 80px -20px rgb(48 209 88 / .25)' : '0 30px 80px -30px rgb(0 0 0 / .8)' }}>
         <div className="absolute inset-0 bg-black" style={lens === 'tunnel' ? {} : undefined}>
           <Frames lane={lane} laneT={laneT} style={lensStyle(lens)} />
         </div>
         {lane.frames.length === 0 && <Waiting text="No screen recording in this lane" />}
         {lane.frames.length > 0 && laneT < lane.frames[0].t && <Waiting text="Launching Chrome · Kane is planning" />}
         {lens !== 'none' && (
-          <span className="absolute left-4 top-4 rounded-full bg-black/70 px-3 py-1.5 text-[13px] font-semibold uppercase tracking-wider text-fg backdrop-blur">
-            Lens · {lensName} (simulated)
-          </span>
-        )}
-        {passed && (
-          <div className="absolute right-5 top-5" style={{ opacity: clamp(pop * 1.5), transform: `scale(${0.85 + 0.15 * pop})`, transformOrigin: 'top right' }}>
-            <div className="flex items-center gap-3 rounded-full border border-pass/40 bg-black/85 py-2 pl-2 pr-5 text-[18px] font-semibold text-fg shadow-[0_10px_40px_-8px_rgb(0_0_0_/_.8)] backdrop-blur-xl">
-              <span className="grid size-8 place-items-center rounded-full bg-pass text-black"><Check size={18} /></span>
-              {expect ? <>Verified “{expect}”</> : 'Task complete'}
-            </div>
+          <div className="absolute inset-x-0 top-0 flex h-10 items-center bg-black/90 px-5 text-[16px] font-medium text-fg">
+            Simulated {lensName.toLowerCase()} · how this page reads with reduced sight
           </div>
         )}
       </Screen>
-      <div className="mt-5 flex h-[74px] items-center gap-4 rounded-[18px] border border-line bg-panel px-5">
-        <StepCaption step={step} running={running} laneT={laneT} />
-      </div>
+      {passed ? (
+        <VerifiedBar expect={expect} pop={pop} quiet={replay} />
+      ) : (
+        <div className="mt-5 flex h-[74px] items-center gap-4 rounded-[18px] border border-line bg-panel px-5">
+          <StepCaption step={step} running={running} laneT={laneT} />
+        </div>
+      )}
     </article>
   );
 }
@@ -223,7 +230,7 @@ function StepCaption({ step, running, laneT }: { step: KaneStep | null; running:
   const style = rise(laneT, s.t, 450, 10);
   return (
     <div className="flex min-w-0 items-center gap-4" style={style}>
-      <span className="shrink-0 font-mono text-[14px] uppercase tracking-wider text-faint">Step {s.n - 1}</span>
+      <span className="shrink-0 font-mono text-[14px] uppercase tracking-wider text-faint">Kane · {s.n - 1}</span>
       <span className={`flex h-9 shrink-0 items-center gap-2 rounded-[10px] border px-3 font-mono text-[16px] font-medium ${s.status === 'failed' ? 'border-fail/50 text-fail' : 'border-line-strong text-fg'}`}>
         {glyph && <span className="text-dim">{glyph}</span>}
         {label}
@@ -251,7 +258,8 @@ function BlindPanel({ view, local, revealPage, analyser, expect, round, sighted 
   const anns = lane.announcements;
   const i = lastAt(anns, laneT);
   const cur = i >= 0 ? anns[i] : null;
-  const history = anns.slice(Math.max(0, i - 2), Math.max(0, i)).reverse();
+  // One line of context, and only when it adds something: a repeat is shown as "Heard N×" instead.
+  const prevAnn = i > 0 && anns[i - 1].text !== anns[i].text ? anns[i - 1] : null;
   let repeats = 0;
   for (let k = i; k >= 0 && cur && anns[k].text === cur.text; k--) repeats++;
   const age = cur ? laneT - cur.t : 0;
@@ -262,6 +270,8 @@ function BlindPanel({ view, local, revealPage, analyser, expect, round, sighted 
   const failed = ended && lane.status === 'failed';
   const pop = easeOutBack((sinceEnd - 150) / 650);
   const failGlow = failed ? clamp(sinceEnd / 500) : 0;
+  // Before Kane's verdict, show that the blind user is going in circles: repeats or long silence.
+  const stuck = !ended && cur != null && (repeats >= 3 || silence > 6000);
 
   return (
     <article aria-label={round > 1 ? 'Blind lane, rerun after the fix' : 'Blind lane'} style={{ width: PANEL_W }}>
@@ -271,14 +281,14 @@ function BlindPanel({ view, local, revealPage, analyser, expect, round, sighted 
         sub="Screen is black · keyboard only · screen reader"
         laneT={laneT}
         rate={rate}
-        tone={passed ? 'pass' : failed ? 'fail' : 'run'}
+        tone={passed ? 'pass' : failed ? 'fail' : stuck ? 'warn' : 'run'}
         status={<StatusPill tone={st.tone}>{st.tone === 'pass' && <Check size={16} />}{st.tone === 'fail' && <Cross size={15} />}{st.text}</StatusPill>}
       />
       <Screen
         lane={lane}
         className="border bg-black"
         style={{
-          borderColor: passed ? 'rgb(48 209 88 / .5)' : failed ? `rgb(255 69 58 / ${0.2 + failGlow * 0.4})` : 'rgb(255 255 255 / .16)',
+          borderColor: passed ? 'rgb(48 209 88 / .5)' : failed ? `rgb(255 69 58 / ${0.2 + failGlow * 0.5})` : stuck ? 'rgb(255 159 10 / .45)' : 'rgb(255 255 255 / .16)',
           boxShadow: passed ? '0 0 0 1px rgb(48 209 88 / .25), 0 30px 80px -20px rgb(48 209 88 / .25)' : failed ? `0 0 0 1px rgb(255 69 58 / ${failGlow * 0.3}), 0 30px 90px -20px rgb(255 69 58 / ${failGlow * 0.35})` : '0 30px 80px -30px rgb(0 0 0 / .8)',
         }}
       >
@@ -291,54 +301,56 @@ function BlindPanel({ view, local, revealPage, analyser, expect, round, sighted 
           <Speaker size={16} /> Screen reader
         </div>
         <KeyFlash lane={lane} laneT={laneT} />
-        <div className="absolute inset-x-10 bottom-[118px]" style={{ opacity: failed ? 1 - 0.45 * clamp(sinceEnd / 600) : 1 }}>
-          {history.map((a, k) => (
-            <p key={`${a.t}-${k}`} className="mb-3 line-clamp-1 text-[26px] font-medium leading-tight text-white" style={{ opacity: k === 0 ? 0.32 : 0.14 }}>
-              {a.text}
-            </p>
-          ))}
-          {cur ? <Caption a={cur} age={age} repeats={repeats} /> : <p className="text-[26px] text-faint">{laneT < (lane.steps[0]?.t ?? 0) ? 'Waiting for the page…' : 'Silence.'}</p>}
-          <div className="mt-3 h-6 text-[16px] font-medium text-faint tabular">
+        <div className="absolute inset-x-10 bottom-[112px]" style={{ opacity: failed ? 1 - 0.45 * clamp(sinceEnd / 600) : 1 }}>
+          {prevAnn && (
+            <p key={prevAnn.t} className="mb-4 line-clamp-1 text-[22px] font-medium leading-tight text-white/45">{prevAnn.text}</p>
+          )}
+          {cur ? <Caption a={cur} age={age} repeats={repeats} small={revealPage} done={passed && cur.source === 'live'} /> : <p className="text-[26px] text-faint">{laneT < (lane.steps[0]?.t ?? 0) ? 'Waiting for the page…' : 'Silence.'}</p>}
+          <div className="mt-3 h-8 text-[24px] font-medium text-warn tabular">
             {!ended && cur && silence > 4500 && <span>Silence · {(silence / 1000).toFixed(0)} s</span>}
           </div>
         </div>
-        <div className="absolute inset-x-8 bottom-6 flex items-center gap-4">
-          <Waveform analyser={analyser} fallback={speaking * 0.9} width={PANEL_W - 64} height={64} />
+        <div className="absolute inset-x-8 bottom-5 flex items-center gap-4">
+          <Waveform analyser={analyser} fallback={speaking * 0.9} width={PANEL_W - 64} height={72} />
         </div>
         {failed && (
-          <div className="absolute inset-x-0 top-5 flex justify-center" style={{ opacity: clamp(pop * 1.5), transform: `scale(${0.9 + 0.1 * pop})` }}>
+          <div className="absolute inset-x-0 top-[64px] flex justify-center" style={{ opacity: clamp(pop * 1.5), transform: `scale(${0.9 + 0.1 * pop})` }}>
             <div className="flex items-center gap-4 rounded-full border border-fail/50 bg-[#1a0606]/90 py-3 pl-3 pr-7 text-[24px] font-semibold text-white shadow-[0_20px_60px_-10px_rgb(255_69_58_/_.5)] backdrop-blur-xl">
               <span className="grid size-11 place-items-center rounded-full bg-fail text-black"><Cross size={22} /></span>
               Blocked · Kane stopped after {(lane.durationMs / 1000).toFixed(1)} s
             </div>
           </div>
         )}
-        {passed && (
-          <div className="absolute right-6 top-5" style={{ opacity: clamp(pop * 1.5), transform: `scale(${0.85 + 0.15 * pop})` }}>
-            <div className="flex items-center gap-3 rounded-full border border-pass/40 bg-black/80 py-2 pl-2 pr-5 text-[18px] font-semibold backdrop-blur-xl">
-              <span className="grid size-8 place-items-center rounded-full bg-pass text-black"><Check size={18} /></span>
-              {expect ? <>Verified “{expect}”</> : 'Task complete'}
-            </div>
-          </div>
-        )}
       </div>
-      <StepChips lane={lane} laneT={laneT} />
+      {passed ? <VerifiedBar expect={expect} pop={pop} /> : <StepChips lane={lane} laneT={laneT} />}
     </article>
   );
 }
 
-function Caption({ a, age, repeats }: { a: Announcement; age: number; repeats: number }) {
+function VerifiedBar({ expect, pop, quiet }: { expect?: string; pop: number; quiet?: boolean }) {
+  return (
+    <div
+      className={`mt-5 flex h-[74px] items-center gap-4 rounded-[18px] px-5 text-[24px] font-semibold ${quiet ? 'border border-pass/30 bg-pass-soft text-pass' : 'bg-pass text-[#04140a]'}`}
+      style={{ opacity: clamp(pop * 1.4), transform: `scale(${0.96 + 0.04 * pop})` }}
+    >
+      <Check size={24} />
+      {expect ? <>Kane verified “{expect}”</> : 'Kane completed the task'}
+    </div>
+  );
+}
+
+function Caption({ a, age, repeats, small, done }: { a: Announcement; age: number; repeats: number; small?: boolean; done?: boolean }) {
   const words = a.text.split(/\s+/);
   const live = a.source === 'live';
   const enter = reveal(age, 0, 260);
   return (
     <div style={{ opacity: enter }}>
-      <div className="mb-3 flex items-center gap-3 font-mono text-[14px] font-medium uppercase tracking-[0.16em]">
-        <span className={live ? 'text-info' : 'text-focus'}>{live ? 'Live region' : 'Focus'}</span>
+      <div className="mb-3 flex items-center gap-3 font-mono text-[14px] font-medium uppercase tracking-[0.2em]">
+        <span className={live ? 'text-info' : 'text-focus'}>{live ? 'Live region · said aloud' : 'Focus'}</span>
         {a.role && <span className="text-faint">· {a.role}</span>}
-        {repeats > 1 && <span className="rounded-full bg-focus/15 px-2.5 py-0.5 text-focus">heard {repeats}×</span>}
+        {repeats > 1 && <span className="rounded-full bg-focus px-3 py-1 font-sans text-[16px] font-bold tracking-normal text-[#1a1400] normal-case">Heard {repeats}×</span>}
       </div>
-      <p className="text-[60px] font-semibold leading-[1.04] tracking-[-0.02em] text-white" style={{ textWrap: 'balance' }}>
+      <p className={`font-semibold leading-[1.04] tracking-[-0.02em] ${done ? 'text-pass' : 'text-white'} ${small ? 'text-[44px]' : done ? 'text-[80px]' : 'text-[60px]'}`} style={{ textWrap: 'balance' }}>
         {words.map((w, k) => {
           const p = clamp((age - k * WORD_MS) / 160);
           return (
@@ -423,7 +435,7 @@ function RevealLayer({ lane, laneT, sighted }: { lane: Lane; laneT: number; sigh
       ) : (
         !occluded && <Frames lane={lane} laneT={laneT} style={{ opacity: 0.3, filter: 'grayscale(1) brightness(1.1)' }} />
       )}
-      {layout && <span className="absolute bottom-3 right-4 text-[12px] font-medium uppercase tracking-[0.14em] text-white/50">Layout from the sighted run · Kane saw black</span>}
+      {layout && <span className="absolute left-7 top-[52px] text-[14px] font-medium text-focus">Kane saw black. This layout is from the sighted run.</span>}
       <svg viewBox={`0 0 ${vp.width} ${vp.height}`} className="absolute inset-0 size-full">
         {pts.length > 1 && (
           <polyline points={pts.map((p) => `${p.x + p.w / 2},${p.y + p.h / 2}`).join(' ')} fill="none" stroke="#ffd60a" strokeOpacity="0.55" strokeWidth="3" strokeDasharray="2 9" strokeLinecap="round" />

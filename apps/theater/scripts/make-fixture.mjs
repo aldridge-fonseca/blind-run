@@ -188,6 +188,7 @@ try {
     id: 'sample-run',
     label: 'fixture',
     fixture: true,
+    note: "The two blind kane.ndjson files are real proof-of-concept Kane output; the sighted lane, frames, audio and diff are generated for development.",
     title: 'Fixture · seat picker (not a real run)',
     createdAt: '2026-11-18T08:38:20.000Z',
     url: 'http://127.0.0.1:8765/',

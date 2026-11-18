@@ -15,7 +15,7 @@ export function Intro({ run, local }: { run: Run; local: number }) {
       <h1 className="mt-10 text-[104px] font-semibold leading-[0.98] tracking-[-0.045em]" style={rise(local, 450, 900, 30)}>
         Same task. Two users.
       </h1>
-      <p className="mt-4 font-serif text-[88px] italic leading-none text-dim" style={rise(local, 1100, 900, 30)}>
+      <p className="mt-4 font-serif text-[88px] italic leading-none text-[#d4d4dc]" style={rise(local, 1100, 900, 30)}>
         One of them can’t see the screen.
       </p>
       <div className="mt-16 flex items-stretch gap-4" style={rise(local, 2000, 900, 20)}>
@@ -23,13 +23,14 @@ export function Intro({ run, local }: { run: Run; local: number }) {
           <p className="font-mono text-[14px] uppercase tracking-[0.18em] text-faint">Task for Kane CLI</p>
           <p className="mt-2 max-w-[760px] text-[30px] font-medium leading-tight">“{m.task ?? 'Unknown task'}”</p>
           {m.expect && <p className="mt-2 text-[19px] text-dim">Pass when the page says <span className="text-fg">“{m.expect}”</span></p>}
+          {m.url && <p className="mt-3 font-mono text-[14px] text-faint">{m.url}{m.app?.commit ? ` · ${String(m.app.commit).slice(0, 7)}` : ''}{m.kaneVersion ? ` · kane-cli ${m.kaneVersion}` : ''}</p>}
         </div>
-        <div className="flex flex-col justify-center gap-3 rounded-[22px] border border-line bg-panel px-7 py-6 text-left text-[18px]">
+        <div className="flex flex-col justify-center gap-3 rounded-[22px] border border-line-strong bg-panel px-7 py-6 text-left text-[18px]">
+          <p className="font-mono text-[14px] uppercase tracking-[0.18em] text-faint">Both users are Kane CLI</p>
           <span className="flex items-center gap-3"><Eye size={20} /> Sighted: mouse and screen</span>
           <span className="flex items-center gap-3"><EyeOff size={20} /> Blind: keyboard, black screen, screen reader</span>
         </div>
       </div>
-      {m.url && <p className="mt-8 font-mono text-[16px] text-faint" style={rise(local, 2600)}>{m.url}{m.app?.commit ? ` · ${String(m.app.commit).slice(0, 7)}` : ''}{m.kaneVersion ? ` · kane-cli ${m.kaneVersion}` : ''}</p>}
     </div>
   );
 }
@@ -38,9 +39,9 @@ export function End({ run, local }: { run: Run; local: number }) {
   const o = outcome(run);
   const beforeFailed = o.before?.status === 'failed';
   const afterMs = o.after?.status === 'passed' ? o.after.durationMs : null;
-  const p = easeOutExpo(clamp((local - 900) / 1200));
-  const arrow = clamp((local - 1700) / 500);
-  const num = easeOutBack(clamp((local - 2000) / 700));
+  const p = easeOutExpo(clamp((local - 600) / 1200));
+  const arrow = clamp((local - 700) / 400);
+  const num = easeOutBack(clamp((local - 900) / 700));
   const groups = groupBarriers(run);
   const fixed = o.blindFixed;
   const evidence = evidenceLinks(run);
@@ -63,17 +64,17 @@ export function End({ run, local }: { run: Run; local: number }) {
           <span className="text-[72px] font-medium tracking-tight">s</span>
         </span>
       </div>
-      <p className="relative mt-2 text-[24px] text-dim" style={rise(local, 2400)}>
+      <p className="relative mt-2 text-[24px] text-dim" style={rise(local, 600)}>
         {beforeFailed ? 'Before the fix, a blind user could not finish at all.' : 'Blind run before the fix.'}
         {o.sighted && o.sighted.status === 'passed' && <> Sighted user: <span className="text-fg">{fmtSeconds(o.sighted.durationMs)}</span>.</>}
       </p>
 
-      <div className="relative mt-14 grid grid-cols-[1.35fr_1fr] gap-8">
-        <section aria-label="Barriers found and fixed" className="rounded-[26px] border border-line bg-panel p-8" style={rise(local, 3000)}>
+      <div className="relative mt-10 grid grid-cols-[1.35fr_1fr] items-start gap-8">
+        <section aria-label="Barriers found and fixed" className="rounded-[26px] border border-line bg-panel p-8" style={rise(local, 1400)}>
           <h2 className="text-[15px] font-semibold uppercase tracking-[0.22em] text-dim">Barriers found{fixed ? ' and fixed' : ''} · by WCAG criterion</h2>
           <ul className="mt-5 space-y-4">
             {groups.map((g, gi) => (
-              <li key={g.wcag} className="flex gap-5" style={rise(local, 3400 + gi * 250, 600, 12)}>
+              <li key={g.wcag} className="flex gap-5" style={rise(local, 1700 + gi * 200, 600, 12)}>
                 <span className="w-[86px] shrink-0 font-mono text-[26px] font-medium text-fg">{g.wcag}</span>
                 <div className="min-w-0 flex-1">
                   <p className="text-[19px] font-medium text-dim">{WCAG[g.wcag] ?? 'WCAG'}</p>
@@ -81,7 +82,7 @@ export function End({ run, local }: { run: Run; local: number }) {
                     <div key={b.id} className="mt-1.5">
                       <p className="line-clamp-2 text-[20px] leading-snug">{b.title}</p>
                       <p className="mt-1 flex items-center gap-2 text-[14px] text-faint">
-                        {b.planted && <span className="rounded-full border border-white/12 px-2 py-px">planted</span>}
+                        {b.planted && <span className="rounded-full bg-focus/15 px-2 py-px text-focus">planted on purpose</span>}
                         {b.foundBy && <span>found by {b.foundBy === 'blind' ? 'the blind run' : b.foundBy === 'explore' ? 'kane-cli explore' : b.foundBy}</span>}
                       </p>
                     </div>
@@ -96,17 +97,18 @@ export function End({ run, local }: { run: Run; local: number }) {
           </ul>
         </section>
         <div className="flex flex-col gap-8">
-          <section aria-label="Run cost" className="grid grid-cols-3 gap-px overflow-hidden rounded-[26px] border border-line bg-line" style={rise(local, 3300)}>
+          <section aria-label="Run cost" className="grid grid-cols-3 gap-px overflow-hidden rounded-[26px] border border-line bg-line" style={rise(local, 1600)}>
             <Stat label="Kane runs" value={String(o.kaneRuns)} />
             <Stat label="Fix attempts" value={String(o.attempts)} />
-            <Stat label="Credits used" value={o.credits ? o.credits.toFixed(1) : '—'} />
+            <Stat label="Kane credits" value={o.credits ? o.credits.toFixed(1) : '—'} />
           </section>
-          <section aria-label="Raw evidence" className="rounded-[26px] border border-line bg-panel p-7" style={rise(local, 3700)}>
-            <h2 className="text-[15px] font-semibold uppercase tracking-[0.22em] text-dim">Raw evidence</h2>
+          {run.fixture && <p className="-mt-5 text-[14px] leading-snug text-focus">Fixture tally{run.meta.note ? `: ${run.meta.note}` : ', not a real run.'}</p>}
+          <section aria-label="Raw evidence" className="rounded-[26px] border border-line bg-panel p-7" style={rise(local, 1800)}>
+            <h2 className="text-[15px] font-semibold uppercase tracking-[0.22em] text-dim">{run.fixture ? 'Fixture files' : 'Raw evidence'}</h2>
             <ul className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2.5">
               {evidence.map((e) => (
                 <li key={e.href}>
-                  <a href={e.href} target="_blank" rel="noreferrer" className="flex min-h-10 items-center gap-2.5 font-mono text-[16px] text-dim underline decoration-white/15 underline-offset-4 hover:text-fg">
+                  <a href={e.href} target="_blank" rel="noreferrer" className="flex min-h-[34px] items-center gap-2.5 font-mono text-[16px] text-dim underline decoration-white/15 underline-offset-4 hover:text-fg">
                     {e.external ? <External size={16} /> : <File size={16} />}
                     {e.label}
                   </a>
@@ -134,7 +136,7 @@ function TimeBars({ run, local }: { run: Run; local: number }) {
   return (
     <div className="absolute right-24 top-[190px] w-[640px] space-y-6" aria-hidden="true">
       {rows.map((r, i) => {
-        const p = easeOutExpo(clamp((local - 1000 - i * 350) / 1300));
+        const p = easeOutExpo(clamp((local - 900 - i * 250) / 1200));
         const failed = r.lane.status === 'failed';
         const w = (r.lane.durationMs / max) * W * p;
         const color = failed ? '#ff453a' : r.lane.kind === 'sighted' ? '#f5f5f7' : '#30d158';

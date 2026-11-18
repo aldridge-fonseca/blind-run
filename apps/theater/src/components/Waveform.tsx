@@ -12,7 +12,7 @@ type Props = {
 const BARS = 72;
 
 /** Mirrored bar waveform; reads the live analyser when sound is playing, else a speech-like envelope. */
-export function Waveform({ analyser, fallback, width, height, color = '#ffffff' }: Props) {
+export function Waveform({ analyser, fallback, width, height, color = '#ffd60a' }: Props) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const fallbackRef = useRef(fallback);
   fallbackRef.current = fallback;
@@ -52,13 +52,15 @@ export function Waveform({ analyser, fallback, width, height, color = '#ffffff' 
       const lv = levels.current;
       g.clearRect(0, 0, width, height);
       const gap = width / BARS;
-      const bw = Math.max(2, gap * 0.42);
+      const bw = Math.max(3, gap * 0.42);
       const mid = height / 2;
       for (let i = 0; i < BARS; i++) {
         lv[i] += (target[i] - lv[i]) * (target[i] > lv[i] ? 0.5 : 0.12);
-        const h = Math.max(2, lv[i] * (height - 6));
+        // Silence draws nothing: the black screen should look as quiet as it sounds.
+        if (lv[i] < 0.04) continue;
+        const h = Math.max(10, lv[i] * (height - 6));
         const x = i * gap + (gap - bw) / 2;
-        g.globalAlpha = 0.25 + 0.75 * Math.min(1, lv[i] * 3);
+        g.globalAlpha = 0.85 + 0.15 * Math.min(1, lv[i] * 2);
         g.fillStyle = color;
         g.beginPath();
         g.roundRect(x, mid - h / 2, bw, h, bw / 2);

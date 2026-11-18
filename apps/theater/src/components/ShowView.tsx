@@ -20,7 +20,7 @@ export function ShowView({ run, show, t, settings, rail = true }: { run: Run; sh
   const fadeIn = easeInOut(clamp(local / FADE));
   return (
     <>
-      <StageHeader run={run} chapter={ch} />
+      <StageHeader run={run} chapter={ch} compact={!rail} />
       {prev && fadeIn < 1 && !continues(prev, ch) && (
         <div className="absolute inset-0" style={{ opacity: 1 - fadeIn }} aria-hidden="true">
           <ChapterBody run={run} show={show} chapter={prev} local={prev.end - prev.start} settings={settings} />
@@ -68,26 +68,26 @@ function VerdictOverRace({ run, show, chapter, local, settings }: { run: Run; sh
           <Race sighted={race.sighted} blind={race.blind} local={race.end - race.start} round={race.round} expect={run.meta.expect} lens={settings.lens} revealPage={settings.revealPage} analyser={null} />
         </div>
       )}
-      <Verdict lane={chapter.lane} local={local} />
+      <Verdict lane={chapter.lane} local={local} fixture={run.fixture} />
     </>
   );
 }
 
-function StageHeader({ run, chapter }: { run: Run; chapter: Chapter }) {
+function StageHeader({ run, chapter, compact }: { run: Run; chapter: Chapter; compact: boolean }) {
   const eyebrow = chapter.kind === 'race' ? (chapter.round === 1 ? 'Round 1 · same task, two users' : `Round ${chapter.round} · after the agent’s fix`) : chapter.title;
   return (
     <header className="absolute inset-x-0 top-0 flex h-[100px] items-center justify-between px-16">
       <div className="flex items-center gap-3">
         <Mark size={30} />
         <span className="text-[19px] font-semibold tracking-[-0.01em]">Blind Run</span>
-        {run.fixture && (
+        {run.fixture && !compact && (
           <span className="ml-3 rounded-full border border-focus/40 bg-focus/10 px-3 py-1 text-[13px] font-semibold uppercase tracking-[0.16em] text-focus">Fixture · not a real run</span>
         )}
       </div>
       {chapter.kind !== 'intro' && (
         <p className="absolute left-1/2 -translate-x-1/2 whitespace-nowrap text-[15px] font-semibold uppercase tracking-[0.24em] text-dim">{eyebrow}</p>
       )}
-      {chapter.kind !== 'intro' && run.meta.task && (
+      {chapter.kind !== 'intro' && !compact && run.meta.task && (
         <p className="max-w-[520px] truncate text-right text-[17px] text-dim">
           Task: <span className="text-fg">“{run.meta.task}”</span>
         </p>

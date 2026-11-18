@@ -12,6 +12,7 @@ export type RunJson = {
   id: string;
   label?: string;
   fixture?: boolean;
+  note?: string;
   title?: string;
   createdAt?: string;
   url?: string;

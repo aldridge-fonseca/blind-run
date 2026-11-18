@@ -88,16 +88,13 @@ export function Fix({ fix, local, typingMs, verdict, agentName }: { fix: FixData
               {brief.map((b, i) => (
                 <li key={i} className="flex gap-3" style={rise(local, 700 + i * 220, 600, 10)}>
                   <span className="mt-[9px] size-1.5 shrink-0 rounded-full bg-dim" />
-                  <span>{b}</span>
+                  <span className={i === 0 ? 'text-[19px] font-medium' : 'text-dim'}>{b}</span>
                 </li>
               ))}
             </ul>
           </div>
           <div className="rounded-[22px] border border-line bg-panel px-6 py-5" style={rise(local, 900)}>
-            <div className="flex items-center justify-between">
-              <p className="font-mono text-[14px] tracking-wide text-faint">diff.patch</p>
-              <p className="font-mono text-[16px]"><span className="text-pass">+{added}</span> <span className="text-fail">−{removed}</span></p>
-            </div>
+            <p className="font-mono text-[14px] tracking-wide text-faint">Files changed · <span className="text-pass">+{added}</span> <span className="text-fail">−{removed}</span></p>
             <ul className="mt-3 space-y-2">
               {files.map((f, i) => (
                 <li key={f.path + i} className={`flex items-center gap-3 font-mono text-[16px] ${i === activeFile && !done ? 'text-fg' : 'text-dim'}`}>
@@ -113,8 +110,7 @@ export function Fix({ fix, local, typingMs, verdict, agentName }: { fix: FixData
 
         <section aria-label="The agent’s diff" className="overflow-hidden rounded-[24px] border border-line-strong bg-[#08080b] shadow-[0_40px_120px_-40px_rgb(0_0_0_/_.9)]" style={rise(local, 250, 800, 30)}>
           <div className="flex h-14 items-center gap-2 border-b border-line bg-panel px-5">
-            {[0, 1, 2].map((i) => <span key={i} className="size-3 rounded-full bg-white/10" />)}
-            <div className="ml-4 flex gap-1">
+            <div className="flex gap-1">
               {files.map((f, i) => (
                 <span key={i} className={`rounded-[9px] px-3 py-1.5 font-mono text-[14px] ${i === activeFile ? 'bg-white/10 text-fg' : 'text-faint'}`}>{f.path.split('/').pop()}</span>
               ))}
@@ -143,12 +139,11 @@ function DiffRow({ row, progress, isCaret }: { row: Row; progress: number; isCar
   const shown = add ? indent + Math.floor((row.text.length - indent) * progress) : row.text.length;
   let left = shown;
   return (
-    <div className={`relative flex h-[34px] items-center whitespace-pre ${add ? 'bg-pass/[0.09]' : del ? 'bg-fail/[0.09]' : ''}`}>
+    <div className={`relative flex h-[34px] items-center whitespace-pre ${add ? 'bg-pass/[0.18]' : del ? 'bg-fail/[0.12]' : ''}`}>
       {(add || del) && <span className={`absolute inset-y-0 left-0 w-[3px] ${add ? 'bg-pass' : 'bg-fail'}`} />}
-      <span className="w-14 shrink-0 pr-3 text-right text-[14px] text-white/20 tabular">{row.oldNo ?? ''}</span>
-      <span className="w-14 shrink-0 pr-3 text-right text-[14px] text-white/20 tabular">{row.newNo ?? ''}</span>
+      <span className="w-16 shrink-0 pr-4 text-right text-[14px] text-white/25 tabular">{row.newNo ?? row.oldNo ?? ''}</span>
       <span className={`w-7 shrink-0 text-center ${add ? 'text-pass' : del ? 'text-fail' : 'text-white/20'}`}>{add ? '+' : del ? '−' : ' '}</span>
-      <span className={del ? 'opacity-60' : ''}>
+      <span className={del ? 'line-through decoration-fail/70' : ''}>
         {row.tokens.map((tok, k) => {
           if (left <= 0) return null;
           const text = tok.content.slice(0, left);
@@ -193,8 +188,7 @@ function Status({ local, typingMs, result }: { local: number; typingMs: number; 
 
 function briefPoints(brief: string | null, verdict?: KaneVerdict | null): string[] {
   const pts: string[] = [];
-  if (verdict?.bug_title) pts.push(`Kane: “${verdict.bug_title}”`);
-  if (verdict?.suggestion) pts.push(`Suggested: ${verdict.suggestion.split(/(?<=\.)\s/)[0]}`);
+  if (verdict?.suggestion) pts.push(`Kane suggests: ${verdict.suggestion.split(/(?<=\.)\s/)[0]}`);
   const rules = brief?.match(/^Rules?:\s*(.+)$/im)?.[1];
   const r = rules ? rules.replace(/`/g, '') : 'May edit app source only. Tests, objectives and the runner are off-limits.';
   pts.push(r.charAt(0).toUpperCase() + r.slice(1));
