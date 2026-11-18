@@ -18,3 +18,4 @@ apps/mobile/build/
 apps/mobile/Encore.xcodeproj/
 apps/mobile/Encore-Info.plist
 apps/mobile/encore-ios.zip
+!runs/**/*.log

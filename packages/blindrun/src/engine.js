@@ -1,224 +1,125 @@
 import { spawn } from 'node:child_process';
-import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join, resolve, relative, isAbsolute } from 'node:path';
-import { createServer } from 'node:net';
-import { performance } from 'node:perf_hooks';
-import { CdpConnection } from './cdp.js';
-import { axNodeToAnnouncement, parseKaneNdjson, summarizeKane } from './parsers.js';
+import { mkdir, unlink, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { withRecordedChrome } from './chrome.js';
+import { parseKaneNdjson, summarizeKane } from './parsers.js';
 
-const LOCK_PATH = '/home/aldridge/kane-cli-hackathon/build/kane.lock';
+// Every Kane call on a machine is serialized through one lock file (override with BLINDRUN_KANE_LOCK).
+export const LOCK_PATH = process.env.BLINDRUN_KANE_LOCK ?? '/home/aldridge/kane-cli-hackathon/build/kane.lock';
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+export const saveJson = (path, value) => writeFile(path, `${JSON.stringify(value, null, 2)}\n`);
 
-function launch(command, args, options = {}) {
-  return spawn(command, args, { stdio: ['ignore', 'pipe', 'pipe'], ...options });
+export function kaneCommand(args) {
+  return process.env.BLINDRUN_NO_LOCK ? ['kane-cli', args] : ['flock', [LOCK_PATH, 'kane-cli', ...args]];
 }
 
-async function availablePort() {
-  const server = createServer();
-  await new Promise((resolve, reject) => server.listen(0, '127.0.0.1', resolve).once('error', reject));
-  const { port } = server.address();
-  await new Promise((resolve) => server.close(resolve));
-  return port;
+export function blindObjective(task, expect) {
+  return `You are a blind user who navigates with the keyboard only (Tab, Shift+Tab, Enter, Space, arrow keys).\nThe mouse does not work and the screen is black.\n${task}\nVerify the page says ${JSON.stringify(expect)}.`;
 }
 
-async function waitForChrome(baseUrl, process) {
-  const until = Date.now() + 15000;
-  while (Date.now() < until) {
-    if (process.exitCode !== null) throw new Error(`Chrome exited with code ${process.exitCode}`);
-    try {
-      const response = await fetch(`${baseUrl}/json/version`);
-      if (response.ok) return response.json();
-    } catch { /* Chrome is still starting. */ }
-    await sleep(100);
-  }
-  throw new Error('Timed out waiting for Chrome DevTools endpoint');
+export function sightedObjective(task, expect) {
+  return `${task}\nVerify the page says ${JSON.stringify(expect)}.`;
 }
 
-async function withChrome(url, laneDir, { blind, chromePath = process.env.CHROME_PATH ?? 'google-chrome' }, run) {
-  await mkdir(join(laneDir, 'frames'), { recursive: true });
-  const profile = await mkdtemp(join(tmpdir(), 'blindrun-chrome-'));
-  const port = await availablePort();
-  const baseUrl = `http://127.0.0.1:${port}`;
-  const chrome = launch(chromePath, [
-    '--headless=new', '--disable-gpu', '--disable-dev-shm-usage', '--no-first-run', '--no-default-browser-check',
-    '--disable-background-networking', '--window-size=1280,900', `--remote-debugging-port=${port}`,
-    `--user-data-dir=${profile}`, 'about:blank',
-  ]);
-  let cdp;
-  let frameNo = 0;
-  let frameQueue = Promise.resolve();
-  let startedAt;
-  const announcements = [];
-  try {
-    const version = await waitForChrome(baseUrl, chrome);
-    cdp = await CdpConnection.connect(version.webSocketDebuggerUrl);
-    const { targetId } = await cdp.call('Target.createTarget', { url: 'about:blank' });
-    const { sessionId } = await cdp.call('Target.attachToTarget', { targetId, flatten: true });
-    await cdp.call('Page.enable', {}, sessionId);
-    await cdp.call('DOM.enable', {}, sessionId);
-    await cdp.call('Runtime.enable', {}, sessionId);
-    await cdp.call('Accessibility.enable', {}, sessionId);
-    await cdp.call('Runtime.addBinding', { name: '__blindrunAnnounce' }, sessionId);
-    const script = `(() => {
-      const send = (kind, node) => { try { window.__blindrunAnnounce(JSON.stringify({kind, text:(node?.innerText||node?.textContent||'').trim().slice(0,240), label:node?.getAttribute?.('aria-label')||node?.getAttribute?.('title')||'', tag:node?.tagName||''})); } catch {} };
-      addEventListener('focusin', e => send('focus', e.target), true);
-      let timer;
-      new MutationObserver(records => {
-        for (const r of records) { const node = r.target.nodeType === 1 ? r.target : r.target.parentElement; const live = node?.closest?.('[aria-live], [role="alert"], [role="status"]'); if (live) { clearTimeout(timer); timer=setTimeout(() => send('live', live), 60); } }
-      }).observe(document, {subtree:true, childList:true, characterData:true});
-    })();`;
-    await cdp.call('Page.addScriptToEvaluateOnNewDocument', { source: script }, sessionId);
-    await cdp.call('Runtime.evaluate', { expression: script }, sessionId);
-    if (blind) {
-      const blindfold = `(() => {
-        const block = e => { if (e.isTrusted && (e.type !== 'click' || e.detail > 0)) { e.stopImmediatePropagation(); e.preventDefault(); } };
-        for (const type of ['pointerdown','pointerup','mousedown','mouseup','click','dblclick','contextmenu']) addEventListener(type, block, true);
-        const add = () => { if (!document.documentElement || document.getElementById('__blindrun_blindfold')) return; const style=document.createElement('style'); style.id='__blindrun_blindfold'; style.textContent='html::after{content:"";position:fixed;inset:0;background:#000;z-index:2147483647;pointer-events:none}'; document.documentElement.appendChild(style); };
-        add(); new MutationObserver(add).observe(document,{childList:true,subtree:true});
-      })();`;
-      await cdp.call('Page.addScriptToEvaluateOnNewDocument', { source: blindfold }, sessionId);
-      await cdp.call('Runtime.evaluate', { expression: blindfold }, sessionId);
-    }
-    cdp.on('Page.screencastFrame', ({ data, sessionId: frameSession, metadata }) => {
-      const frame = String(frameNo++).padStart(5, '0');
-      const file = `${frame}.jpg`;
-      const t = startedAt === undefined ? 0 : Math.round(performance.now() - startedAt);
-      frameQueue = frameQueue.then(() => writeFile(join(laneDir, 'frames', file), Buffer.from(data, 'base64'))).catch(() => {});
-      cdp.call('Page.screencastFrameAck', { sessionId: metadata?.sessionId }, frameSession).catch(() => {});
-      frames.push({ file, t });
-    });
-    cdp.on('Runtime.bindingCalled', async ({ name, payload }, eventSession) => {
-      if (name !== '__blindrunAnnounce' || !eventSession) return;
-      try {
-        const event = JSON.parse(payload);
-        const evaluated = await cdp.call('Runtime.evaluate', {
-          expression: `(() => { const n=${event.kind === 'focus' ? 'document.activeElement' : 'document.querySelector("[aria-live], [role=alert], [role=status]")'}; return n; })()`,
-          returnByValue: false,
-        }, eventSession);
-        const objectId = evaluated.result?.objectId;
-        const desc = objectId ? await cdp.call('DOM.describeNode', { objectId }, eventSession) : {};
-        const backendNodeId = desc.node?.backendNodeId;
-        const ax = backendNodeId ? await cdp.call('Accessibility.getPartialAXTree', { backendNodeId, fetchRelatives: false }, eventSession) : {};
-        const node = ax.nodes?.[0] ?? {};
-        const fallbackName = event.label || event.text;
-        const formatted = axNodeToAnnouncement(node, { fallbackName, source: event.kind });
-        const text = formatted.text || fallbackName || (event.kind === 'focus' ? 'focused item' : 'page update');
-        const entry = { t: startedAt === undefined ? 0 : Math.round(performance.now() - startedAt), text, role: formatted.role || event.tag.toLowerCase(), name: formatted.name || fallbackName, states: formatted.states, source: event.kind };
-        if (!announcements.length || announcements.at(-1).text !== entry.text || announcements.at(-1).source !== entry.source) announcements.push(entry);
-      } catch { /* An AX snapshot can race a page navigation; later events remain useful. */ }
-    });
-    const frames = [];
-    await cdp.call('Page.startScreencast', { format: 'jpeg', quality: 65, maxWidth: 1280, maxHeight: 900, everyNthFrame: 1 }, sessionId);
-    await cdp.call('Page.navigate', { url }, sessionId);
-    await sleep(600);
-    startedAt = performance.now();
-    const result = await run({ endpoint: baseUrl, cdp, sessionId, announcements });
-    await cdp.call('Page.stopScreencast', {}, sessionId).catch(() => {});
-    await frameQueue;
-    await writeFile(join(laneDir, 'frames.json'), `${JSON.stringify(frames, null, 2)}\n`);
-    await writeFile(join(laneDir, 'announcements.jsonl'), announcements.map((item) => JSON.stringify(item)).join('\n') + (announcements.length ? '\n' : ''));
-    return result;
-  } finally {
-    cdp?.close();
-    if (chrome.exitCode === null) {
-      chrome.kill('SIGTERM');
-      await Promise.race([new Promise((resolve) => chrome.once('exit', resolve)), sleep(2500)]);
-      if (chrome.exitCode === null) chrome.kill('SIGKILL');
-    }
-    await rm(profile, { recursive: true, force: true });
-  }
-}
-
-export async function runLane({ url, task, expect, lane, outDir, timeout = 400, maxSteps = 15, chromePath }) {
-  const laneDir = resolve(outDir, lane);
-  await mkdir(laneDir, { recursive: true });
-  const blind = lane.startsWith('blind');
-  const startedAt = new Date().toISOString();
-  const t0 = Date.now();
-  const objective = blind
-    ? `You are a blind user who navigates with the keyboard only (Tab, Shift+Tab, Enter, Space, arrow keys). The mouse does not work and the screen is black.\n${task}\nVerify ${JSON.stringify(expect)}.`
-    : `${task}\nVerify ${JSON.stringify(expect)}.`;
-  const summary = await withChrome(url, laneDir, { blind, chromePath }, async ({ endpoint }) => {
-    const proc = launch('flock', [LOCK_PATH, 'kane-cli', 'run', objective, '--url', url, '--cdp-endpoint', endpoint, '--agent', '--bug-detection', 'continue', '--max-steps', String(maxSteps), '--timeout', String(timeout)]);
-    let stdout = '';
-    let stderr = '';
-    proc.stdout.setEncoding('utf8').on('data', (chunk) => { stdout += chunk; });
-    proc.stderr.setEncoding('utf8').on('data', (chunk) => { stderr += chunk; });
-    const exitCode = await new Promise((resolve, reject) => {
-      proc.once('error', reject);
-      proc.once('close', (code) => resolve(code ?? 1));
-    });
-    await writeFile(join(laneDir, 'kane.ndjson'), stdout);
-    if (stderr.trim()) await writeFile(join(laneDir, 'kane.stderr.txt'), stderr);
-    const parsed = parseKaneNdjson(stdout);
-    if (parsed.malformed.length) await writeFile(join(laneDir, 'kane.parse-warnings.json'), `${JSON.stringify(parsed.malformed, null, 2)}\n`);
-    return { ...summarizeKane(parsed.records, exitCode), exitCode };
-  });
-  const laneData = {
-    lane: blind ? 'blind' : 'sighted', status: summary.status, resultCode: summary.resultCode,
-    durationMs: summary.durationMs ?? Date.now() - t0, steps: summary.steps, credits: summary.credits,
-    verdict: summary.verdict, startedAt,
-  };
-  await writeFile(join(laneDir, 'lane.json'), `${JSON.stringify(laneData, null, 2)}\n`);
-  return laneData;
-}
-
-export async function runLanes(options) {
-  const lanes = options.lanes ?? ['sighted', 'blind'];
-  const results = {};
-  for (const lane of lanes) results[lane] = await runLane({ ...options, lane });
-  return results;
-}
-
-export async function runExplore({ url, outDir, prompt = 'Explore keyboard accessibility and controls' }) {
-  await mkdir(outDir, { recursive: true });
-  const base = ['--url', url, '--prompt', prompt, '--max-leases', '1', '--local-orchestration', '--browser', 'local', '--headless', '--policy', 'read_only', '--no-context', '--no-recheck', '--agent'];
-  const explore = launch('flock', [LOCK_PATH, 'kane-cli', 'explore', 'run', ...base]);
-  const { stdout, stderr, exitCode } = await collectProcess(explore);
-  let parsed = parseKaneNdjson(stdout);
-  let mode = 'explore';
-  let combined = stdout;
-  if (exitCode !== 0 || !parsed.records.some((record) => record.type === 'done')) {
-    mode = 'analyzer-only';
-    const conditions = [
-      'The page has keyboard-focusable interactive controls.',
-      'Every interactive control has an accessible name.',
-      'The page has no low-contrast text.',
-    ];
-    const args = ['--url', url, '--agent', '--analyzer-only', ...conditions.flatMap((condition) => ['--condition', condition])];
-    const fallback = launch('flock', [LOCK_PATH, 'kane-cli', 'run', ...args]);
-    const result = await collectProcess(fallback);
-    combined += `\n--- analyzer-only fallback ---\n${result.stdout}`;
-    parsed = parseKaneNdjson(result.stdout);
-  }
-  await writeFile(join(outDir, 'explore.ndjson'), combined);
-  await writeFile(join(outDir, 'findings.json'), `${JSON.stringify({ mode, url, prompt, records: parsed.records, malformed: parsed.malformed, stderr: stderr.trim() || undefined }, null, 2)}\n`);
-  return { mode, records: parsed.records };
-}
-
-export async function collectProcess(proc) {
+export async function collectProcess(proc, { onStdout, timeoutMs } = {}) {
   let stdout = '';
   let stderr = '';
-  proc.stdout.setEncoding('utf8').on('data', (chunk) => { stdout += chunk; });
-  proc.stderr.setEncoding('utf8').on('data', (chunk) => { stderr += chunk; });
-  const exitCode = await new Promise((resolve, reject) => {
-    proc.once('error', reject);
+  proc.stdout?.setEncoding('utf8').on('data', (chunk) => { stdout += chunk; onStdout?.(chunk); });
+  proc.stderr?.setEncoding('utf8').on('data', (chunk) => { stderr += chunk; });
+  let timer;
+  if (timeoutMs) timer = setTimeout(() => { stderr += `\n[blindrun] killed after ${timeoutMs} ms\n`; proc.kill('SIGTERM'); }, timeoutMs);
+  const exitCode = await new Promise((resolve) => {
+    proc.once('error', (error) => { stderr += String(error); resolve(127); });
     proc.once('close', (code) => resolve(code ?? 1));
   });
+  clearTimeout(timer);
   return { stdout, stderr, exitCode };
 }
 
-export async function waitForUrl(url, timeoutMs = 30000) {
-  const end = Date.now() + timeoutMs;
-  let lastError;
-  while (Date.now() < end) {
-    try {
-      const response = await fetch(url);
-      if (response.ok) return;
-      lastError = new Error(`HTTP ${response.status}`);
-    } catch (error) { lastError = error; }
-    await sleep(250);
-  }
-  throw new Error(`App did not become ready at ${url}: ${lastError?.message ?? 'timeout'}`);
+const rebase = (items, origin) => {
+  const kept = items.filter((item) => item.at >= origin).map(({ at, ...rest }) => ({ ...rest, t: at - origin }));
+  return kept;
+};
+
+/** Runs one Kane lane (sighted or blind) in a fresh recorded Chrome and writes the lane directory. */
+export async function runLane({ url, task, expect, laneDir, blind, timeout = 600, maxSteps = 60, chromePath, frameIntervalMs, log = () => {} }) {
+  await mkdir(laneDir, { recursive: true });
+  const objective = blind ? blindObjective(task, expect) : sightedObjective(task, expect);
+  const lane = await withRecordedChrome({ url, laneDir, blind, chromePath, frameIntervalMs: frameIntervalMs ?? (blind ? 1000 : 900) }, async ({ endpoint, recorder }) => {
+    const args = ['run', objective, '--url', url, '--cdp-endpoint', endpoint, '--agent', '--bug-detection', 'continue', '--max-steps', String(maxSteps), '--timeout', String(timeout)];
+    const [cmd, cmdArgs] = kaneCommand(args);
+    log(`kane ${blind ? 'blind' : 'sighted'} lane: waiting for the Kane lock, then running (max ${maxSteps} steps)`);
+    const spawnedAt = Date.now();
+    let firstOutputAt = null;
+    const proc = spawn(cmd, cmdArgs, { stdio: ['ignore', 'pipe', 'pipe'] });
+    const out = await collectProcess(proc, {
+      timeoutMs: (timeout + 900) * 1000,
+      onStdout: (chunk) => {
+        firstOutputAt ??= Date.now();
+        for (const line of chunk.split('\n')) {
+          const m = line.match(/"step":(\d+),"status":"(done|failed)","remark":"([^"]{0,90})/);
+          if (m) log(`  step ${m[1]} ${m[2]}: ${m[3]}`);
+        }
+      },
+    });
+    await sleep(800); // let the last frames and announcements land
+    return { ...out, spawnedAt, firstOutputAt, recorder };
+  });
+  await writeFile(join(laneDir, 'kane.ndjson'), lane.stdout);
+  if (lane.stderr.trim()) await writeFile(join(laneDir, 'kane.stderr.txt'), lane.stderr);
+  const parsed = parseKaneNdjson(lane.stdout);
+  if (parsed.malformed.length) await saveJson(join(laneDir, 'kane.parse-warnings.json'), parsed.malformed);
+  const summary = summarizeKane(parsed.records, lane.exitCode);
+  const start = parsed.records.find((record) => record.type === 'stream_start');
+  const origin = start?.ts ? Date.parse(start.ts) : lane.firstOutputAt ?? lane.spawnedAt;
+  const lastTs = parsed.records.map((record) => Date.parse(record.ts)).filter(Number.isFinite).at(-1) ?? origin;
+  const { recorder } = lane;
+  // The frame showing the page at t=0 is the newest one captured before Kane started.
+  const before = recorder.frames.filter((frame) => frame.at < origin).at(-1);
+  const frames = [...(before ? [{ file: before.file, t: 0 }] : []), ...rebase(recorder.frames, origin)];
+  const announcements = rebase(recorder.announcements, origin);
+  await saveJson(join(laneDir, 'frames.json'), frames);
+  await writeFile(join(laneDir, 'announcements.jsonl'), announcements.map((item) => JSON.stringify(item)).join('\n') + (announcements.length ? '\n' : ''));
+  const data = {
+    lane: blind ? 'blind' : 'sighted',
+    status: summary.status,
+    resultCode: summary.resultCode,
+    reasonCode: summary.reasonCode,
+    durationMs: Math.max(summary.durationMs ?? 0, lastTs - origin),
+    steps: summary.steps,
+    credits: summary.credits,
+    verdict: summary.verdict,
+    reason: summary.reason,
+    oneLiner: summary.oneLiner,
+    testUrl: summary.testUrl,
+    startedAt: new Date(origin).toISOString(),
+    viewport: recorder.viewport,
+    objective,
+    exitCode: lane.exitCode,
+    kaneVersion: start?.cli_version ?? null,
+  };
+  await saveJson(join(laneDir, 'lane.json'), data);
+  // Frames captured while waiting for the Kane lock are not part of the lane; drop them.
+  const used = new Set(frames.map((frame) => frame.file));
+  await Promise.all(recorder.frames.filter((frame) => !used.has(frame.file)).map((frame) => unlink(join(laneDir, frame.file)).catch(() => {})));
+  return data;
+}
+
+/** `kane-cli explore` on this machine (read-only, one lease). Records the stream verbatim and what it found. */
+export async function runExplore({ url, outDir, prompt = 'Explore the booking flow with the keyboard and note accessibility problems', maxLeases = 3, log = () => {} }) {
+  await mkdir(outDir, { recursive: true });
+  const args = ['explore', 'run', '--url', url, '--prompt', prompt, '--max-leases', String(maxLeases), '--local-orchestration', '--browser', 'local', '--headless', '--policy', 'read_only', '--no-recheck', '--agent'];
+  const [cmd, cmdArgs] = kaneCommand(args);
+  log(`kane explore: ${args.join(' ')}`);
+  const started = Date.now();
+  const out = await collectProcess(spawn(cmd, cmdArgs, { stdio: ['ignore', 'pipe', 'pipe'] }), { timeoutMs: 20 * 60 * 1000 });
+  await writeFile(join(outDir, 'explore.ndjson'), out.stdout);
+  if (out.stderr.trim()) await writeFile(join(outDir, 'explore.stderr.txt'), out.stderr);
+  const { records } = parseKaneNdjson(out.stdout);
+  const done = records.findLast((record) => record.type === 'done') ?? null;
+  const findings = records.filter((record) => /finding|issue|a11y|axe/i.test(String(record.type)));
+  const credits = records.reduce((n, record) => n + (Number(record.credits_consumed) || 0), 0);
+  const result = { mode: 'explore', url, prompt, args, exitCode: out.exitCode, durationMs: Date.now() - started, done, findings, credits, recordTypes: [...new Set(records.map((record) => record.type))] };
+  await saveJson(join(outDir, 'findings.json'), result);
+  return result;
 }

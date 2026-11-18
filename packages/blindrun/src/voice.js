@@ -1,84 +1,66 @@
+// ElevenLabs speech for a run's screen-reader announcements, cached by text hash in <run>/audio/.
 import { createHash } from 'node:crypto';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const MODEL = 'eleven_flash_v2_5';
-
-async function requestJson(url, apiKey) {
-  const response = await fetch(url, { headers: { 'xi-api-key': apiKey } });
-  if (!response.ok) throw new Error(`ElevenLabs request failed (${response.status})`);
-  return response.json();
-}
+// ElevenLabs premade voices, used when the key cannot list voices. Screen reader first, then narrator.
+const KNOWN = { Roger: 'CwhRBWXzGAHq8TQ4Fs17', River: 'SAz9YHcvj6GT2YYXdXww', George: 'JBFqnCBsd6RMkjVDRZzb', Alice: 'Xb7hH8MSUJpSbSDYk0k2', Matilda: 'XrExE9yKIg1WjnnlVkGX' };
 
 async function resolveVoice(apiKey, choices) {
-  const catalog = await requestJson('https://api.elevenlabs.io/v1/voices', apiKey);
-  const voices = catalog.voices ?? [];
-  for (const choice of choices) {
-    const voice = voices.find((item) => item.name?.toLowerCase() === choice.toLowerCase());
-    if (voice) return voice;
-  }
-  throw new Error(`No matching ElevenLabs voice found (${choices.join(' or ')})`);
+  try {
+    const response = await fetch('https://api.elevenlabs.io/v1/voices', { headers: { 'xi-api-key': apiKey } });
+    if (response.ok) {
+      const voices = (await response.json()).voices ?? [];
+      for (const choice of choices) {
+        const voice = voices.find((item) => item.name?.toLowerCase().startsWith(choice.toLowerCase()));
+        if (voice) return { name: choice, id: voice.voice_id };
+      }
+    }
+  } catch { /* fall back to the premade ids */ }
+  const name = choices.find((choice) => KNOWN[choice]);
+  return { name, id: KNOWN[name] };
 }
 
-function clipId(text, voiceId, model = MODEL) {
-  return createHash('sha256').update(`${model}\0${voiceId}\0${text}`).digest('hex');
-}
+async function exists(path) { try { await stat(path); return true; } catch { return false; } }
 
 async function synthesize(text, voice, apiKey, audioDir, speed) {
-  const hash = clipId(text, voice.voice_id);
-  const file = `${hash}.mp3`;
-  const path = join(audioDir, file);
-  try {
-    await readFile(path);
-    return { file: `audio/${file}`, cached: true };
-  } catch { /* Create the missing clip. */ }
-  const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voice.voice_id)}?output_format=mp3_44100_128`, {
+  const hash = createHash('sha256').update(`${MODEL}\0${voice.id}\0${speed}\0${text}`).digest('hex').slice(0, 24);
+  const file = `audio/${hash}.mp3`;
+  if (await exists(join(audioDir, '..', file))) return { file, cached: true };
+  const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voice.id)}?output_format=mp3_44100_64`, {
     method: 'POST',
     headers: { 'xi-api-key': apiKey, 'content-type': 'application/json', accept: 'audio/mpeg' },
-    body: JSON.stringify({
-      text,
-      model_id: MODEL,
-      voice_settings: { stability: 0.42, similarity_boost: 0.75, style: 0.12, use_speaker_boost: true, speed },
-    }),
+    body: JSON.stringify({ text, model_id: MODEL, voice_settings: { stability: 0.85, similarity_boost: 0.6, style: 0, use_speaker_boost: false, speed } }),
   });
   if (!response.ok) throw new Error(`ElevenLabs speech request failed (${response.status})`);
-  await writeFile(path, Buffer.from(await response.arrayBuffer()));
-  return { file: `audio/${file}`, cached: false };
+  await writeFile(join(audioDir, '..', file), Buffer.from(await response.arrayBuffer()));
+  return { file, cached: false };
 }
 
 async function readLineJson(path) {
-  try {
-    const source = await readFile(path, 'utf8');
-    return source.split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line));
-  } catch { return []; }
+  try { return (await readFile(path, 'utf8')).split('\n').filter(Boolean).map((line) => JSON.parse(line)); } catch { return []; }
 }
 
-export async function synthesizeRun(runDir, { apiKey }) {
+/** Writes <run>/audio.json: [{t, file, text, lane, source, voice}] with `lane` = the lane's directory. */
+export async function synthesizeRun(runDir, { apiKey, log = () => {} }) {
   if (!apiKey) throw new Error('ELEVENLABS_API_KEY is required for voice synthesis');
   const audioDir = join(runDir, 'audio');
   await mkdir(audioDir, { recursive: true });
   const run = JSON.parse(await readFile(join(runDir, 'run.json'), 'utf8'));
-  const announcements = [];
-  for (const entry of run.sequence ?? []) {
-    if (entry.kind !== 'lane') continue;
-    const items = await readLineJson(join(runDir, entry.dir, 'announcements.jsonl'));
-    for (const item of items) announcements.push({ ...item, lane: entry.dir });
-  }
-  const narration = [];
-  for (const entry of run.sequence ?? []) {
-    if (entry.kind === 'lane') continue;
-    const attempt = JSON.parse(await readFile(join(runDir, entry.dir, 'result.json'), 'utf8').catch(() => '{}'));
-    narration.push({ t: entry.t0 ?? 0, lane: entry.dir, source: 'narration', text: `Agent fix attempt ${entry.attempt} completed with a ${attempt.status ?? 'recorded'} blind replay.` });
-  }
-  const screenVoice = await resolveVoice(apiKey, ['River', 'Roger']);
-  let narratorVoice = screenVoice;
-  try { narratorVoice = await resolveVoice(apiKey, ['George', 'Alice', 'Matilda']); } catch { /* Use the screen-reader voice if a narrator voice is not available. */ }
+  const screenVoice = await resolveVoice(apiKey, ['Roger', 'River']);
   const clips = [];
-  for (const item of [...announcements, ...narration]) {
-    const voice = item.source === 'narration' ? narratorVoice : screenVoice;
-    const clip = await synthesize(item.text, voice, apiKey, audioDir, item.source === 'narration' ? 1 : 1.06);
-    clips.push({ t: item.t ?? 0, file: clip.file, text: item.text, lane: item.lane, source: item.source ?? 'announcement', voice: voice.name, cached: clip.cached });
+  let made = 0;
+  // Blind lanes only: that is where the screen reader is the user's only output. Reruns live in fix-N/.
+  const dirs = (run.sequence ?? []).filter((s) => (s.kind === 'lane' && s.lane === 'blind') || s.kind === 'fix').map((s) => s.dir);
+  for (const dir of dirs) {
+    for (const item of await readLineJson(join(runDir, dir, 'announcements.jsonl'))) {
+      const clip = await synthesize(item.text, screenVoice, apiKey, audioDir, 1.15);
+      if (!clip.cached) made++;
+      clips.push({ t: item.t, file: clip.file, text: item.text, lane: dir, source: item.source, voice: screenVoice.name });
+    }
   }
   await writeFile(join(runDir, 'audio.json'), `${JSON.stringify(clips, null, 2)}\n`);
+  log(`voice: ${clips.length} clip(s), ${made} new, voice ${screenVoice.name} (${MODEL})`);
   return clips;
 }
