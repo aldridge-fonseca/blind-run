@@ -1,0 +1,8 @@
+run_id=44323245515
+commit=52ed1abd64d2a4f60f8968d74bdf3fcf385e242c
+target=simulator
+DEVICE_NAME="iPhone 16 Pro"
+OS_VERSION="18.5"
+APP_FILE=encore-ios.zip
+kane_version=0.10.6
+app=com.blindrun.encore (native WebView shell of apps/encore)

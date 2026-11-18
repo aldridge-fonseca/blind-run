@@ -1,0 +1,27 @@
+{
+  "date": "2026-11-18",
+  "workflow": "mobile.yml",
+  "run_id": 44323245515,
+  "runner": "macos-15 (arm64)",
+  "kane_version": "0.10.6",
+  "target": "simulator",
+  "device": { "name": "iPhone 16 Pro", "os_version": "18.5" },
+  "app": "encore-ios.zip (WKWebView shell of apps/encore)",
+  "status": "blocked_before_execution",
+  "lanes": {
+    "sighted": {
+      "exit_code": 2,
+      "error": "CoreSimulator SimError 405: Unable to boot device in current state: Booted (workflow pre-booted the sim; Kane's own simctl boot failed fatally)"
+    },
+    "blind": {
+      "exit_code": 2,
+      "error": "xcrun cannot run simctl on Kane's toolchain re-check (CoreSimulator wedged after lane 1's failed boot)"
+    }
+  },
+  "android_target": {
+    "status": "platform_blocked",
+    "error": "HVF error: HV_UNSUPPORTED — GitHub-hosted macos-15 runners have no nested virtualization; QEMU cannot start",
+    "evidence": "android-emulator-boot.log (run 44317373046)"
+  },
+  "note": "No Kane objective reached step execution on mobile. See docs/MOBILE.md."
+}

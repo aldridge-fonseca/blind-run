@@ -1,0 +1,2 @@
+{"type":"stream_start","cli_version":"0.10.6","surface":"run","pid":3710,"v":1,"ts":"2026-11-18T14:22:42.754Z"}
+{"type":"recording_state","enabled":true,"session_id":"5bf0678f-a2fa-4833-a6b7-cad2e67b0448","persist":true,"session_name":"mobile-sighted","test_path":"/Users/runner/work/blind-run/blind-run/runs/mobile-ci/.testmuai/tests/mobile-sighted_test.md","output_path":"/Users/runner/work/blind-run/blind-run/runs/mobile-ci/.testmuai/tests/output-mobile-sighted","v":1,"ts":"2026-11-18T14:22:42.764Z"}

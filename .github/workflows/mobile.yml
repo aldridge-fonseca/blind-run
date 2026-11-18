@@ -230,6 +230,13 @@ jobs:
             echo "app=com.blindrun.encore (native WebView shell of apps/encore)"
           } > runs/mobile-ci/ci.txt
 
+      - name: Leave simulator shutdown for Kane to boot
+        if: ${{ inputs.target == 'simulator' && !inputs.setup_only }}
+        run: |
+          # Kane issues its own `simctl boot` and fails hard (SimError 405)
+          # if the device is already booted — hand it a shutdown device.
+          xcrun simctl shutdown all || true
+
       - name: Kane run — sighted (touch) objective
         if: ${{ !inputs.setup_only && (inputs.lanes == 'both' || inputs.lanes == 'sighted') }}
         working-directory: runs/mobile-ci
