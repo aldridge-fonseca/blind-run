@@ -2,6 +2,17 @@
   "name": "blind-run",
   "private": true,
   "type": "module",
+  "license": "MIT",
   "packageManager": "pnpm@12.18.0",
-  "scripts": {}
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "demo": "pnpm --filter theater build && echo 'Blind Run Theater: open http://localhost:4320/?run=latest' && pnpm --filter theater preview",
+    "live": "node packages/blindrun/bin/blindrun.js demo",
+    "blindrun": "node packages/blindrun/bin/blindrun.js",
+    "test": "pnpm -r --if-present test",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "build": "pnpm -r --if-present build"
+  }
 }

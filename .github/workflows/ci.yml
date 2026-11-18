@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Install, test, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - run: pnpm typecheck
+      - run: pnpm build
+      - name: Demo build contains the recorded runs
+        run: |
+          test -f apps/theater/dist/index.html
+          test -f apps/theater/dist/runs/index.json
+          node -e "const i=require('./apps/theater/dist/runs/index.json'); console.log(i.map(r=>r.id+(r.fixture?' (fixture)':'')).join('\n')); if(!i.length) process.exit(1)"
+      - name: Demo serves the Theater
+        run: |
+          pnpm --filter theater preview > /tmp/preview.log 2>&1 &
+          for i in $(seq 1 30); do curl -fsS http://localhost:4320/ > /tmp/index.html && break; sleep 1; done
+          grep -q '<div id="root"' /tmp/index.html
+          curl -fsS http://localhost:4320/runs/index.json | head -c 300
