@@ -1,0 +1,6 @@
+{"t":8309,"text":"Encore · Pick a seat, document","role":"document","name":"Encore · Pick a seat","states":[],"source":"focus"}
+{"t":17353,"text":"Seat 14B, available, toggle button","role":"toggle button","name":"Seat 14B, available","states":[],"source":"focus","rect":{"x":777,"y":225,"w":72,"h":72}}
+{"t":21383,"text":"Seat 14C, available, toggle button","role":"toggle button","name":"Seat 14C, available","states":[],"source":"focus","rect":{"x":863,"y":225,"w":72,"h":72}}
+{"t":24962,"text":"Seat 14C, available, toggle button, pressed","role":"toggle button","name":"Seat 14C, available","states":["pressed"],"source":"focus","rect":{"x":863,"y":225,"w":72,"h":72}}
+{"t":28692,"text":"Book seat 14C, button","role":"button","name":"Book seat 14C","states":[],"source":"focus","rect":{"x":1024,"y":672,"w":167,"h":51}}
+{"t":33409,"text":"Booked 14C","role":"status","name":"Booked 14C","states":[],"source":"live"}

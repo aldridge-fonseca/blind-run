@@ -1,0 +1,58 @@
+{
+  "id": "sample-run",
+  "label": "fixture",
+  "fixture": true,
+  "title": "Fixture · seat picker (not a real run)",
+  "createdAt": "2026-11-18T08:38:20.000Z",
+  "url": "http://127.0.0.1:8765/",
+  "task": "Select seat 14C and book it.",
+  "expect": "Booked 14C",
+  "app": {
+    "name": "mock seat page (fixture)",
+    "commit": null
+  },
+  "kaneVersion": "0.10.6",
+  "sequence": [
+    {
+      "kind": "lane",
+      "lane": "sighted",
+      "dir": "sighted",
+      "t0": 0,
+      "t1": 31400
+    },
+    {
+      "kind": "lane",
+      "lane": "blind",
+      "dir": "blind-0",
+      "t0": 0,
+      "t1": 51600
+    },
+    {
+      "kind": "fix",
+      "attempt": 1,
+      "dir": "fix-1",
+      "t0": 51600,
+      "t1": 92600
+    },
+    {
+      "kind": "lane",
+      "lane": "blind",
+      "dir": "blind-1",
+      "t0": 92600,
+      "t1": 131300
+    }
+  ],
+  "outcome": {
+    "blindBefore": "failed",
+    "blindAfter": "passed",
+    "barriers": [
+      {
+        "id": "B1",
+        "wcag": "2.1.1",
+        "title": "Seats are click-only <div>s, unreachable by keyboard",
+        "foundBy": "blind",
+        "planted": true
+      }
+    ]
+  }
+}

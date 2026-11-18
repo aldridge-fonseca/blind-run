@@ -1,0 +1,15 @@
+{
+  "lane": "blind",
+  "status": "passed",
+  "resultCode": 100,
+  "durationMs": 38700,
+  "steps": 8,
+  "credits": 15.56,
+  "verdict": null,
+  "startedAt": "2026-11-18T08:41:17.735Z",
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "fixture": true
+}

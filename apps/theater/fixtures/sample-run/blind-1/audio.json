@@ -1,0 +1,32 @@
+[
+ {
+  "t": 8309,
+  "file": "audio/d884bffc46fd.mp3",
+  "text": "Encore · Pick a seat, document"
+ },
+ {
+  "t": 17353,
+  "file": "audio/cdea3210c908.mp3",
+  "text": "Seat 14B, available, toggle button"
+ },
+ {
+  "t": 21383,
+  "file": "audio/013a6e23cfde.mp3",
+  "text": "Seat 14C, available, toggle button"
+ },
+ {
+  "t": 24962,
+  "file": "audio/105041afc6cd.mp3",
+  "text": "Seat 14C, available, toggle button, pressed"
+ },
+ {
+  "t": 28692,
+  "file": "audio/98ecf8581f3b.mp3",
+  "text": "Book seat 14C, button"
+ },
+ {
+  "t": 33409,
+  "file": "audio/ef0cfe66b560.mp3",
+  "text": "Booked 14C"
+ }
+]

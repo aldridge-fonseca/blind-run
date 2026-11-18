@@ -1,0 +1,12 @@
+{"type":"stream_start","cli_version":"0.10.6","surface":"run","fixture":true,"note":"synthetic fixture line, not real Kane output","v":1,"ts":"2026-11-18T08:38:20.000Z"}
+{"step":2,"status":"running","remark":"Step 1","v":1,"ts":"2026-11-18T08:38:27.600Z"}
+{"step":2,"status":"done","remark":"navigate: Navigate to http://127.0.0.1:8765/","v":1,"ts":"2026-11-18T08:38:27.700Z"}
+{"step":3,"status":"running","remark":"Step 2","v":1,"ts":"2026-11-18T08:38:28.400Z"}
+{"step":3,"status":"done","remark":"click: PRIMARY: Select seat 14C; role=clickable; text=\"C\"","v":1,"ts":"2026-11-18T08:38:32.900Z"}
+{"step":4,"status":"running","remark":"Step 3","v":1,"ts":"2026-11-18T08:38:33.500Z"}
+{"step":4,"status":"done","remark":"click: PRIMARY: Book seat; role=button; text=\"Book seat\"","v":1,"ts":"2026-11-18T08:38:37.200Z"}
+{"step":5,"status":"running","remark":"Step 4","v":1,"ts":"2026-11-18T08:38:37.800Z"}
+{"step":5,"status":"done","remark":"analyze: the page says \"Booked 14C\"","v":1,"ts":"2026-11-18T08:38:43.100Z"}
+{"step":6,"status":"running","remark":"Step 5","v":1,"ts":"2026-11-18T08:38:43.600Z"}
+{"step":6,"status":"done","remark":"assert: the page says \"Booked 14C\"","v":1,"ts":"2026-11-18T08:38:43.700Z"}
+{"type":"run_end","status":"passed","fixture":true,"summary":"Selected seat 14C with the mouse.\nBooked seat 14C.\nThe page confirmed the booking with the message “Booked 14C.”","one_liner":"booked seat 14C on the seat booking page","reason":"Objective completed","duration":31.4,"credits_consumed":12.4,"result_code":100,"reason_code":"success.complete","v":1,"ts":"2026-11-18T08:38:51.400Z"}

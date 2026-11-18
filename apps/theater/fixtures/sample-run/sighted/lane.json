@@ -1,0 +1,15 @@
+{
+  "lane": "sighted",
+  "status": "passed",
+  "resultCode": 100,
+  "durationMs": 31400,
+  "steps": 5,
+  "credits": 12.4,
+  "verdict": null,
+  "startedAt": "2026-11-18T08:38:20.000Z",
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "fixture": true
+}

@@ -1,0 +1,40 @@
+diff --git a/src/seat-page.html b/src/seat-page.html
+index 8c1bff9..df81141 100644
+--- a/src/seat-page.html
++++ b/src/seat-page.html
+@@ -42,7 +42,7 @@
+   <main>
+     <div><div class="eyebrow">Step 3 of 4</div><h2>Pick a seat</h2></div>
+     <div class="stage">STAGE</div>
+-    <div id="map" class="row"><span class="row-label">Row 14</span></div>
++    <div id="map" class="row" role="group" aria-label="Row 14 seats"><span class="row-label">Row 14</span></div>
+     <div class="legend"><span><i></i>Available</span><span><i class="s"></i>Selected</span><span><i class="t"></i>Taken</span></div>
+     <p id="done" role="status"></p>
+     <div class="bar"><span id="status">No seat selected</span><button id="book" disabled>Book seat</button></div>
+@@ -54,18 +54,24 @@ const book = document.getElementById('book');
+ let selected = null;
+ 
+ function selectSeat(el, id) {
+-  map.querySelectorAll('.seat').forEach((s) => s.classList.remove('sel'));
++  map.querySelectorAll('.seat').forEach((s) => { s.classList.remove('sel'); s.setAttribute('aria-pressed', 'false'); });
+   el.classList.add('sel');
++  el.setAttribute('aria-pressed', 'true');
+   selected = id;
+   document.getElementById('status').textContent = 'Selected ' + id;
+   book.disabled = false;
++  book.textContent = 'Book seat ' + id;
+ }
+ 
+ function renderSeat(id, taken) {
+-  const el = document.createElement('div');
++  const el = document.createElement('button');
++  el.type = 'button';
+   el.className = 'seat' + (taken ? ' taken' : '');
+   el.textContent = id.slice(2);
+   el.dataset.seat = id;
++  el.setAttribute('aria-label', `Seat ${id}, ${taken ? 'taken' : 'available'}`);
++  el.setAttribute('aria-pressed', 'false');
++  el.disabled = taken;
+   if (!taken) el.addEventListener('click', () => selectSeat(el, id));
+   return el;
+ }
