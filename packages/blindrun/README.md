@@ -60,7 +60,9 @@ Afterwards `blindrun` checks `git status`. Any change outside `src/` voids the a
 
 **Demo.** `blindrun demo` checks out `encore-baseline` into a throwaway `git worktree`, so there are no toggles or flags. It builds and serves Encore on :4310 and audits the planted barriers. Then it runs the sighted and blind lanes and the fix loop, audits again and voices the blind lanes. The audit reads the accessibility tree through stable `data-testid`s, before and after the fix. That is how `run.json` knows which barriers were really removed.
 
-**Kane lock.** Every `kane-cli` call is wrapped in `flock $BLINDRUN_KANE_LOCK`, so parallel jobs never share a Kane session.
+**Kane lock.** Every `kane-cli` call is wrapped in `flock $BLINDRUN_KANE_LOCK` (default `/tmp/blindrun-kane.lock`), so parallel jobs never share a Kane session.
+
+**Environment.** `ELEVENLABS_API_KEY` from the environment, or from a dotenv file named by `BLINDRUN_ENV_FILE`. `CHROME_PATH` overrides `google-chrome`. Chrome runs with `--password-store=basic`: on Linux desktops the default keyring lookup can stall every first navigation by about 24 s.
 
 ## Artifacts
 

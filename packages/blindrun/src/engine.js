@@ -6,7 +6,7 @@ import { withRecordedChrome } from './chrome.js';
 import { parseKaneNdjson, summarizeKane } from './parsers.js';
 
 // Every Kane call on a machine is serialized through one lock file (override with BLINDRUN_KANE_LOCK).
-export const LOCK_PATH = process.env.BLINDRUN_KANE_LOCK ?? '/home/aldridge/kane-cli-hackathon/build/kane.lock';
+export const LOCK_PATH = process.env.BLINDRUN_KANE_LOCK ?? '/tmp/blindrun-kane.lock';
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 export const saveJson = (path, value) => writeFile(path, `${JSON.stringify(value, null, 2)}\n`);
 

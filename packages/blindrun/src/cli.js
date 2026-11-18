@@ -45,7 +45,9 @@ const must = async (promise, label) => {
 
 async function loadKey(name) {
   if (process.env[name]) return process.env[name];
-  const envPath = process.env.BLINDRUN_ENV_FILE ?? '/home/aldridge/kane-cli-hackathon/.env';
+  // Optionally read the key from a dotenv file (BLINDRUN_ENV_FILE); it is never written anywhere.
+  const envPath = process.env.BLINDRUN_ENV_FILE;
+  if (!envPath) return null;
   try {
     for (const line of (await readFile(envPath, 'utf8')).split(/\r?\n/)) {
       const m = line.trim().match(/^(?:export\s+)?([A-Z0-9_]+)=(.*)$/);
