@@ -18,13 +18,13 @@ try {
     if ('total' in d || d.type) continue;
     const n = d.name ?? d.displayName ?? d.config_name ?? '';
     if (!n) continue;
-    const o = String(d.osVersion ?? d.os_versions?.[0] ?? '');
+    const o = String(d.osVersion ?? d.os_version ?? d.os_versions?.[0] ?? '');
     if (!first) first = [n, o];
     if (re && re.test(n)) { name = n; osv = o; break; }
   }
   if (!name && first) [name, osv] = first;
 } catch {}
 if (wantName && wantName !== 'auto') name = wantName;
-if (wantOs) osv = wantOs;
+if (wantOs && wantOs !== 'auto') osv = wantOs;
 writeFileSync(out, `DEVICE_NAME=${name}\nOS_VERSION=${osv}\n`);
 console.log(`resolved device: ${name || '(none)'} / ${osv || '(none)'}`);
