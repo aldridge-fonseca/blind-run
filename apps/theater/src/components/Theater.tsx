@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { navigate } from '../App';
 import { AudioEngine } from '../lib/audio';
 import { Clock, SPEEDS, useClock } from '../lib/clock';
-import { loadRun } from '../lib/load';
+import { loadIndex, loadRun } from '../lib/load';
 import { buildShow, chapterAt, formatMoment, parseMoment } from '../lib/show';
 import type { Run } from '../lib/types';
 import { Controls } from './Controls';
@@ -16,7 +16,9 @@ export function Theater({ runId, present }: { runId: string; present: boolean })
   const [run, setRun] = useState<Run | null>(null);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    loadRun(runId).then(setRun, (e) => setError(String(e.message ?? e)));
+    // `?run=latest` plays the newest real run, falling back to a fixture when there is none yet.
+    const id = runId === 'latest' ? loadIndex().then((runs) => runs.find((r) => !r.broken)?.id ?? 'latest') : Promise.resolve(runId);
+    id.then(loadRun).then(setRun, (e) => setError(String(e.message ?? e)));
   }, [runId]);
   if (error) {
     return (
