@@ -1,0 +1,10 @@
+{"text":"Aurora Vale · Neon Tides Tour · Encore, document","role":"document","name":"Aurora Vale · Neon Tides Tour · Encore","states":[],"source":"focus","t":11497}
+{"text":"encore, link","role":"link","name":"encore","states":[],"tag":"a","source":"focus","rect":{"x":312,"y":23,"w":112,"h":32},"t":23118}
+{"text":"Discover, link","role":"link","name":"Discover","states":[],"tag":"a","source":"focus","rect":{"x":710,"y":28,"w":58,"h":21},"t":30936}
+{"text":"Venues, link","role":"link","name":"Venues","states":[],"tag":"a","source":"focus","rect":{"x":800,"y":28,"w":49,"h":21},"t":38746}
+{"text":"Artists, link","role":"link","name":"Artists","states":[],"tag":"a","source":"focus","rect":{"x":882,"y":28,"w":42,"h":21},"t":44991}
+{"text":"My tickets, link","role":"link","name":"My tickets","states":[],"tag":"a","source":"focus","rect":{"x":956,"y":28,"w":68,"h":21},"t":51401}
+{"text":"Get tickets, link","role":"link","name":"Get tickets","states":[],"tag":"a","source":"focus","rect":{"x":312,"y":773,"w":134,"h":51},"t":59283}
+{"text":"Watch the trailer, link","role":"link","name":"Watch the trailer","states":[],"tag":"a","source":"focus","rect":{"x":462,"y":768,"w":188,"h":60},"t":65659}
+{"text":"WED 19 Nov 8:00 PM Few left THU 20 Nov 8:00 PM Selling fast FRI OPENING 21 Nov 8:00 PM Selling fast SAT 22 Nov 8:00 PM Sold out SUN 23 Nov 7:00 PM Available…, clickable","role":"clickable","name":"WED 19 Nov 8:00 PM Few left THU 20 Nov 8:00 PM Selling fast FRI OPENING 21 Nov 8:00 PM Selling fast SAT 22 Nov 8:00 PM Sold out SUN 23 Nov 7:00 PM Available TUE 25 Nov 8:00 PM Available WED 26 Nov 8:00 PM Available","states":[],"tag":"div","source":"focus","rect":{"x":312,"y":993,"w":1296,"h":177},"t":71694}
+{"text":"button","role":"button","name":"","states":[],"tag":"button","source":"focus","rect":{"x":1538,"y":1394,"w":40,"h":40},"t":78690}

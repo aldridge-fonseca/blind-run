@@ -1,0 +1,834 @@
+[
+  {
+    "t": 11497,
+    "file": "audio/0b4f156284e281c3dd0764c9.mp3",
+    "text": "Aurora Vale · Neon Tides Tour · Encore, document",
+    "lane": "blind",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 23118,
+    "file": "audio/20f391818c6bbf2d23625b4f.mp3",
+    "text": "encore, link",
+    "lane": "blind",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 30936,
+    "file": "audio/cea674df6dc135b1f2988693.mp3",
+    "text": "Discover, link",
+    "lane": "blind",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 38746,
+    "file": "audio/640eb605529ff9460e2b3ea5.mp3",
+    "text": "Venues, link",
+    "lane": "blind",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 44991,
+    "file": "audio/f35fee3fdec007be7e8f00c0.mp3",
+    "text": "Artists, link",
+    "lane": "blind",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 51401,
+    "file": "audio/7ed4db9bf123752299fac686.mp3",
+    "text": "My tickets, link",
+    "lane": "blind",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 59283,
+    "file": "audio/765c203414e72593318e53c3.mp3",
+    "text": "Get tickets, link",
+    "lane": "blind",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 65659,
+    "file": "audio/1df7dab87ec596cfc3636517.mp3",
+    "text": "Watch the trailer, link",
+    "lane": "blind",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 71694,
+    "file": "audio/8f2a2730640e9e4f91f264d4.mp3",
+    "text": "WED 19 Nov 8:00 PM Few left THU 20 Nov 8:00 PM Selling fast FRI OPENING 21 Nov 8:00 PM Selling fast SAT 22 Nov 8:00 PM Sold out SUN 23 Nov 7:00 PM Available…, clickable",
+    "lane": "blind",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 78690,
+    "file": "audio/78c68be070b7cb56e341a9d7.mp3",
+    "text": "button",
+    "lane": "blind",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 11358,
+    "file": "audio/0b4f156284e281c3dd0764c9.mp3",
+    "text": "Aurora Vale · Neon Tides Tour · Encore, document",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 24723,
+    "file": "audio/20f391818c6bbf2d23625b4f.mp3",
+    "text": "encore, link",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 35875,
+    "file": "audio/cea674df6dc135b1f2988693.mp3",
+    "text": "Discover, link",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 37156,
+    "file": "audio/640eb605529ff9460e2b3ea5.mp3",
+    "text": "Venues, link",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 38399,
+    "file": "audio/f35fee3fdec007be7e8f00c0.mp3",
+    "text": "Artists, link",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 39631,
+    "file": "audio/7ed4db9bf123752299fac686.mp3",
+    "text": "My tickets, link",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 40855,
+    "file": "audio/765c203414e72593318e53c3.mp3",
+    "text": "Get tickets, link",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 42103,
+    "file": "audio/1df7dab87ec596cfc3636517.mp3",
+    "text": "Watch the trailer, link",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 43321,
+    "file": "audio/a3c60afd15aff8efded462ab.mp3",
+    "text": "Scroll dates left, button",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 44575,
+    "file": "audio/3c8bd7ee92409e63605bc14c.mp3",
+    "text": "Scroll dates right, button",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 53417,
+    "file": "audio/36b657162f25c939e6190181.mp3",
+    "text": "Wednesday 19 Nov, 8:00 PM, Few left, radio button, not checked",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 54655,
+    "file": "audio/0bb6792495e510e4a800af8f.mp3",
+    "text": "Remove a ticket, button, unavailable",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 55938,
+    "file": "audio/4747207890e728388babe4e7.mp3",
+    "text": "Add a ticket, button",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 64638,
+    "file": "audio/0bb6792495e510e4a800af8f.mp3",
+    "text": "Remove a ticket, button, unavailable",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 72930,
+    "file": "audio/36b657162f25c939e6190181.mp3",
+    "text": "Wednesday 19 Nov, 8:00 PM, Few left, radio button, not checked",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 82490,
+    "file": "audio/ff52725c52d0eb13443f3a33.mp3",
+    "text": "Thursday 20 Nov, 8:00 PM, Selling fast, radio button, checked",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 83847,
+    "file": "audio/324d0fa794685d00e61bcf7c.mp3",
+    "text": "Friday 21 Nov, 8:00 PM, Opening night, Selling fast, radio button, checked",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 93081,
+    "file": "audio/c252a9b0ddd74045e007dedf.mp3",
+    "text": "Row A, Seat 4, Front Stage, Left, $189.00, available, cell",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 104921,
+    "file": "audio/32910b152ca504ed66655284.mp3",
+    "text": "Row B, Seat 4, Front Stage, Left, $189.00, unavailable, cell, unavailable",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 106294,
+    "file": "audio/8cb2c568cc69005339d6875a.mp3",
+    "text": "Row C, Seat 4, Front Stage, Left, $189.00, available, cell",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 107423,
+    "file": "audio/610eebcddded9499f8450091.mp3",
+    "text": "Row D, Seat 4, Orchestra, Left, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 108778,
+    "file": "audio/4571e48a54d61921436e1342.mp3",
+    "text": "Row E, Seat 4, Orchestra, Left, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 109889,
+    "file": "audio/0a439311c7e92906edb8116e.mp3",
+    "text": "Row F, Seat 4, Orchestra, Left, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 111278,
+    "file": "audio/38ccc0b5cd4a28bc3c8a0ab1.mp3",
+    "text": "Row F, Seat 5, Orchestra, Left, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 112436,
+    "file": "audio/28808a77da9c6c5c345d5f27.mp3",
+    "text": "Row F, Seat 6, Orchestra, Left, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 113689,
+    "file": "audio/e675d0f14c6f655339414876.mp3",
+    "text": "Row F, Seat 7, Orchestra, Center, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 125916,
+    "file": "audio/470f093acd444a118d3c0896.mp3",
+    "text": "Row F, Seat 8, Orchestra, Center, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 127224,
+    "file": "audio/a2aba04566a6f63c71cffc8a.mp3",
+    "text": "Row F, Seat 9, Orchestra, Center, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 128548,
+    "file": "audio/b05b4e1cc0ae822c027f47af.mp3",
+    "text": "Row F, Seat 10, Orchestra, Center, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 129833,
+    "file": "audio/99759c035cd8d45f8496726c.mp3",
+    "text": "Row F, Seat 11, Orchestra, Center, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 131129,
+    "file": "audio/3d450788c349678851a17c46.mp3",
+    "text": "Row F, Seat 12, Orchestra, Center, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 132427,
+    "file": "audio/526090704b6ca8102c376783.mp3",
+    "text": "Row F, Seat 13, Orchestra, Center, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 133708,
+    "file": "audio/7953816847c485412871249d.mp3",
+    "text": "Row F, Seat 14, Orchestra, Center, $129.00, available, cell",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 135166,
+    "file": "audio/84d520fe4c1f5ac7d8dfd7ee.mp3",
+    "text": "Row F, Seat 14 selected. All 1 seat chosen. Checkout is ready.",
+    "lane": "fix-1",
+    "source": "live",
+    "voice": "Roger"
+  },
+  {
+    "t": 143718,
+    "file": "audio/95766e730412a785b7f7fe85.mp3",
+    "text": "Row F, Seat 15, Orchestra, Center, $129.00, available, cell",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 145120,
+    "file": "audio/ca63840b09f4deb87b7fd2f7.mp3",
+    "text": "Row F, Seat 15 selected. Replaced seat F14. All 1 seat chosen. Checkout is ready.",
+    "lane": "fix-1",
+    "source": "live",
+    "voice": "Roger"
+  },
+  {
+    "t": 156151,
+    "file": "audio/0bb6792495e510e4a800af8f.mp3",
+    "text": "Remove a ticket, button, unavailable",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 157409,
+    "file": "audio/4747207890e728388babe4e7.mp3",
+    "text": "Add a ticket, button",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 158858,
+    "file": "audio/b05d850c50ccc21c0d5f3b2d.mp3",
+    "text": "2 tickets",
+    "lane": "fix-1",
+    "source": "live",
+    "voice": "Roger"
+  },
+  {
+    "t": 169602,
+    "file": "audio/b6143eccc58344d0df5f0a71.mp3",
+    "text": "Remove a ticket, button",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 170880,
+    "file": "audio/bb18bee842e42b6d8b53056b.mp3",
+    "text": "Row F, Seat 15, Orchestra, Center, $129.00, selected, cell, selected",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 172211,
+    "file": "audio/7953816847c485412871249d.mp3",
+    "text": "Row F, Seat 14, Orchestra, Center, $129.00, available, cell",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 173639,
+    "file": "audio/62bcedb8d4ac56f4e1251980.mp3",
+    "text": "Row F, Seat 14 selected. All 2 seats chosen. Checkout is ready.",
+    "lane": "fix-1",
+    "source": "live",
+    "voice": "Roger"
+  },
+  {
+    "t": 184838,
+    "file": "audio/b6143eccc58344d0df5f0a71.mp3",
+    "text": "Remove a ticket, button",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 186121,
+    "file": "audio/4747207890e728388babe4e7.mp3",
+    "text": "Add a ticket, button",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 187409,
+    "file": "audio/4e522c50785732aa73fe661a.mp3",
+    "text": "Remove seat F15, button",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 200877,
+    "file": "audio/4747207890e728388babe4e7.mp3",
+    "text": "Add a ticket, button",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 212629,
+    "file": "audio/b6143eccc58344d0df5f0a71.mp3",
+    "text": "Remove a ticket, button",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 213744,
+    "file": "audio/3c5820cddc8517584ec41580.mp3",
+    "text": "Row F, Seat 14, Orchestra, Center, $129.00, selected, cell, selected",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 215134,
+    "file": "audio/95766e730412a785b7f7fe85.mp3",
+    "text": "Row F, Seat 15, Orchestra, Center, $129.00, available, cell",
+    "lane": "fix-1",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 216451,
+    "file": "audio/cd198bcf8a8b5052930a7903.mp3",
+    "text": "Row F, Seat 15 selected. All 2 seats chosen. Checkout is ready.",
+    "lane": "fix-1",
+    "source": "live",
+    "voice": "Roger"
+  },
+  {
+    "t": 10915,
+    "file": "audio/0b4f156284e281c3dd0764c9.mp3",
+    "text": "Aurora Vale · Neon Tides Tour · Encore, document",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 22270,
+    "file": "audio/be1257586d33bc26a3cdb6ed.mp3",
+    "text": "Skip to booking, link",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 30217,
+    "file": "audio/1299e007718364c5d0715a42.mp3",
+    "text": "Choose your night, region",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 41379,
+    "file": "audio/a3c60afd15aff8efded462ab.mp3",
+    "text": "Scroll dates left, button",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 49173,
+    "file": "audio/3c8bd7ee92409e63605bc14c.mp3",
+    "text": "Scroll dates right, button",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 55634,
+    "file": "audio/36b657162f25c939e6190181.mp3",
+    "text": "Wednesday 19 Nov, 8:00 PM, Few left, radio button, not checked",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 62884,
+    "file": "audio/0bb6792495e510e4a800af8f.mp3",
+    "text": "Remove a ticket, button, unavailable",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 71125,
+    "file": "audio/36b657162f25c939e6190181.mp3",
+    "text": "Wednesday 19 Nov, 8:00 PM, Few left, radio button, not checked",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 77204,
+    "file": "audio/ff52725c52d0eb13443f3a33.mp3",
+    "text": "Thursday 20 Nov, 8:00 PM, Selling fast, radio button, checked",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 82563,
+    "file": "audio/324d0fa794685d00e61bcf7c.mp3",
+    "text": "Friday 21 Nov, 8:00 PM, Opening night, Selling fast, radio button, checked",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 90711,
+    "file": "audio/c252a9b0ddd74045e007dedf.mp3",
+    "text": "Row A, Seat 4, Front Stage, Left, $189.00, available, cell",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 101162,
+    "file": "audio/32910b152ca504ed66655284.mp3",
+    "text": "Row B, Seat 4, Front Stage, Left, $189.00, unavailable, cell, unavailable",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 109941,
+    "file": "audio/8cb2c568cc69005339d6875a.mp3",
+    "text": "Row C, Seat 4, Front Stage, Left, $189.00, available, cell",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 116254,
+    "file": "audio/610eebcddded9499f8450091.mp3",
+    "text": "Row D, Seat 4, Orchestra, Left, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 122687,
+    "file": "audio/4571e48a54d61921436e1342.mp3",
+    "text": "Row E, Seat 4, Orchestra, Left, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 130107,
+    "file": "audio/0a439311c7e92906edb8116e.mp3",
+    "text": "Row F, Seat 4, Orchestra, Left, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 141682,
+    "file": "audio/38ccc0b5cd4a28bc3c8a0ab1.mp3",
+    "text": "Row F, Seat 5, Orchestra, Left, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 149406,
+    "file": "audio/28808a77da9c6c5c345d5f27.mp3",
+    "text": "Row F, Seat 6, Orchestra, Left, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 157171,
+    "file": "audio/e675d0f14c6f655339414876.mp3",
+    "text": "Row F, Seat 7, Orchestra, Center, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 170505,
+    "file": "audio/470f093acd444a118d3c0896.mp3",
+    "text": "Row F, Seat 8, Orchestra, Center, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 171896,
+    "file": "audio/a2aba04566a6f63c71cffc8a.mp3",
+    "text": "Row F, Seat 9, Orchestra, Center, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 173048,
+    "file": "audio/b05b4e1cc0ae822c027f47af.mp3",
+    "text": "Row F, Seat 10, Orchestra, Center, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 174309,
+    "file": "audio/99759c035cd8d45f8496726c.mp3",
+    "text": "Row F, Seat 11, Orchestra, Center, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 175595,
+    "file": "audio/3d450788c349678851a17c46.mp3",
+    "text": "Row F, Seat 12, Orchestra, Center, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 176875,
+    "file": "audio/526090704b6ca8102c376783.mp3",
+    "text": "Row F, Seat 13, Orchestra, Center, $129.00, unavailable, cell, unavailable",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 178141,
+    "file": "audio/7953816847c485412871249d.mp3",
+    "text": "Row F, Seat 14, Orchestra, Center, $129.00, available, cell",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 184942,
+    "file": "audio/74c6f3ea53f39e7ac9783a57.mp3",
+    "text": "Row F, Seat 14 selected. 1 seat selected: Row F · Seat 14. Checkout is ready, after the ticket and seat controls in Your booking.",
+    "lane": "fix-2",
+    "source": "live",
+    "voice": "Roger"
+  },
+  {
+    "t": 194937,
+    "file": "audio/95766e730412a785b7f7fe85.mp3",
+    "text": "Row F, Seat 15, Orchestra, Center, $129.00, available, cell",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 202659,
+    "file": "audio/968284d0ef84a03acfbcd83a.mp3",
+    "text": "Row F, Seat 15 selected. 2 seats selected: Row F · Seats 14–15. Checkout is ready, after the ticket and seat controls in Your booking.",
+    "lane": "fix-2",
+    "source": "live",
+    "voice": "Roger"
+  },
+  {
+    "t": 202659,
+    "file": "audio/b05d850c50ccc21c0d5f3b2d.mp3",
+    "text": "2 tickets",
+    "lane": "fix-2",
+    "source": "live",
+    "voice": "Roger"
+  },
+  {
+    "t": 214265,
+    "file": "audio/b6143eccc58344d0df5f0a71.mp3",
+    "text": "Remove a ticket, button",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 215524,
+    "file": "audio/4747207890e728388babe4e7.mp3",
+    "text": "Add a ticket, button",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 216786,
+    "file": "audio/851a472e4ae43d3ef2074ff5.mp3",
+    "text": "Remove Row F, Seat 14 from booking, button",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 218057,
+    "file": "audio/c4e368a31c67f7c9c89176e8.mp3",
+    "text": "Remove Row F, Seat 15 from booking, button",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 219229,
+    "file": "audio/8c055158a44be23b07217a08.mp3",
+    "text": "Checkout, button, Seats held for 10 minutes at checkout",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 225344,
+    "file": "audio/fab950d268b709032735afd1.mp3",
+    "text": "Almost there, dialog. Full name, edit, blank",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 239473,
+    "file": "audio/760bbedc6a7fbca735dfa156.mp3",
+    "text": "Email for your tickets, edit, alex@example.com",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 241087,
+    "file": "audio/daf3176186dcc3feed404b61.mp3",
+    "text": "Card number, edit, 4242 4242 4242 4242",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 242685,
+    "file": "audio/c0873984a7c08905f21190ff.mp3",
+    "text": "Expiry date, MM / YY, edit, 12 / 30",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 244343,
+    "file": "audio/7627db9944ea556f9f1a8df9.mp3",
+    "text": "Security code (CVC), edit, 123",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 245955,
+    "file": "audio/0b6e09e7d2274b3914e4c96e.mp3",
+    "text": "Pay $283.00, button",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  },
+  {
+    "t": 247446,
+    "file": "audio/225ae1a70774767f29619629.mp3",
+    "text": "Processing payment…",
+    "lane": "fix-2",
+    "source": "live",
+    "voice": "Roger"
+  },
+  {
+    "t": 248420,
+    "file": "audio/7f6fab3dbabd8a4f2d2842ee.mp3",
+    "text": "You're going!, heading level 1, Order #ENC-4821 · Row F · Seats 14–15",
+    "lane": "fix-2",
+    "source": "focus",
+    "voice": "Roger"
+  }
+]

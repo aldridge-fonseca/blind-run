@@ -1,0 +1,105 @@
+{
+  "id": "encore-2026-11-18",
+  "title": "Encore · book two seats, eyes closed",
+  "createdAt": "2026-11-18T14:11:20.990Z",
+  "url": "http://127.0.0.1:4310/",
+  "task": "Book 2 seats in row F for Friday's show.\nAt checkout use the name Alex Rivera, the email alex@example.com and the test card 4242 4242 4242 4242 with expiry 12/30 and CVC 123.",
+  "expect": "You're going! Order #ENC-4821 · Row F · Seats 14–15",
+  "app": {
+    "name": "Encore",
+    "path": "apps/encore",
+    "baseline": "encore-baseline",
+    "commit": "511ba267bb072c0884588e31e229ad020d61031b"
+  },
+  "kaneVersion": "0.10.6",
+  "sequence": [
+    {
+      "kind": "lane",
+      "lane": "sighted",
+      "dir": "sighted",
+      "t0": 4408,
+      "t1": 144729
+    },
+    {
+      "kind": "lane",
+      "lane": "blind",
+      "dir": "blind",
+      "t0": 144730,
+      "t1": 262771
+    },
+    {
+      "kind": "fix",
+      "attempt": 1,
+      "dir": "fix-1",
+      "t0": 262773,
+      "t1": 1040157
+    },
+    {
+      "kind": "fix",
+      "attempt": 2,
+      "dir": "fix-2",
+      "t0": 1040158,
+      "t1": 1767066
+    }
+  ],
+  "outcome": {
+    "blindBefore": "failed",
+    "blindAfter": "passed",
+    "barriers": [
+      {
+        "id": "B1",
+        "wcag": "2.1.1",
+        "title": "Seat map seats are click-only <div>s",
+        "planted": true,
+        "foundBy": "blind",
+        "presentBefore": true,
+        "fixed": true
+      },
+      {
+        "id": "B2",
+        "wcag": "4.1.2",
+        "title": "Ticket quantity − / + buttons have no accessible name",
+        "planted": true,
+        "foundBy": "audit",
+        "presentBefore": true,
+        "fixed": true
+      },
+      {
+        "id": "B3",
+        "wcag": "2.1.1",
+        "title": "Date picker is a mouse-only carousel of <div>s",
+        "planted": true,
+        "foundBy": "blind",
+        "presentBefore": true,
+        "fixed": true
+      },
+      {
+        "id": "B4",
+        "wcag": "2.4.3",
+        "title": "Checkout modal does not take focus; close button unlabeled",
+        "planted": true,
+        "foundBy": "audit",
+        "presentBefore": true,
+        "fixed": true
+      },
+      {
+        "id": "B5",
+        "wcag": "1.3.1",
+        "title": "Card fields are labelled by placeholder only",
+        "planted": true,
+        "foundBy": "audit",
+        "presentBefore": true,
+        "fixed": true
+      },
+      {
+        "id": "B6",
+        "wcag": "1.4.3",
+        "title": "Tier prices are low-contrast text",
+        "planted": true,
+        "foundBy": "audit",
+        "presentBefore": true,
+        "fixed": false
+      }
+    ]
+  }
+}

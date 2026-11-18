@@ -1,0 +1,180 @@
+diff --git a/apps/encore/src/App.tsx b/apps/encore/src/App.tsx
+index cec97a5..675d4a4 100644
+--- a/apps/encore/src/App.tsx
++++ b/apps/encore/src/App.tsx
+@@ -2,10 +2,10 @@ import { useMemo, useState } from 'react';
+ import { Hero, TopBar } from './components/Hero';
+ import DateCarousel from './components/DateCarousel';
+ import SeatMap, { SeatLegend } from './components/SeatMap';
+-import BookingSummary, { totals } from './components/BookingSummary';
++import BookingSummary, { MAX_TICKETS, totals } from './components/BookingSummary';
+ import CheckoutModal, { type Buyer } from './components/CheckoutModal';
+ import Confirmation from './components/Confirmation';
+-import { DATES, EVENT, money, seatsFor, type Seat } from './lib/event';
++import { DATES, EVENT, describeSeats, money, seatsFor, type Seat } from './lib/event';
+ 
+ function Atmosphere() {
+   return (
+@@ -43,27 +43,45 @@ export default function App() {
+   const chosen = selected.map((id) => seats.find((s) => s.id === id)!).filter(Boolean);
+ 
+   const pickDate = (id: string) => {
+-    if (id !== dateId) setSelected([]);
++    if (id === dateId) return;
++    const d = DATES.find((x) => x.id === id);
++    if (selected.length) setAnnounce(`${d ? `${d.weekdayLong} ${d.day} ${d.month}` : 'New night'} selected. Your seat picks were cleared.`);
++    setSelected([]);
+     setDateId(id);
+   };
+   const changeQty = (n: number) => {
+     setQty(n);
+     setSelected((s) => s.slice(0, n));
+   };
++  const status = (next: string[], n: number) => {
++    const left = n - next.length;
++    const picked = next.map((id) => seats.find((x) => x.id === id)!).filter(Boolean);
++    const summary = picked.length ? ` ${picked.length} seat${picked.length === 1 ? '' : 's'} selected: ${describeSeats(picked)}.` : ' No seats selected.';
++    return `${summary} ${left > 0 ? `Select ${left} more seat${left === 1 ? '' : 's'}.` : 'Checkout is ready, after the ticket and seat controls in Your booking.'}`;
++  };
+   const toggle = (seat: Seat) => {
+     const s = selected;
+     let next: string[];
++    let n = qty;
+     if (s.includes(seat.id)) next = s.filter((x) => x !== seat.id);
+     else {
+       next = [...s, seat.id];
+-      if (next.length > qty) next = next.slice(next.length - qty);
++      // Picking another seat adds a ticket rather than silently swapping out an earlier pick.
++      if (next.length > n) n = Math.min(MAX_TICKETS, next.length);
++      if (next.length > n) next = next.slice(next.length - n);
+     }
++    if (n !== qty) setQty(n);
+     setSelected(next);
+     const what = `Row ${seat.row}, Seat ${seat.number} ${next.includes(seat.id) ? 'selected' : 'removed'}.`;
+-    const left = qty - next.length;
+     const dropped = s.filter((x) => !next.includes(x) && x !== seat.id);
+     const swap = dropped.length ? ` Replaced seat ${dropped.join(', ')}.` : '';
+-    setAnnounce(`${what}${swap} ${left > 0 ? `Select ${left} more seat${left === 1 ? '' : 's'}.` : `All ${qty} seat${qty === 1 ? '' : 's'} chosen. Checkout is ready.`}`);
++    setAnnounce(`${what}${swap}${status(next, n)}`);
++  };
++  const remove = (id: string) => {
++    const next = selected.filter((x) => x !== id);
++    const seat = seats.find((x) => x.id === id);
++    setSelected(next);
++    setAnnounce(`${seat ? `Row ${seat.row}, Seat ${seat.number}` : `Seat ${id}`} removed.${status(next, qty)}`);
+   };
+   const reset = () => {
+     setBuyer(null);
+@@ -90,12 +108,15 @@ export default function App() {
+   return (
+     <div className="relative min-h-screen overflow-x-hidden pb-28 lg:pb-0">
+       <Atmosphere />
++      <a href="#dates" className="sr-only z-50 rounded-full bg-white px-5 py-3 text-[14px] font-semibold text-[#120a1f] focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
++        Skip to booking
++      </a>
+       <div className="relative">
+         <TopBar />
+         <Hero />
+ 
+         <main className="mx-auto max-w-[1360px] px-4 sm:px-8">
+-          <section id="dates" className="scroll-mt-6">
++          <section id="dates" tabIndex={-1} aria-label="Choose your night" className="scroll-mt-6 outline-none">
+             <Step n="01" title="Choose your night" sub={`9 shows · ${EVENT.venue}, ${EVENT.city}`} />
+             <div className="-mx-4 sm:mx-0">
+               <DateCarousel value={dateId} onChange={pickDate} />
+@@ -122,7 +143,7 @@ export default function App() {
+             </div>
+ 
+             <div className="lg:sticky lg:top-6 lg:pt-[96px]">
+-              <BookingSummary date={date} qty={qty} onQty={changeQty} seats={chosen} onRemove={(id) => setSelected((s) => s.filter((x) => x !== id))} onCheckout={() => setCheckout(true)} />
++              <BookingSummary date={date} qty={qty} onQty={changeQty} seats={chosen} onRemove={remove} onCheckout={() => setCheckout(true)} />
+             </div>
+           </section>
+ 
+@@ -143,7 +164,7 @@ export default function App() {
+             </div>
+             <div className="font-display text-[20px] font-semibold">{money(totals(chosen).total)}</div>
+           </div>
+-          <button type="button" className="btn-glow rounded-2xl px-7 py-3.5 text-[15px] font-semibold text-white" disabled={!ready} onClick={() => setCheckout(true)}>
++          <button type="button" className="btn-glow rounded-2xl px-7 py-3.5 text-[15px] font-semibold text-white" aria-disabled={!ready || undefined} onClick={() => ready && setCheckout(true)}>
+             Checkout
+           </button>
+         </div>
+diff --git a/apps/encore/src/components/BookingSummary.tsx b/apps/encore/src/components/BookingSummary.tsx
+index f69a0ee..9db7a7f 100644
+--- a/apps/encore/src/components/BookingSummary.tsx
++++ b/apps/encore/src/components/BookingSummary.tsx
+@@ -1,3 +1,4 @@
++import { useRef } from 'react';
+ import { EVENT, describeSeats, money, sectionForSeat, type Seat, type ShowDate } from '../lib/event';
+ 
+ export const MAX_TICKETS = 8;
+@@ -63,6 +64,7 @@ export function totals(seats: Seat[]) {
+ 
+ export default function BookingSummary({ date, qty, onQty, seats, onRemove, onCheckout }: Props) {
+   const { subtotal, fees, total } = totals(seats);
++  const checkoutBtn = useRef<HTMLButtonElement>(null);
+   const remaining = qty - seats.length;
+   const ready = !!date && remaining === 0;
+   const hint = !date
+@@ -121,9 +123,15 @@ export default function BookingSummary({ date, qty, onQty, seats, onRemove, onCh
+                   </div>
+                 </div>
+                 <span className="text-[14px] font-medium tabular-nums">{money(s.tier.price)}</span>
+-                <button type="button" className="rounded-full p-1.5 text-haze transition hover:bg-white/10 hover:text-white" onClick={() => onRemove(s.id)} data-testid={`remove-${s.id}`}>
+-                  <span className="sr-only">Remove seat {s.id}</span>
+-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
++                <button type="button" className="rounded-full p-1.5 text-haze transition hover:bg-white/10 hover:text-white" onClick={() => {
++                    onRemove(s.id);
++                    // This button unmounts; keep focus in the summary instead of dropping it to the page.
++                    checkoutBtn.current?.focus();
++                  }} data-testid={`remove-${s.id}`}>
++                  <span className="sr-only">
++                    Remove Row {s.row}, Seat {s.number} from booking
++                  </span>
++                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true">
+                     <path d="M6 6l12 12M18 6 6 18" />
+                   </svg>
+                 </button>
+@@ -150,10 +158,19 @@ export default function BookingSummary({ date, qty, onQty, seats, onRemove, onCh
+         </div>
+       </dl>
+ 
+-      <button type="button" className="btn-glow mt-5 hidden w-full rounded-2xl lg:block py-4 text-[16px] font-semibold text-white" disabled={!ready} onClick={onCheckout} data-testid="checkout-button">
++      {/* Stays focusable when not ready (aria-disabled) so keyboard users can find it and hear why it is unavailable. */}
++      <button
++        ref={checkoutBtn}
++        type="button"
++        className="btn-glow mt-5 hidden w-full rounded-2xl lg:block py-4 text-[16px] font-semibold text-white"
++        aria-disabled={!ready || undefined}
++        aria-describedby="summary-hint"
++        onClick={() => ready && onCheckout()}
++        data-testid="checkout-button"
++      >
+         Checkout
+       </button>
+-      <p className="mt-3 text-center text-[12.5px] text-haze max-lg:text-left" data-testid="summary-hint">
++      <p id="summary-hint" className="mt-3 text-center text-[12.5px] text-haze max-lg:text-left" data-testid="summary-hint">
+         {hint}
+       </p>
+     </aside>
+diff --git a/apps/encore/src/index.css b/apps/encore/src/index.css
+index a76a19c..472b06c 100644
+--- a/apps/encore/src/index.css
++++ b/apps/encore/src/index.css
+@@ -91,12 +91,13 @@ body {
+   box-shadow: 0 10px 40px -10px rgb(217 70 239 / 0.7), inset 0 1px 0 rgb(255 255 255 / 0.3);
+   transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+ }
+-.btn-glow:hover:not(:disabled) {
++.btn-glow:hover:not(:disabled):not([aria-disabled='true']) {
+   transform: translateY(-1px);
+   box-shadow: 0 18px 50px -12px rgb(217 70 239 / 0.85), inset 0 1px 0 rgb(255 255 255 / 0.35);
+   filter: saturate(1.1) brightness(1.05);
+ }
+-.btn-glow:disabled {
++.btn-glow:disabled,
++.btn-glow[aria-disabled='true'] {
+   background: rgb(255 255 255 / 0.07);
+   box-shadow: none;
+   color: rgb(255 255 255 / 0.35);

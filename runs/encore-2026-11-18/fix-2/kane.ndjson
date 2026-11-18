@@ -1,0 +1,102 @@
+{"type":"stream_start","cli_version":"0.10.6","surface":"run","pid":1408916,"v":1,"ts":"2026-11-18T14:35:12.221Z"}
+{"type":"recording_state","enabled":true,"session_id":"3226b57f-9b56-4f96-b940-a931e435e90b","persist":false,"v":1,"ts":"2026-11-18T14:35:12.246Z"}
+{"type":"skill_update_available","current":null,"latest":"0.1.4","install_cmd":"kane-cli install skill","v":1,"ts":"2026-11-18T14:35:13.398Z"}
+{"type":"bifurcation","flows":["Navigate to http://127.0.0.1:4310/ then You are a blind user who navigates with the keyboard only (Tab, Shift+Tab, Enter, Space, arrow keys).\nThe mouse does not work and the screen is black.\nBook 2 seats in row F for Friday's show.\nAt checkout use the name Alex Rivera, the email alex@example.com and the test card 4242 4242 4242 4242 with expiry 12/30 and CVC 123.\nVerify, by reading the page text as a screen reader would, that the page says \"You're going! Order #ENC-4821 · Row F · Seats 14–15\"."],"count":1,"v":1,"ts":"2026-11-18T14:35:22.950Z"}
+{"step":2,"status":"running","remark":"Step 1","v":1,"ts":"2026-11-18T14:35:24.738Z"}
+{"step":2,"status":"done","remark":"navigate: Navigate to http://127.0.0.1:4310/","v":1,"ts":"2026-11-18T14:35:24.747Z"}
+{"step":3,"status":"running","remark":"Step 2","v":1,"ts":"2026-11-18T14:35:27.681Z"}
+{"step":3,"status":"done","remark":"press_key: PRIMARY: press the Tab key","v":1,"ts":"2026-11-18T14:35:35.224Z"}
+{"step":4,"status":"running","remark":"Step 3","v":1,"ts":"2026-11-18T14:35:36.466Z"}
+{"step":4,"status":"done","remark":"press_key: PRIMARY: press the Enter key","v":1,"ts":"2026-11-18T14:35:43.310Z"}
+{"step":5,"status":"running","remark":"Step 4","v":1,"ts":"2026-11-18T14:35:44.501Z"}
+{"step":5,"status":"done","remark":"press_key: PRIMARY: press the Tab key","v":1,"ts":"2026-11-18T14:35:54.333Z"}
+{"step":6,"status":"running","remark":"Step 5","v":1,"ts":"2026-11-18T14:35:55.561Z"}
+{"step":6,"status":"done","remark":"press_key: PRIMARY: press the Tab key","v":1,"ts":"2026-11-18T14:36:02.013Z"}
+{"step":7,"status":"running","remark":"Step 6","v":1,"ts":"2026-11-18T14:36:03.196Z"}
+{"step":7,"status":"done","remark":"press_key: PRIMARY: press the Tab key","v":1,"ts":"2026-11-18T14:36:08.504Z"}
+{"step":8,"status":"running","remark":"Step 7","v":1,"ts":"2026-11-18T14:36:09.708Z"}
+{"step":8,"status":"done","remark":"press_key: PRIMARY: press the Tab key","v":1,"ts":"2026-11-18T14:36:15.872Z"}
+{"step":9,"status":"running","remark":"Step 8","v":1,"ts":"2026-11-18T14:36:17.080Z"}
+{"step":9,"status":"done","remark":"press_key: PRIMARY: press the Shift+Tab key","v":1,"ts":"2026-11-18T14:36:23.905Z"}
+{"step":10,"status":"running","remark":"Step 9","v":1,"ts":"2026-11-18T14:36:25.101Z"}
+{"step":10,"status":"done","remark":"press_key: PRIMARY: press the ArrowRight key","v":1,"ts":"2026-11-18T14:36:30.717Z"}
+{"step":11,"status":"running","remark":"Step 10","v":1,"ts":"2026-11-18T14:36:31.952Z"}
+{"step":11,"status":"done","remark":"press_key: PRIMARY: press the ArrowRight key","v":1,"ts":"2026-11-18T14:36:35.413Z"}
+{"step":12,"status":"running","remark":"Step 11","v":1,"ts":"2026-11-18T14:36:36.693Z"}
+{"step":12,"status":"done","remark":"press_key: PRIMARY: press the Tab key","v":1,"ts":"2026-11-18T14:36:44.636Z"}
+{"step":13,"status":"running","remark":"Step 12","v":1,"ts":"2026-11-18T14:36:45.873Z"}
+{"step":13,"status":"done","remark":"press_key: PRIMARY: press the ArrowDown key","v":1,"ts":"2026-11-18T14:36:54.565Z"}
+{"step":14,"status":"running","remark":"Step 13","v":1,"ts":"2026-11-18T14:36:55.804Z"}
+{"step":14,"status":"done","remark":"press_key: PRIMARY: press the ArrowDown key","v":1,"ts":"2026-11-18T14:37:02.807Z"}
+{"step":15,"status":"running","remark":"Step 14","v":1,"ts":"2026-11-18T14:37:04.011Z"}
+{"step":15,"status":"done","remark":"press_key: PRIMARY: press the ArrowDown key","v":1,"ts":"2026-11-18T14:37:09.079Z"}
+{"step":16,"status":"running","remark":"Step 15","v":1,"ts":"2026-11-18T14:37:10.296Z"}
+{"step":16,"status":"done","remark":"press_key: PRIMARY: press the ArrowDown key","v":1,"ts":"2026-11-18T14:37:15.818Z"}
+{"step":17,"status":"running","remark":"Step 16","v":1,"ts":"2026-11-18T14:37:17.018Z"}
+{"step":17,"status":"done","remark":"press_key: PRIMARY: press the ArrowDown key","v":1,"ts":"2026-11-18T14:37:22.837Z"}
+{"step":18,"status":"running","remark":"Step 17","v":1,"ts":"2026-11-18T14:37:24.042Z"}
+{"step":18,"status":"done","remark":"press_key: PRIMARY: press the ArrowRight key","v":1,"ts":"2026-11-18T14:37:34.682Z"}
+{"step":19,"status":"running","remark":"Step 18","v":1,"ts":"2026-11-18T14:37:35.927Z"}
+{"step":19,"status":"done","remark":"press_key: PRIMARY: press the ArrowRight key","v":1,"ts":"2026-11-18T14:37:42.380Z"}
+{"step":20,"status":"running","remark":"Step 19","v":1,"ts":"2026-11-18T14:37:43.605Z"}
+{"step":20,"status":"done","remark":"press_key: PRIMARY: press the ArrowRight key","v":1,"ts":"2026-11-18T14:37:49.927Z"}
+{"step":21,"status":"running","remark":"Step 20","v":1,"ts":"2026-11-18T14:37:51.133Z"}
+{"step":21,"status":"done","remark":"wait: queued plan (7 steps): press_key \"Row F, Seat 7, Orchestra, Center, $129.00, una","v":1,"ts":"2026-11-18T14:38:01.623Z"}
+{"step":22,"status":"running","remark":"Step 21","v":1,"ts":"2026-11-18T14:38:02.709Z"}
+{"step":22,"status":"done","remark":"press_key: Press ArrowRight","v":1,"ts":"2026-11-18T14:38:02.745Z"}
+{"step":23,"status":"running","remark":"Step 22","v":1,"ts":"2026-11-18T14:38:04.102Z"}
+{"step":23,"status":"done","remark":"press_key: Press ArrowRight","v":1,"ts":"2026-11-18T14:38:04.138Z"}
+{"step":24,"status":"running","remark":"Step 23","v":1,"ts":"2026-11-18T14:38:05.253Z"}
+{"step":24,"status":"done","remark":"press_key: Press ArrowRight","v":1,"ts":"2026-11-18T14:38:05.291Z"}
+{"step":25,"status":"running","remark":"Step 24","v":1,"ts":"2026-11-18T14:38:06.513Z"}
+{"step":25,"status":"done","remark":"press_key: Press ArrowRight","v":1,"ts":"2026-11-18T14:38:06.560Z"}
+{"step":26,"status":"running","remark":"Step 25","v":1,"ts":"2026-11-18T14:38:07.798Z"}
+{"step":26,"status":"done","remark":"press_key: Press ArrowRight","v":1,"ts":"2026-11-18T14:38:07.843Z"}
+{"step":27,"status":"running","remark":"Step 26","v":1,"ts":"2026-11-18T14:38:09.075Z"}
+{"step":27,"status":"done","remark":"press_key: Press ArrowRight","v":1,"ts":"2026-11-18T14:38:09.119Z"}
+{"step":28,"status":"running","remark":"Step 27","v":1,"ts":"2026-11-18T14:38:10.342Z"}
+{"step":28,"status":"done","remark":"press_key: Press ArrowRight","v":1,"ts":"2026-11-18T14:38:10.386Z"}
+{"step":29,"status":"running","remark":"Step 28","v":1,"ts":"2026-11-18T14:38:11.670Z"}
+{"step":29,"status":"done","remark":"press_key: PRIMARY: Book 2 seats in row F for Friday's show; role=gridcell; text=\"Row F, Se","v":1,"ts":"2026-11-18T14:38:17.867Z"}
+{"step":30,"status":"running","remark":"Step 29","v":1,"ts":"2026-11-18T14:38:19.229Z"}
+{"step":30,"status":"done","remark":"press_key: PRIMARY: press the ArrowRight key","v":1,"ts":"2026-11-18T14:38:27.684Z"}
+{"step":31,"status":"running","remark":"Step 30","v":1,"ts":"2026-11-18T14:38:28.945Z"}
+{"step":31,"status":"done","remark":"press_key: PRIMARY: Book 2 seats in row F for Friday's show; role=gridcell; text=\"Row F, Se","v":1,"ts":"2026-11-18T14:38:35.415Z"}
+{"step":32,"status":"running","remark":"Step 31","v":1,"ts":"2026-11-18T14:38:36.532Z"}
+{"step":32,"status":"done","remark":"wait: queued plan (5 steps): press_key \"Row F, Seat 15, Orchestra, Center, $129.00, se","v":1,"ts":"2026-11-18T14:38:45.076Z"}
+{"step":33,"status":"running","remark":"Step 32","v":1,"ts":"2026-11-18T14:38:46.452Z"}
+{"step":33,"status":"done","remark":"press_key: Press Tab","v":1,"ts":"2026-11-18T14:38:46.505Z"}
+{"step":34,"status":"running","remark":"Step 33","v":1,"ts":"2026-11-18T14:38:47.726Z"}
+{"step":34,"status":"done","remark":"press_key: Press Tab","v":1,"ts":"2026-11-18T14:38:47.748Z"}
+{"step":35,"status":"running","remark":"Step 34","v":1,"ts":"2026-11-18T14:38:48.984Z"}
+{"step":35,"status":"done","remark":"press_key: Press Tab","v":1,"ts":"2026-11-18T14:38:49.015Z"}
+{"step":36,"status":"running","remark":"Step 35","v":1,"ts":"2026-11-18T14:38:50.260Z"}
+{"step":36,"status":"done","remark":"press_key: Press Tab","v":1,"ts":"2026-11-18T14:38:50.285Z"}
+{"step":37,"status":"running","remark":"Step 36","v":1,"ts":"2026-11-18T14:38:51.435Z"}
+{"step":37,"status":"done","remark":"press_key: Press Tab","v":1,"ts":"2026-11-18T14:38:51.458Z"}
+{"step":38,"status":"running","remark":"Step 37","v":1,"ts":"2026-11-18T14:38:52.838Z"}
+{"step":38,"status":"done","remark":"press_key: PRIMARY: Book 2 seats in row F for Friday's show; role=button; text=\"Checkout\" |","v":1,"ts":"2026-11-18T14:38:58.480Z"}
+{"step":39,"status":"running","remark":"Step 38","v":1,"ts":"2026-11-18T14:38:59.774Z"}
+{"step":39,"status":"done","remark":"wait: queued plan (7 steps): type \"Full name\"; type \"Email for your tickets\"; type \"Ca","v":1,"ts":"2026-11-18T14:39:08.508Z"}
+{"step":40,"status":"running","remark":"Step 39","v":1,"ts":"2026-11-18T14:39:09.854Z"}
+{"step":40,"status":"done","remark":"type: Type \"Alex Rivera\" into \"Full name\"","v":1,"ts":"2026-11-18T14:39:10.207Z"}
+{"step":41,"status":"running","remark":"Step 40","v":1,"ts":"2026-11-18T14:39:11.521Z"}
+{"step":41,"status":"done","remark":"type: Type \"alex@example.com\" into \"Email for your tickets\"","v":1,"ts":"2026-11-18T14:39:11.814Z"}
+{"step":42,"status":"running","remark":"Step 41","v":1,"ts":"2026-11-18T14:39:13.136Z"}
+{"step":42,"status":"done","remark":"type: Type \"4242 4242 4242 4242\" into \"Card number\"","v":1,"ts":"2026-11-18T14:39:13.416Z"}
+{"step":43,"status":"running","remark":"Step 42","v":1,"ts":"2026-11-18T14:39:14.727Z"}
+{"step":43,"status":"done","remark":"type: Type \"12/30\" into \"Expiry date, MM / YY\"","v":1,"ts":"2026-11-18T14:39:15.007Z"}
+{"step":44,"status":"running","remark":"Step 43","v":1,"ts":"2026-11-18T14:39:16.371Z"}
+{"step":44,"status":"done","remark":"type: Type \"123\" into \"Security code (CVC)\"","v":1,"ts":"2026-11-18T14:39:16.678Z"}
+{"step":45,"status":"running","remark":"Step 44","v":1,"ts":"2026-11-18T14:39:18.155Z"}
+{"step":45,"status":"done","remark":"press_key: Press Tab","v":1,"ts":"2026-11-18T14:39:18.185Z"}
+{"step":46,"status":"running","remark":"Step 45","v":1,"ts":"2026-11-18T14:39:19.492Z"}
+{"step":46,"status":"done","remark":"press_key: Press Enter","v":1,"ts":"2026-11-18T14:39:19.556Z"}
+{"step":47,"status":"running","remark":"Step 46","v":1,"ts":"2026-11-18T14:39:20.737Z"}
+{"step":47,"status":"done","remark":"wait: PRIMARY: wait for the payment confirmation heading","v":1,"ts":"2026-11-18T14:40:11.467Z"}
+{"step":48,"status":"running","remark":"Step 47","v":1,"ts":"2026-11-18T14:40:12.173Z"}
+{"step":48,"status":"done","remark":"analyze: The page text as a screen reader would read says \"You\\","v":1,"ts":"2026-11-18T14:40:32.446Z"}
+{"step":49,"status":"running","remark":"Step 48","v":1,"ts":"2026-11-18T14:40:33.155Z"}
+{"step":49,"status":"done","remark":"assert: By reading the page text as a screen reader would, the page says \"You're going! ","v":1,"ts":"2026-11-18T14:40:33.173Z"}
+{"type":"coverage","status":"skipped","reason":"not_assurance_project","pack":"/home/aldridge/.testmuai/kaneai/sessions/3226b57f-9b56-4f96-b940-a931e435e90b/evidence/18a41754-d4e0-4c33-bd8c-6bfc55276376.evidence","v":1,"ts":"2026-11-18T14:40:46.385Z"}
+{"type":"run_end","status":"passed","summary":"Booked two seats in Row F for Friday's show.\nCompleted checkout using the provided contact and test payment details.\nThe booking was confirmed: You're going! Order #ENC-4821 · Row F · Seats 14–15.","one_liner":"booked two Row F seats for Friday's show on the event booking site","final_state":{"url":"http://127.0.0.1:4310/#dates","order_confirmation_text":"You're going! Order #ENC-4821 · Row F · Seats 14–15"},"reason":"Objective completed","duration":317,"bifurcated":false,"total_runs":1,"context":{"memory":{"order_confirmation_text":{"extracted_value":"You're going! Order #ENC-4821 · Row F · Seats 14–15","operator":"equals","transforms":["strip"],"json_path":null,"reasoning":"value: \"You're going! Order #ENC-4821 · Row F · Seats 14–15\" -> \"You're going! Order #ENC-4821 · Row F · Seats 14–15\" after ['strip']; equals \"You're going! Order #ENC-4821 · Row F · Seats 14–15\" -> PASS","analyzer_type":"textual_visual","step":47,"query":"the order confirmation heading and order details text in the confirmation panel","condition":"The page text as a screen reader would read says \"You're going! Order #ENC-4821 · Row F · Seats 14–15\".","human_description":"Reading the order confirmation text","expected_value":"You're going! Order #ENC-4821 · Row F · Seats 14–15","code_js":"(() => { const h = el(14).querySelector('h1'); const p = [...el(14).querySelectorAll('p')].find(x => x.innerText.includes('ENC-4821')); return h && p ? `${h.innerText} ${p.innerText}`.replace(/\\s+/g, ' ').trim() : null; })()","wrapped_js":"(els) => {\n  const __m = {14: 0};\n  const el = (i) => els[__m[i]];\n  const __v = ((() => { const h = el(14).querySelector('h1'); const p = [...el(14).querySelectorAll('p')].find(x => x.innerText.includes('ENC-4821')); return h && p ? `${h.innerText} ${p.innerText}`.replace(/\\s+/g, ' ').trim() : null; })());\n  return (typeof __v === 'boolean' ? String(__v) : __v);\n}","locators":["internal:text=\"You're going!Order #ENC-4821\"i"],"needs_unit_conversion":false}},"variables":{"order_confirmation_text":{"syntax":"{{order_confirmation_text}}","value":"You're going! Order #ENC-4821 · Row F · Seats 14–15","type":"memory","secret":false}},"pointer":"(passed) booked two Row F seats for Friday's show on the event booking site"},"credits_consumed":64.1840805,"session_dir":"/home/aldridge/.testmuai/kaneai/sessions/3226b57f-9b56-4f96-b940-a931e435e90b","run_dir":"/home/aldridge/.testmuai/kaneai/sessions/3226b57f-9b56-4f96-b940-a931e435e90b/runs/0","result_code":100,"reason_code":"success.complete","per_flow_metadata":[{"result_code":"100","reason_code":"success.complete","error_message":null,"summary":"Booked two seats in Row F for Friday's show.\nCompleted checkout using the provided contact and test payment details.\nThe booking was confirmed: You're going! Order #ENC-4821 · Row F · Seats 14–15.","one_liner":"booked two Row F seats for Friday's show on the event booking site","credits_consumed":64.1840805}],"run_id":"run-0","test_url":"https://test-manager.lambdatest.com/projects/01M7PWQWDBT7TJ0S8X5YD5THMK/test-cases/01M7QHAKH0EDY5J0FSRV58MM93/dashboard/share/US_76ST6XBCFRIWLT0GUBJ5VTBHPE50ZYR9IZZROGVPY2QMFVT9DP81A4MWRRYCC079?type=summary&agentView=true&fqdn=summary-page","coverage":{"status":"skipped"},"v":1,"ts":"2026-11-18T14:40:46.385Z"}

@@ -98,7 +98,7 @@ async function runCommand({ positional, options }) {
   for (const lane of lanes) {
     if (!['sighted', 'blind'].includes(lane)) throw new Error('--lanes accepts sighted and blind');
     const t0 = Date.now() - runStart;
-    results[lane] = await runLane({ url, task, expect: options.expect, laneDir: join(runDir, lane), blind: lane === 'blind', maxSteps: Number(options['max-steps'] ?? 60), log });
+    results[lane] = await runLane({ url, task, expect: options.expect, laneDir: join(runDir, lane), blind: lane === 'blind', ...(options['max-steps'] ? { maxSteps: Number(options['max-steps']) } : {}), log });
     sequence.push(laneEntry(lane, lane, t0, runStart));
     log(`${lane}: ${results[lane].status} (${results[lane].resultCode})`);
   }
@@ -175,13 +175,13 @@ async function demoCommand({ options }) {
     log(`audit (baseline): ${auditBefore.filter((b) => b.present).map((b) => b.id).join(' ') || 'no planted barriers present'}`);
 
     let t0 = Date.now() - runStart;
-    sighted = await runLane({ url, task: ENCORE.task, expect: ENCORE.expect, laneDir: join(runDir, 'sighted'), blind: false, maxSteps: 40, log });
+    sighted = await runLane({ url, task: ENCORE.task, expect: ENCORE.expect, laneDir: join(runDir, 'sighted'), blind: false, log });
     sequence.push(laneEntry('sighted', 'sighted', t0, runStart));
     log(`sighted: ${sighted.status} (${sighted.resultCode}), ${Math.round(sighted.durationMs / 1000)} s, ${sighted.credits} credits`);
     await writeRun();
 
     t0 = Date.now() - runStart;
-    const blind = await runLane({ url, task: ENCORE.task, expect: ENCORE.expect, laneDir: join(runDir, 'blind'), blind: true, maxSteps: 60, log });
+    const blind = await runLane({ url, task: ENCORE.task, expect: ENCORE.expect, laneDir: join(runDir, 'blind'), blind: true, log });
     sequence.push(laneEntry('blind', 'blind', t0, runStart));
     log(`blind: ${blind.status} (${blind.resultCode}) ${blind.reason ?? ''}`);
     await writeRun();

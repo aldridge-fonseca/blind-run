@@ -1,0 +1,113 @@
+[
+  {
+    "id": "B1",
+    "wcag": "2.1.1",
+    "title": "Seat map seats are click-only <div>s",
+    "present": false,
+    "detail": {
+      "role": "gridcell",
+      "name": "Row F, Seat 14, Orchestra, Center, $129.00, available",
+      "focusable": true,
+      "nameFrom": "aria-label",
+      "ignored": false
+    }
+  },
+  {
+    "id": "B2",
+    "wcag": "4.1.2",
+    "title": "Ticket quantity − / + buttons have no accessible name",
+    "present": false,
+    "detail": {
+      "plus": {
+        "role": "button",
+        "name": "Add a ticket",
+        "focusable": true,
+        "nameFrom": "aria-label",
+        "ignored": false
+      },
+      "minus": {
+        "role": "button",
+        "name": "Remove a ticket",
+        "focusable": true,
+        "nameFrom": "aria-label",
+        "ignored": false
+      }
+    }
+  },
+  {
+    "id": "B3",
+    "wcag": "2.1.1",
+    "title": "Date picker is a mouse-only carousel of <div>s",
+    "present": false,
+    "detail": {
+      "role": "radio",
+      "name": "Friday 21 Nov, 8:00 PM, Opening night, Selling fast",
+      "focusable": true,
+      "nameFrom": "aria-label",
+      "ignored": false
+    }
+  },
+  {
+    "id": "B4",
+    "wcag": "2.4.3",
+    "title": "Checkout modal does not take focus; close button unlabeled",
+    "present": false,
+    "detail": {
+      "modalOpen": true,
+      "dialogRole": true,
+      "focusMovedIn": true,
+      "close": {
+        "role": "button",
+        "name": "Close checkout",
+        "focusable": true,
+        "nameFrom": "aria-label",
+        "ignored": false
+      },
+      "modal": {
+        "role": "generic",
+        "name": "",
+        "focusable": false,
+        "nameFrom": null,
+        "ignored": false
+      }
+    }
+  },
+  {
+    "id": "B5",
+    "wcag": "1.3.1",
+    "title": "Card fields are labelled by placeholder only",
+    "present": false,
+    "detail": {
+      "card": {
+        "role": "textbox",
+        "name": "Card number",
+        "focusable": true,
+        "nameFrom": "relatedElement",
+        "ignored": false
+      },
+      "expiry": {
+        "role": "textbox",
+        "name": "Expiry date, MM / YY",
+        "focusable": true,
+        "nameFrom": "relatedElement",
+        "ignored": false
+      },
+      "cvc": {
+        "role": "textbox",
+        "name": "Security code (CVC)",
+        "focusable": true,
+        "nameFrom": "relatedElement",
+        "ignored": false
+      }
+    }
+  },
+  {
+    "id": "B6",
+    "wcag": "1.4.3",
+    "title": "Tier prices are low-contrast text",
+    "present": true,
+    "detail": {
+      "contrast": 2.42
+    }
+  }
+]

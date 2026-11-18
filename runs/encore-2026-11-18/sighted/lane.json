@@ -1,0 +1,22 @@
+{
+  "lane": "sighted",
+  "status": "passed",
+  "resultCode": 100,
+  "reasonCode": "success.complete",
+  "durationMs": 124377,
+  "kaneDurationMs": 117800,
+  "steps": 18,
+  "credits": 31.563,
+  "verdict": null,
+  "reason": "Objective completed",
+  "oneLiner": "booked Friday show seats on the ticket booking site",
+  "testUrl": "https://test-manager.lambdatest.com/projects/01M7PWQWDBT7TJ0S8X5YD5THMK/test-cases/01M7QFZ37MKG5CJ5QA9E1M2ES3/dashboard/share/US_QVFO1OB8GVDSZJPQI868MSG6F6BHNG2AVCX1UT32BX44X3WB9G4CSG1L4SMEH8F6?type=summary&agentView=true&fqdn=summary-page",
+  "startedAt": "2026-11-18T14:11:26.574Z",
+  "viewport": {
+    "width": 1920,
+    "height": 1080
+  },
+  "objective": "Book 2 seats in row F for Friday's show.\nAt checkout use the name Alex Rivera, the email alex@example.com and the test card 4242 4242 4242 4242 with expiry 12/30 and CVC 123.\nVerify the page says \"You're going! Order #ENC-4821 · Row F · Seats 14–15\".",
+  "exitCode": 0,
+  "kaneVersion": "0.10.6"
+}

@@ -1,0 +1,32 @@
+{
+  "attempt": 1,
+  "agent": {
+    "exitCode": 0,
+    "turns": 46,
+    "durationMs": 258074,
+    "costUsd": 1.1151420000000003,
+    "summary": "I've fixed the reported defect and the same kinds of barriers in the rest of the booking flow. I couldn't build or run anything, so none of this is tested; Kane's rerun after the Vite build will be the first real check.\n\n**What Kane reported (Friday and the seats couldn't be reached with Tab)**\n- **Date picker** (`components/DateCarousel.tsx`): the date cards are now a radio group called \"Choose your night\" that takes one Tab stop. Arrow keys and Home/End move between nights and select them, and Enter or Space selects too. Each card is announced in full, for example \"Friday 21 Nov, 8:00 PM, Opening night, Selling fast\", and says whether it's checked. Saturday is sold out, so it's marked unavailable and the arrow keys skip it. The two scroll arrows are now real buttons named \"Scroll dates left\" and \"Scroll dates right\".\n- **Seat map** (`components/SeatMap.tsx`): the seats are now a grid with one Tab stop. Arrow keys move between seats (up and down change row), Home/End jump to the ends of a row, and Enter or Space selects or deselects a seat. Each seat is announced as, for example, \"Row F, Seat 14, Orchestra, Center, $129.00, available\", or \"selected\" or \"unavailable\". The visual row letters and hover tooltip are hidden from the screen reader because the grid already says the same thing. The tooltip also appears when a seat has keyboard focus.\n- **Focus outline** (`index.css`): date cards and seats now show a white outline when focused from the keyboard.\n- **Selection announcements** (`App.tsx`): a hidden live region speaks each change, such as \"Row F, Seat 14 selected. Select 1 more seat.\" It also says when a seat was swapped out because you'd hit the ticket limit, and when checkout is ready.\n\n**The same kinds of barriers later in the task**\n- **Ticket quantity** (`components/BookingSummary.tsx`): the +/− buttons are now named \"Add a ticket\" and \"Remove a ticket\", and the new count is announced (\"2 tickets\"). At the minimum or maximum the buttons are marked unavailable rather than disabled, so keyboard focus isn't lost.\n- **Checkout dialog** (`components/CheckoutModal.tsx`):\n  - It's now a proper modal dialog named \"Almost there\".\n  - Focus goes to the Full name field when it opens and Tab stays inside it.\n  - Escape closes it and focus goes back to the Checkout button.\n  - The close button is named \"Close checkout\".\n- **Checkout fields:**\n  - The card number, expiry and CVC fields now have real (visually hidden) labels instead of relying on placeholders.\n  - Fields with errors are marked invalid and linked to their error text, and a failed submit moves focus to the first problem field.\n  - \"Processing payment…\" is announced while paying.\n- **Confirmation** (`components/Confirmation.tsx`): focus moves to the \"You're going!\" heading when the page loads, and the order line (\"Order #ENC-4821 · Row F · Seats 14–15\") is attached to it, so both are read out together.\n\nI didn't change the task, the confirmation text, or the visual design beyond the focus outline, and I didn't add any test hooks.\n\nOne thing to watch in the rerun: Kane has to set the ticket count to 2 before picking seats. If it picks F14 and then F15 while the count is still 1, F15 replaces F14. The app announces that swap, but Kane would then need to pick F14 again."
+  },
+  "files": [
+    "apps/encore/src/App.tsx",
+    "apps/encore/src/components/BookingSummary.tsx",
+    "apps/encore/src/components/CheckoutModal.tsx",
+    "apps/encore/src/components/Confirmation.tsx",
+    "apps/encore/src/components/DateCarousel.tsx",
+    "apps/encore/src/components/SeatMap.tsx",
+    "apps/encore/src/index.css"
+  ],
+  "status": "failed",
+  "resultCode": 310,
+  "credits": 45.19,
+  "durationMs": 226600,
+  "recheck": {
+    "reason": "Kane classified the failure as automation_bug (confirmed: false), not a product bug",
+    "first": {
+      "resultCode": 310,
+      "credits": 53.528,
+      "reason": "Maximum steps exceeded (62/60)"
+    },
+    "extraCredits": 53.528
+  }
+}

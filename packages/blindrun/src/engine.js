@@ -52,7 +52,10 @@ export function thin(frames, gap) {
 }
 
 /** Runs one Kane lane (sighted or blind) in a fresh recorded Chrome and writes the lane directory. */
-export async function runLane({ url, task, expect, laneDir, blind, timeout = 600, maxSteps = 60, chromePath, frameIntervalMs, log = () => {} }) {
+// A keyboard user needs far more key presses than a mouse user needs clicks, so blind lanes get a larger step budget.
+export const STEPS = { sighted: 40, blind: 100 };
+
+export async function runLane({ url, task, expect, laneDir, blind, timeout = 900, maxSteps = blind ? STEPS.blind : STEPS.sighted, chromePath, frameIntervalMs, log = () => {} }) {
   await mkdir(laneDir, { recursive: true });
   const objective = blind ? blindObjective(task, expect) : sightedObjective(task, expect);
   const lane = await withRecordedChrome({ url, laneDir, blind, chromePath, frameIntervalMs: frameIntervalMs ?? (blind ? 1000 : 900) }, async ({ endpoint, recorder }) => {

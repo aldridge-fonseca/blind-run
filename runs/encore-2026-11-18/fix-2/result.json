@@ -1,0 +1,28 @@
+{
+  "attempt": 2,
+  "agent": {
+    "exitCode": 0,
+    "turns": 26,
+    "durationMs": 125786,
+    "costUsd": 0.7258892000000001,
+    "summary": "I made the fixes, but I couldn't build or run anything here, so none of this is tested. It only counts once Kane's blind rerun passes.\n\n**What went wrong in the last run.** The booking starts at 1 ticket. When Kane picked Row F seat 14 and then seat 15, the app quietly swapped 14 out for 15 (\"Replaced seat F14\"). Kane then raised the ticket count to 2, went back and re-picked seats, and pressed Enter on what it took to be Checkout. That button was actually \"Remove seat F15\", so a seat came off with no announcement. On top of that, the remove button disappeared and focus dropped back to the page body. Kane kept cycling through this until it hit the 60-step limit.\n\n**Changes:**\n\n- **Seat picking (`App.tsx`):** Picking a seat beyond the ticket count now adds a ticket, up to the maximum of 8, instead of swapping out an earlier pick. Choosing F14 then F15 now gives 2 tickets for Row F, Seats 14–15, with checkout ready and no trip to the ticket stepper. The screen-reader announcement now lists what's selected (for example \"2 seats selected: Row F · Seats 14–15\") and says what's still needed or that checkout is ready.\n- **Removing a seat (`App.tsx`, `BookingSummary.tsx`):** Removing a seat is now announced, with the same summary. Focus moves to the Checkout button instead of being lost. The remove buttons now say \"Remove Row F, Seat 15 from booking\" so they're harder to mistake for Checkout, and their icons are hidden from screen readers.\n- **Checkout buttons (`BookingSummary.tsx`, `App.tsx`, `index.css`):** The desktop button and the mobile one at the bottom of the screen used to be fully disabled, which takes them out of the Tab order entirely. They're now marked unavailable but can still be reached with Tab. The desktop button reads out why it's unavailable (\"Select 1 more seat on the map\"), and pressing either does nothing until the booking is ready. The CSS keeps the same greyed-out look, so the visual design hasn't changed.\n- **Changing the night (`App.tsx`):** If seats were already picked and you switch to a different night, it now announces that those picks were cleared. Re-choosing the night that's already selected does nothing.\n- **Fewer key presses (`App.tsx`):** I added a \"Skip to booking\" link as the first Tab stop; it only shows when focused. It jumps to the night picker, which can now take focus. This also makes the existing \"Get tickets\" link move focus there, so a run doesn't have to Tab through all the header and hero links.\n\nI also checked the rest of the task path: the seat grid's arrow-key navigation, the checkout dialog (focus, Tab trapping, Escape, labelled fields) and the confirmation focusing its heading. Those were already sound, so I left them alone. The confirmation text is unchanged and should still read \"You're going! Order #ENC-4821 · Row F · Seats 14–15\"."
+  },
+  "files": [
+    "apps/encore/src/App.tsx",
+    "apps/encore/src/components/BookingSummary.tsx",
+    "apps/encore/src/index.css"
+  ],
+  "status": "passed",
+  "resultCode": 100,
+  "credits": 64.184,
+  "durationMs": 323452,
+  "recheck": {
+    "reason": "Kane classified the failure as automation_bug (confirmed: false), not a product bug",
+    "first": {
+      "resultCode": 310,
+      "credits": 45.194,
+      "reason": "Maximum steps exceeded (62/60)"
+    },
+    "extraCredits": 45.194
+  }
+}

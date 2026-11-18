@@ -1,0 +1,46 @@
+{
+  "lane": "blind",
+  "status": "failed",
+  "resultCode": 310,
+  "reasonCode": "stuck.max_steps",
+  "durationMs": 249400,
+  "kaneDurationMs": 249400,
+  "steps": 61,
+  "credits": 53.528,
+  "verdict": {
+    "confirmed": false,
+    "status": "broken",
+    "family": "automation_bug",
+    "category": "agent_misstep",
+    "category_proposal": "",
+    "severity": "minor",
+    "root_cause": "The automation kept pressing Space or Enter while staying on the same page, rather than finding the next required part of the booking and checkout flow.",
+    "agent_fault_assessment": "The agent caused the outcome by repeatedly sending Space and Enter without evidence that focus had reached the needed control or that any page state changed. It continued this ineffective keyboard loop through the step limit instead of reassessing navigation.",
+    "bug_title": "Keyboard navigation loop exhausts step budget",
+    "signals": [],
+    "confidence": 0.93,
+    "suggestion": "Update the keyboard-navigation logic to check the focused item and page text after each action, then stop or recover when repeated actions do not change the state.",
+    "one_liner": "The run became stuck repeating keyboard commands and used all available steps before completing the booking.",
+    "relevant_steps": [
+      41,
+      44,
+      49,
+      54,
+      61
+    ],
+    "culprit_step": "0-61",
+    "credits_consumed": 4.588,
+    "mode": "terminal"
+  },
+  "reason": "Maximum steps exceeded (62/60)",
+  "oneLiner": "The run became stuck repeating keyboard commands and used all available steps before completing the booking.",
+  "testUrl": "https://test-manager.lambdatest.com/projects/01M7PWQWDBT7TJ0S8X5YD5THMK/test-cases/01M7QGEXJ5RBWQ0K4EXYSPDS9Z/dashboard/share/US_RCNAA4QFYKLFDMDS21FRWTSCII82SGQNQBE090NM4PKSDLN72AFZMQ6UXMK2WTH7?type=summary&agentView=true&fqdn=summary-page",
+  "startedAt": "2026-11-18T14:20:05.306Z",
+  "viewport": {
+    "width": 1920,
+    "height": 1080
+  },
+  "objective": "You are a blind user who navigates with the keyboard only (Tab, Shift+Tab, Enter, Space, arrow keys).\nThe mouse does not work and the screen is black.\nBook 2 seats in row F for Friday's show.\nAt checkout use the name Alex Rivera, the email alex@example.com and the test card 4242 4242 4242 4242 with expiry 12/30 and CVC 123.\nVerify, by reading the page text as a screen reader would, that the page says \"You're going! Order #ENC-4821 · Row F · Seats 14–15\".",
+  "exitCode": 1,
+  "kaneVersion": "0.10.6"
+}

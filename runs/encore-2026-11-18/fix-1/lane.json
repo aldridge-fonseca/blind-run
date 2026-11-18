@@ -1,0 +1,47 @@
+{
+  "lane": "blind",
+  "status": "failed",
+  "resultCode": 310,
+  "reasonCode": "stuck.max_steps",
+  "durationMs": 226600,
+  "kaneDurationMs": 226600,
+  "steps": 64,
+  "credits": 45.19,
+  "verdict": {
+    "confirmed": false,
+    "status": "broken",
+    "family": "automation_bug",
+    "category": "agent_misstep",
+    "category_proposal": "",
+    "severity": "major",
+    "root_cause": "The agent did not establish where keyboard focus was or confirm that each key press changed the page. It repeatedly sent Space and Enter while remaining at the starting address, so it never completed the required booking or verification.",
+    "agent_fault_assessment": "The agent's actions caused the outcome: the final evidence shows repeated Space/Enter inputs at the unchanged URL, with no recorded navigation, form entry, seat selection, checkout, or reading of the required confirmation text. There is no evidence that the application rejected a valid keyboard action or otherwise failed.",
+    "bug_title": "Keyboard run loops without reaching checkout",
+    "signals": [],
+    "confidence": 0.94,
+    "suggestion": "Update the run to inspect screen-reader text and keyboard focus after every Tab or activation. Stop repeated key presses when the state does not change, then navigate deliberately through show selection, row F seats 14–15, checkout, and the confirmation text.",
+    "one_liner": "The automation kept sending activation keys on the same page until it ran out of steps, rather than progressing through the booking and checkout flow.",
+    "relevant_steps": [
+      0,
+      40,
+      43,
+      47,
+      57,
+      63
+    ],
+    "culprit_step": "0-63",
+    "credits_consumed": 4.64725,
+    "mode": "terminal"
+  },
+  "reason": "Maximum steps exceeded (64/60)",
+  "oneLiner": "The automation kept sending activation keys on the same page until it ran out of steps, rather than progressing through the booking and checkout flow.",
+  "testUrl": "https://test-manager.lambdatest.com/projects/01M7PWQWDBT7TJ0S8X5YD5THMK/test-cases/01M7QGQ5EKAK0QZ7WWEMXHB70V/dashboard/share/US_0LD1073ENWASLI1IF75XJ7YSKVI85AM3INL7GVYO5WYOESSP0ESX8A9P53CTMPHO?type=summary&agentView=true&fqdn=summary-page",
+  "startedAt": "2026-11-18T14:24:35.493Z",
+  "viewport": {
+    "width": 1920,
+    "height": 1080
+  },
+  "objective": "You are a blind user who navigates with the keyboard only (Tab, Shift+Tab, Enter, Space, arrow keys).\nThe mouse does not work and the screen is black.\nBook 2 seats in row F for Friday's show.\nAt checkout use the name Alex Rivera, the email alex@example.com and the test card 4242 4242 4242 4242 with expiry 12/30 and CVC 123.\nVerify, by reading the page text as a screen reader would, that the page says \"You're going! Order #ENC-4821 · Row F · Seats 14–15\".",
+  "exitCode": 1,
+  "kaneVersion": "0.10.6"
+}

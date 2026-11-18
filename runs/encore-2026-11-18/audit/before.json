@@ -1,0 +1,113 @@
+[
+  {
+    "id": "B1",
+    "wcag": "2.1.1",
+    "title": "Seat map seats are click-only <div>s",
+    "present": true,
+    "detail": {
+      "role": "generic",
+      "name": "",
+      "focusable": false,
+      "nameFrom": null,
+      "ignored": false
+    }
+  },
+  {
+    "id": "B2",
+    "wcag": "4.1.2",
+    "title": "Ticket quantity − / + buttons have no accessible name",
+    "present": true,
+    "detail": {
+      "plus": {
+        "role": "button",
+        "name": "",
+        "focusable": true,
+        "nameFrom": null,
+        "ignored": false
+      },
+      "minus": {
+        "role": "button",
+        "name": "",
+        "focusable": false,
+        "nameFrom": null,
+        "ignored": false
+      }
+    }
+  },
+  {
+    "id": "B3",
+    "wcag": "2.1.1",
+    "title": "Date picker is a mouse-only carousel of <div>s",
+    "present": true,
+    "detail": {
+      "role": "generic",
+      "name": "",
+      "focusable": false,
+      "nameFrom": null,
+      "ignored": false
+    }
+  },
+  {
+    "id": "B4",
+    "wcag": "2.4.3",
+    "title": "Checkout modal does not take focus; close button unlabeled",
+    "present": true,
+    "detail": {
+      "modalOpen": true,
+      "dialogRole": false,
+      "focusMovedIn": false,
+      "close": {
+        "role": "button",
+        "name": "",
+        "focusable": true,
+        "nameFrom": null,
+        "ignored": false
+      },
+      "modal": {
+        "role": "generic",
+        "name": "",
+        "focusable": false,
+        "nameFrom": null,
+        "ignored": false
+      }
+    }
+  },
+  {
+    "id": "B5",
+    "wcag": "1.3.1",
+    "title": "Card fields are labelled by placeholder only",
+    "present": true,
+    "detail": {
+      "card": {
+        "role": "textbox",
+        "name": "Card number",
+        "focusable": true,
+        "nameFrom": "placeholder",
+        "ignored": false
+      },
+      "expiry": {
+        "role": "textbox",
+        "name": "MM / YY",
+        "focusable": true,
+        "nameFrom": "placeholder",
+        "ignored": false
+      },
+      "cvc": {
+        "role": "textbox",
+        "name": "CVC",
+        "focusable": true,
+        "nameFrom": "placeholder",
+        "ignored": false
+      }
+    }
+  },
+  {
+    "id": "B6",
+    "wcag": "1.4.3",
+    "title": "Tier prices are low-contrast text",
+    "present": true,
+    "detail": {
+      "contrast": 2.42
+    }
+  }
+]

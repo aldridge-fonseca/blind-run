@@ -1,0 +1,9 @@
+{"text":"Aurora Vale · Neon Tides Tour · Encore, document","role":"document","name":"Aurora Vale · Neon Tides Tour · Encore","states":[],"source":"focus","t":10251}
+{"text":"button","role":"button","name":"","states":[],"tag":"button","source":"focus","rect":{"x":1538,"y":366,"w":40,"h":40},"t":57019}
+{"text":"Checkout, button","role":"button","name":"Checkout","states":[],"tag":"button","source":"focus","rect":{"x":1233,"y":784,"w":350,"h":56},"t":74902}
+{"text":"Full name, edit, blank","role":"edit","name":"Full name","states":[],"tag":"input","source":"focus","rect":{"x":873,"y":377,"w":514,"h":51},"t":91705}
+{"text":"Email for your tickets, edit, blank","role":"edit","name":"Email for your tickets","states":[],"tag":"input","source":"focus","rect":{"x":873,"y":469,"w":514,"h":51},"t":94594}
+{"text":"Card number, edit, blank","role":"edit","name":"Card number","states":[],"tag":"input","source":"focus","rect":{"x":874,"y":578,"w":512,"h":51},"t":97029}
+{"text":"MM / YY, edit, blank","role":"edit","name":"MM / YY","states":[],"tag":"input","source":"focus","rect":{"x":874,"y":628,"w":256,"h":51},"t":99876}
+{"text":"CVC, edit, blank","role":"edit","name":"CVC","states":[],"tag":"input","source":"focus","rect":{"x":1130,"y":628,"w":256,"h":51},"t":102937}
+{"text":"Processing…, button, unavailable","role":"button","name":"Processing…","states":["unavailable"],"tag":"button","source":"focus","rect":{"x":873,"y":732,"w":514,"h":56},"t":105556}
