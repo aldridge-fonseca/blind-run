@@ -48,6 +48,12 @@ try {
   await p.key('End');
   await sleep(100);
   check('End jumps to result', (await state()).ch === 'result');
+  await p.goto(`${base}?run=sample-run&present=1&autoplay=0&t=rerun%2B6`);
+  await sleep(1200);
+  await p.evaluate('__theater.audio.unlock(); __theater.clock.play()');
+  await sleep(9000);
+  const played = await p.evaluate('__theater.audio.played');
+  check('screen-reader audio plays during the rerun', played > 0, `(${played} clips)`);
 } finally {
   chrome.close();
 }

@@ -32,7 +32,30 @@ function summarize(id: string, dir: string) {
     const sighted = run.sequence?.find((s: { lane?: string }) => s.lane === 'sighted')?.dir;
     const thumb = sighted && fs.existsSync(path.join(dir, sighted, 'frames.json'))
       ? JSON.parse(fs.readFileSync(path.join(dir, sighted, 'frames.json'), 'utf8')).at(-1)?.file : null;
-    return { ...run, id, fixture, thumb: thumb ? `${sighted}/${thumb}` : null };
+    // Lane facts for the index cards, read from each lane.json the sequence points at.
+    const lane = (dir: string) => {
+      try {
+        return JSON.parse(fs.readFileSync(path.join(dir, 'lane.json'), 'utf8'));
+      } catch {
+        return null;
+      }
+    };
+    const blinds: { status?: string; durationMs?: number }[] = [];
+    let credits = 0;
+    for (const s of run.sequence ?? []) {
+      const l = lane(path.join(dir, s.dir));
+      if (!l) continue;
+      credits += Number(l.credits) || 0;
+      if (s.lane === 'blind' || s.kind === 'fix') blinds.push(l);
+    }
+    const sightedLane = sighted ? lane(path.join(dir, sighted)) : null;
+    const stats = {
+      sightedMs: sightedLane?.durationMs ?? null,
+      before: blinds[0] ? { status: blinds[0].status, ms: blinds[0].durationMs } : null,
+      after: blinds.length > 1 ? { status: blinds.at(-1)!.status, ms: blinds.at(-1)!.durationMs } : null,
+      credits: Math.round(credits * 10) / 10,
+    };
+    return { ...run, id, fixture, thumb: thumb ? `${sighted}/${thumb}` : null, stats };
   } catch (err) {
     return { id, broken: String(err) };
   }

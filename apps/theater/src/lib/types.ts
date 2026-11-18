@@ -23,7 +23,12 @@ export type RunJson = {
   outcome?: { blindBefore?: string; blindAfter?: string; barriers?: Barrier[] };
 };
 
-export type RunSummary = RunJson & { fixture: boolean; thumb: string | null; broken?: string };
+export type RunSummary = RunJson & {
+  fixture: boolean;
+  thumb: string | null;
+  broken?: string;
+  stats?: { sightedMs: number | null; before: { status?: string; ms?: number } | null; after: { status?: string; ms?: number } | null; credits: number };
+};
 
 export type KaneVerdict = {
   bug_title?: string;

@@ -113,10 +113,8 @@ function Player({ run, present }: { run: Run; present: boolean }) {
       removeEventListener('keydown', unlock);
     };
   }, [audio, run, present]);
-  useEffect(() => () => {
-    audio.dispose();
-    clock.dispose();
-  }, [audio, clock]);
+  useEffect(() => audio.attach(), [audio]);
+  useEffect(() => () => clock.dispose(), [clock]);
   useEffect(() => audio.setMuted(muted), [audio, muted]);
 
   useEffect(() => store.set('trim', trim), [trim]);
@@ -127,8 +125,8 @@ function Player({ run, present }: { run: Run; present: boolean }) {
 
   // Exposed for scripts/record.mjs and debugging; harmless in production.
   useEffect(() => {
-    (window as unknown as { __theater: unknown }).__theater = { run, show, clock };
-  }, [run, show, clock]);
+    (window as unknown as { __theater: unknown }).__theater = { run, show, clock, audio };
+  }, [run, show, clock, audio]);
 
   const t = useClock(clock, (s) => s.t);
   const playing = useClock(clock, (s) => s.playing);

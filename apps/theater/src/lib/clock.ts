@@ -58,8 +58,7 @@ export class Clock {
     this.set({ duration, t: Math.min(this.state.t, duration) });
   }
   dispose() {
-    cancelAnimationFrame(this.raf);
-    this.listeners.clear();
+    this.pause();
   }
 }
 

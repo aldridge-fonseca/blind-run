@@ -41,7 +41,7 @@ export function RunIndex() {
             </p>
           )}
           <ul className="grid gap-5 md:grid-cols-2">
-            {runs?.map((r) => <RunCard key={r.id} run={r} />)}
+            {runs?.map((r, i) => <RunCard key={r.id} run={r} featured={i === 0} />)}
           </ul>
         </section>
       </main>
@@ -49,29 +49,31 @@ export function RunIndex() {
   );
 }
 
-function RunCard({ run }: { run: RunSummary }) {
+function RunCard({ run, featured }: { run: RunSummary; featured: boolean }) {
   const before = run.outcome?.blindBefore;
   const after = run.outcome?.blindAfter;
   const barriers = run.outcome?.barriers?.length ?? 0;
   const href = `?run=${encodeURIComponent(run.id)}`;
   const date = run.createdAt ? new Date(run.createdAt) : null;
+  const st = run.stats;
+  const secs = (ms?: number | null) => (ms != null ? `${(ms / 1000).toFixed(1)} s` : '—');
   return (
-    <li className="group relative overflow-hidden rounded-[24px] border border-line bg-panel transition hover:border-line-strong">
-      <div className="relative aspect-[16/9] overflow-hidden bg-black">
+    <li className={`group relative overflow-hidden rounded-[24px] border border-line bg-panel transition hover:border-line-strong ${featured ? 'md:col-span-2 md:grid md:grid-cols-[1.35fr_1fr]' : ''}`}>
+      <div className={`relative overflow-hidden bg-black ${featured ? 'aspect-[16/10] md:aspect-auto md:min-h-[400px]' : 'aspect-[16/9]'}`}>
         {run.thumb ? (
-          <img src={`runs/${encodeURIComponent(run.id)}/${run.thumb}`} alt="" className="size-full object-cover opacity-80 transition duration-500 group-hover:scale-[1.02] group-hover:opacity-100" />
+          <img src={`runs/${encodeURIComponent(run.id)}/${run.thumb}`} alt="" className="absolute inset-0 size-full object-cover opacity-80 transition duration-500 group-hover:scale-[1.02] group-hover:opacity-100" />
         ) : (
           <div className="grid size-full place-items-center text-faint">No preview</div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-panel via-transparent to-transparent" />
+        <div className={`absolute inset-0 ${featured ? 'bg-gradient-to-r from-transparent via-transparent to-panel/60' : 'bg-gradient-to-t from-panel via-transparent to-transparent'}`} />
         {run.fixture && (
           <span className="absolute left-4 top-4 rounded-full border border-focus/40 bg-black/70 px-3 py-1 text-[12px] font-semibold uppercase tracking-[0.14em] text-focus backdrop-blur">
             Fixture · not a real run
           </span>
         )}
       </div>
-      <div className="p-6">
-        <h3 className="text-[22px] font-semibold leading-snug tracking-tight">
+      <div className={featured ? 'flex flex-col p-8' : 'p-6'}>
+        <h3 className={`${featured ? 'text-[28px]' : 'text-[22px]'} font-semibold leading-snug tracking-tight`}>
           <a
             href={href}
             onClick={(e) => {
@@ -87,13 +89,30 @@ function RunCard({ run }: { run: RunSummary }) {
         <p className="mt-1.5 truncate font-mono text-[13px] text-faint">
           {run.url ?? ''} {date && !isNaN(+date) ? `· ${date.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}` : ''}
         </p>
-        <div className="mt-5 flex flex-wrap items-center gap-2 text-[13px] font-medium">
+        {st?.before && (
+          <dl className="mt-6 grid grid-cols-3 gap-4">
+            <div>
+              <dt className="text-[12px] font-semibold uppercase tracking-[0.16em] text-faint">Sighted</dt>
+              <dd className="mt-1 text-[22px] font-semibold tabular">{secs(st.sightedMs)}</dd>
+            </div>
+            <div>
+              <dt className="text-[12px] font-semibold uppercase tracking-[0.16em] text-faint">Blind before</dt>
+              <dd className={`mt-1 text-[22px] font-semibold tabular ${st.before.status === 'failed' ? 'text-fail' : ''}`}>{st.before.status === 'failed' ? <><span aria-hidden="true">∞</span><span className="sr-only">did not finish</span></> : secs(st.before.ms)}</dd>
+            </div>
+            <div>
+              <dt className="text-[12px] font-semibold uppercase tracking-[0.16em] text-faint">Blind after</dt>
+              <dd className={`mt-1 text-[22px] font-semibold tabular ${st.after?.status === 'passed' ? 'text-pass' : st.after?.status === 'failed' ? 'text-fail' : ''}`}>{st.after ? (st.after.status === 'passed' ? secs(st.after.ms) : st.after.status) : '—'}</dd>
+            </div>
+          </dl>
+        )}
+        <div className="mt-6 flex flex-wrap items-center gap-2 text-[13px] font-medium">
           {before && <Badge tone={before === 'passed' ? 'pass' : 'fail'}>Blind before fix: {before}</Badge>}
           {after && <Badge tone={after === 'passed' ? 'pass' : 'fail'}>after: {after}</Badge>}
           {barriers > 0 && <Badge tone="dim">{barriers} barrier{barriers > 1 ? 's' : ''}</Badge>}
+          {st && st.credits > 0 && <Badge tone="dim">{st.credits} credits</Badge>}
           {run.broken && <Badge tone="fail">run.json unreadable</Badge>}
         </div>
-        <div className="relative z-10 mt-6 flex items-center gap-3">
+        <div className={`relative z-10 flex items-center gap-3 ${featured ? 'mt-auto pt-8' : 'mt-6'}`}>
           <span className="flex items-center gap-2 text-[15px] font-semibold text-fg" aria-hidden="true">
             Watch <Arrow size={16} className="transition group-hover:translate-x-0.5" />
           </span>

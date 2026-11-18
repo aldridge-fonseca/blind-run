@@ -14,12 +14,20 @@ export class AudioEngine {
   private lastLaneT: number | null = null;
   private lastChapter: string | null = null;
   private lastSeeks = -1;
-  private unsub: () => void;
   muted = false;
+  /** Clips that actually started playing (for tests). */
+  played = 0;
   listeners = new Set<() => void>();
 
-  constructor(private clock: Clock, private show: () => Show) {
-    this.unsub = clock.subscribe(this.update);
+  constructor(private clock: Clock, private show: () => Show) {}
+
+  /** Follows the clock until the returned function is called. Safe to call again afterwards. */
+  attach() {
+    const unsub = this.clock.subscribe(this.update);
+    return () => {
+      unsub();
+      this.stopAll();
+    };
   }
 
   /** Must be called from a user gesture (or with autoplay allowed) before sound can play. */
@@ -105,13 +113,8 @@ export class AudioEngine {
     el.currentTime = offset;
     el.playbackRate = speed;
     el.muted = this.muted && !this.gain;
-    void el.play().catch(() => {});
+    void el.play().then(() => this.played++).catch(() => {});
     this.active.push({ clip, el });
   }
 
-  dispose() {
-    this.unsub();
-    this.stopAll();
-    void this.ctx?.close().catch(() => {});
-  }
 }
