@@ -114,7 +114,7 @@ body {
 
 .date-strip {
   scrollbar-width: none;
-  mask-image: linear-gradient(90deg, transparent 0, #000 48px, #000 calc(100% - 48px), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
 }
 .date-strip::-webkit-scrollbar {
   display: none;
@@ -155,12 +155,13 @@ body {
 }
 .seat.is-open {
   cursor: pointer;
-  color: color-mix(in srgb, var(--tier) 85%, white);
+  color: color-mix(in srgb, var(--tier) 70%, transparent);
   background: color-mix(in srgb, var(--tier) 16%, transparent);
   box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tier) 70%, transparent);
 }
 .seat.is-open:hover {
-  transform: translate(-50%, -50%) rotate(var(--rot)) scale(1.28);
+  transform: translate(-50%, -50%) rotate(var(--rot)) scale(1.16);
+  color: #fff;
   background: color-mix(in srgb, var(--tier) 34%, transparent);
   box-shadow: inset 0 0 0 1.5px var(--tier), 0 0 14px 2px color-mix(in srgb, var(--tier) 75%, transparent), 0 0 40px 4px color-mix(in srgb, var(--tier) 35%, transparent);
   z-index: 5;
@@ -169,13 +170,13 @@ body {
   cursor: pointer;
   color: #120a1f;
   background: linear-gradient(160deg, #ffffff, color-mix(in srgb, var(--tier) 55%, white));
-  box-shadow: 0 0 0 2px #fff, 0 0 18px 4px color-mix(in srgb, var(--tier) 90%, transparent), 0 0 54px 10px color-mix(in srgb, var(--tier) 45%, transparent);
+  box-shadow: 0 0 0 1.5px #fff, 0 0 14px 1px color-mix(in srgb, var(--tier) 80%, transparent), 0 0 36px 2px color-mix(in srgb, var(--tier) 30%, transparent);
   z-index: 4;
   animation: pop 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.4);
 }
 .seat.is-sold {
-  background: rgb(255 255 255 / 0.045);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.03);
+  background: rgb(255 255 255 / 0.07);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
   color: transparent;
   cursor: not-allowed;
 }

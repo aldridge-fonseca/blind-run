@@ -134,10 +134,10 @@ export default function BookingSummary({ date, qty, onQty, seats, onRemove, onCh
         </div>
       </dl>
 
-      <button type="button" className="btn-glow mt-5 w-full rounded-2xl py-4 text-[16px] font-semibold text-white" disabled={!ready} onClick={onCheckout} data-testid="checkout-button">
+      <button type="button" className="btn-glow mt-5 hidden w-full rounded-2xl lg:block py-4 text-[16px] font-semibold text-white" disabled={!ready} onClick={onCheckout} data-testid="checkout-button">
         Checkout
       </button>
-      <p className="mt-3 text-center text-[12.5px] text-haze" data-testid="summary-hint">
+      <p className="mt-3 text-center text-[12.5px] text-haze max-lg:text-left" data-testid="summary-hint">
         {hint}
       </p>
     </aside>

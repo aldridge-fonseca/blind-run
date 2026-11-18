@@ -64,14 +64,14 @@ export function Hero() {
             Fillmore, with special guest <span className="text-white">{EVENT.support}</span>.
           </p>
 
-          <dl className="mt-9 grid max-w-[620px] grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-4">
+          <dl className="mt-9 grid max-w-[620px] grid-cols-2 border-y border-white/10 sm:grid-cols-4 sm:divide-x sm:divide-white/10">
             {[
               ['Dates', 'Nov 19 – 29'],
               ['Doors', EVENT.doors],
               ['Show', EVENT.show],
               ['Ages', 'All ages'],
             ].map(([k, v]) => (
-              <div key={k} className="bg-[#0b0914]/90 px-4 py-3.5">
+              <div key={k} className="py-3.5 pr-5 sm:px-5 sm:first:pl-0">
                 <dt className="eyebrow text-[10px] text-haze">{k}</dt>
                 <dd className="mt-1 text-[15px] font-medium">{v}</dd>
               </div>
@@ -90,22 +90,22 @@ export function Hero() {
               </span>
               Watch the trailer
             </a>
-            <div className="ml-auto hidden items-center gap-3 xl:flex">
-              <div className="flex -space-x-2">
-                {['#3ee6d6', '#a78bfa', '#ff4fa3'].map((c) => (
-                  <span key={c} className="h-8 w-8 rounded-full ring-2 ring-[#0b0914]" style={{ background: `radial-gradient(circle at 30% 30%, #fff8, ${c})` }} />
-                ))}
-              </div>
-              <div className="whitespace-nowrap text-[13px] leading-tight">
-                <div className="font-semibold">2,841 fans going</div>
-                <div className="text-haze">14 friends interested</div>
-              </div>
-            </div>
           </div>
         </div>
 
         <div className="rise relative order-1 mx-auto w-full max-w-[230px] sm:max-w-[340px] lg:order-2 lg:max-w-none" style={{ animationDelay: '120ms' }}>
           <div className="absolute -inset-10 rounded-[48px] bg-[radial-gradient(closest-side,rgba(255,79,163,0.45),rgba(139,92,246,0.25)_55%,transparent)] blur-2xl" />
+          <div className="absolute -left-6 top-[44%] z-10 hidden items-center gap-3 whitespace-nowrap rounded-full bg-[#120f1c]/80 py-2 pl-2 pr-4 shadow-2xl ring-1 ring-white/10 backdrop-blur-md sm:flex lg:-left-12">
+            <div className="flex -space-x-2">
+              {['#3ee6d6', '#a78bfa', '#ff4fa3'].map((c) => (
+                <span key={c} className="h-7 w-7 rounded-full ring-2 ring-[#120f1c]" style={{ background: `radial-gradient(circle at 30% 30%, #fff8, ${c})` }} />
+              ))}
+            </div>
+            <div className="text-[12px] leading-tight">
+              <div className="font-semibold">2,841 fans going</div>
+              <div className="text-mist">14 friends interested</div>
+            </div>
+          </div>
           <div className="relative rotate-[2.5deg] overflow-hidden rounded-[28px] shadow-[0_50px_120px_-30px_rgba(160,40,140,0.75)] ring-1 ring-white/15 transition-transform duration-700 hover:rotate-0">
             <PosterArt className="block aspect-[5/7] w-full" />
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.16),transparent_35%,transparent_70%,rgba(255,255,255,0.06))]" />

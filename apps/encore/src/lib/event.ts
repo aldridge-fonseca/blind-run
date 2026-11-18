@@ -29,13 +29,13 @@ export interface ShowDate {
 export const DATES: ShowDate[] = [
   { id: 'wed-19', weekday: 'Wed', weekdayLong: 'Wednesday', day: 19, month: 'Nov', time: '8:00 PM', availability: 'few' },
   { id: 'thu-20', weekday: 'Thu', weekdayLong: 'Thursday', day: 20, month: 'Nov', time: '8:00 PM', availability: 'selling' },
-  { id: 'fri-21', weekday: 'Fri', weekdayLong: 'Friday', day: 21, month: 'Nov', time: '8:00 PM', availability: 'selling', note: 'Opening weekend' },
+  { id: 'fri-21', weekday: 'Fri', weekdayLong: 'Friday', day: 21, month: 'Nov', time: '8:00 PM', availability: 'selling', note: 'Opening' },
   { id: 'sat-22', weekday: 'Sat', weekdayLong: 'Saturday', day: 22, month: 'Nov', time: '8:00 PM', availability: 'soldout' },
   { id: 'sun-23', weekday: 'Sun', weekdayLong: 'Sunday', day: 23, month: 'Nov', time: '7:00 PM', availability: 'available' },
   { id: 'tue-25', weekday: 'Tue', weekdayLong: 'Tuesday', day: 25, month: 'Nov', time: '8:00 PM', availability: 'available' },
   { id: 'wed-26', weekday: 'Wed', weekdayLong: 'Wednesday', day: 26, month: 'Nov', time: '8:00 PM', availability: 'available' },
   { id: 'fri-28', weekday: 'Fri', weekdayLong: 'Friday', day: 28, month: 'Nov', time: '8:00 PM', availability: 'few' },
-  { id: 'sat-29', weekday: 'Sat', weekdayLong: 'Saturday', day: 29, month: 'Nov', time: '8:00 PM', availability: 'few', note: 'Final night' },
+  { id: 'sat-29', weekday: 'Sat', weekdayLong: 'Saturday', day: 29, month: 'Nov', time: '8:00 PM', availability: 'few', note: 'Finale' },
 ];
 
 export interface Tier {

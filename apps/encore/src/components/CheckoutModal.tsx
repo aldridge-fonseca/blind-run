@@ -63,36 +63,40 @@ export default function CheckoutModal({ date, seats, onClose, onPaid }: Props) {
       <div className="fade-in absolute inset-0 bg-[#05040a]/75 backdrop-blur-md" onClick={onClose} />
       <div className="modal-in relative grid max-h-[100dvh] w-full max-w-[920px] overflow-y-auto rounded-t-[28px] border border-white/10 bg-[#100d1a] shadow-[0_60px_160px_-40px_rgba(139,92,246,0.55)] sm:max-h-[92vh] sm:rounded-[28px] md:grid-cols-[340px_1fr]">
         {/* order recap */}
-        <div className="relative hidden overflow-hidden md:block">
-          <PosterArt className="absolute inset-0 h-full w-full" showText={false} />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#100d1a]/10 via-[#100d1a]/55 to-[#100d1a]" />
-          <div className="relative flex h-full flex-col justify-end p-7">
+        <div className="relative hidden flex-col bg-[#0c0a14] md:flex">
+          <div className="relative h-60 overflow-hidden">
+            <PosterArt className="absolute inset-x-0 -top-28 h-[175%] w-full" showText={false} />
+            <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-b from-transparent to-[#0c0a14]" />
+          </div>
+          <div className="flex flex-1 flex-col p-7 pt-2">
             <p className="eyebrow text-[#ffd1e8]">{EVENT.tour}</p>
-            <h3 className="mt-2 font-display text-[30px] font-extrabold leading-[0.95] tracking-tight">AURORA VALE</h3>
-            <p className="mt-3 text-[14px] text-white/80">
+            <h3 className="mt-2 font-display text-[28px] font-extrabold leading-[0.95] tracking-tight">AURORA VALE</h3>
+            <p className="mt-3 text-[14px] leading-relaxed text-white/75">
               {date.weekdayLong} {date.day} {date.month} · Doors {EVENT.doors}
               <br />
               {EVENT.venue}, {EVENT.city}
             </p>
-            <div className="mt-6 rounded-2xl border border-white/10 bg-black/35 p-4 backdrop-blur">
-              <div className="text-[14px] font-medium">{describeSeats(seats)}</div>
-              <div className="text-[12.5px] text-white/60">
-                {seats.length} × {seats[0]?.tier.name} · {money(seats[0]?.tier.price ?? 0)}
+            <div className="mt-auto pt-6">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                <div className="text-[14px] font-medium">{describeSeats(seats)}</div>
+                <div className="text-[12.5px] text-white/60">
+                  {seats.length} × {seats[0]?.tier.name} · {money(seats[0]?.tier.price ?? 0)}
+                </div>
+                <dl className="mt-3 space-y-1 border-t border-white/10 pt-3 text-[13px] text-white/70">
+                  <div className="flex justify-between">
+                    <dt>Tickets</dt>
+                    <dd>{money(subtotal)}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt>Service fees</dt>
+                    <dd>{money(fees)}</dd>
+                  </div>
+                  <div className="flex justify-between pt-1 text-[15px] font-semibold text-white">
+                    <dt>Total</dt>
+                    <dd>{money(total)}</dd>
+                  </div>
+                </dl>
               </div>
-              <dl className="mt-3 space-y-1 border-t border-white/10 pt-3 text-[13px] text-white/70">
-                <div className="flex justify-between">
-                  <dt>Tickets</dt>
-                  <dd>{money(subtotal)}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt>Service fees</dt>
-                  <dd>{money(fees)}</dd>
-                </div>
-                <div className="flex justify-between pt-1 text-[15px] font-semibold text-white">
-                  <dt>Total</dt>
-                  <dd>{money(total)}</dd>
-                </div>
-              </dl>
             </div>
           </div>
         </div>
@@ -101,7 +105,7 @@ export default function CheckoutModal({ date, seats, onClose, onPaid }: Props) {
         <form className="relative p-6 sm:p-8" onSubmit={submit} noValidate data-testid="checkout-form">
           <button
             type="button"
-            className="absolute right-5 top-5 grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/[0.04] text-mist transition hover:border-white/25 hover:text-white"
+            className="absolute right-5 top-5 z-10 grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/[0.04] text-mist transition hover:border-white/25 hover:text-white"
             onClick={onClose}
             data-testid="checkout-close"
           >
@@ -110,6 +114,10 @@ export default function CheckoutModal({ date, seats, onClose, onPaid }: Props) {
             </svg>
           </button>
 
+          <div className="relative -mx-6 -mt-6 mb-6 h-28 overflow-hidden sm:-mx-8 sm:-mt-8 md:hidden">
+            <PosterArt className="absolute inset-x-0 -top-40 h-[300%] w-full" showText={false} />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#100d1a]" />
+          </div>
           <p className="eyebrow text-haze">Secure checkout</p>
           <h2 className="mt-2 font-display text-[26px] font-semibold tracking-tight">Almost there</h2>
           <p className="mt-1 text-[14px] text-mist md:hidden">
@@ -135,9 +143,7 @@ export default function CheckoutModal({ date, seats, onClose, onPaid }: Props) {
 
           <div className="mt-7 flex items-center justify-between">
             <span className="text-[13px] font-medium text-white/80">Payment</span>
-            <span className="flex items-center gap-1.5 rounded-full border border-amber/25 bg-amber/10 px-2.5 py-1 font-mono text-[10.5px] text-amber">
-              TEST MODE · 4242 4242 4242 4242
-            </span>
+            <span className="text-[12px] text-haze">Visa · Mastercard · Amex</span>
           </div>
 
           {/* PLANTED BARRIER B5: card fields rely on placeholder text only; there is no <label> or accessible name. */}
@@ -152,9 +158,9 @@ export default function CheckoutModal({ date, seats, onClose, onPaid }: Props) {
                 onChange={(e) => set('card')(formatCard(e.target.value))}
                 data-testid="input-card"
               />
-              <span className="pointer-events-none absolute right-4 top-1/2 flex -translate-y-1/2 items-center">
-                <span className="h-5 w-5 rounded-full bg-[#ff4fa3]/85" />
-                <span className="-ml-2 h-5 w-5 rounded-full bg-[#ffb547]/85 mix-blend-screen" />
+              <span className="pointer-events-none absolute right-4 top-1/2 flex h-[18px] w-7 -translate-y-1/2 items-center justify-center gap-0.5 rounded-[5px] border border-white/20 bg-white/5">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#ff4fa3]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-[#ffb547]" />
               </span>
             </div>
             <div className="grid grid-cols-2">
@@ -179,6 +185,7 @@ export default function CheckoutModal({ date, seats, onClose, onPaid }: Props) {
               />
             </div>
           </div>
+          <p className="mt-2 text-center font-mono text-[11px] text-haze">Test card 4242 4242 4242 4242 · any future date</p>
           {err('card')}
           {err('expiry')}
           {err('cvc')}

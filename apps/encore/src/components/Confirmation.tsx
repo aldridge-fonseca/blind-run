@@ -58,12 +58,14 @@ export default function Confirmation({ date, seats, buyer, onDone }: Props) {
         <div className="absolute -inset-8 rounded-[48px] bg-[radial-gradient(closest-side,rgba(139,92,246,0.35),transparent)] blur-2xl" />
         <div className="relative grid overflow-hidden rounded-[30px] border border-white/10 bg-[#120f1d] shadow-[0_50px_140px_-40px_rgba(255,79,163,0.5)] md:grid-cols-[260px_1fr_150px]">
           <div className="relative h-48 md:h-auto">
+            <span className="absolute -bottom-2.5 -left-2.5 z-10 h-5 w-5 rounded-full bg-ink md:hidden" />
+            <span className="absolute -bottom-2.5 -right-2.5 z-10 h-5 w-5 rounded-full bg-ink md:hidden" />
             <PosterArt className="absolute inset-0 h-full w-full" showText={false} />
           </div>
           <div className="p-7">
             <p className="eyebrow text-cyan/90">Admit {seats.length}</p>
             <h2 className="mt-2 font-display text-[28px] font-bold leading-tight tracking-tight">
-              Aurora Vale <span className="font-serif text-[30px] font-normal italic text-[#ffb3d6]">{EVENT.tour}</span>
+              Aurora Vale <span className="mt-1 block font-serif text-[24px] font-normal italic leading-none text-[#ffb3d6] md:text-[30px]">{EVENT.tour}</span>
             </h2>
             <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 text-[14px] sm:grid-cols-3">
               {[

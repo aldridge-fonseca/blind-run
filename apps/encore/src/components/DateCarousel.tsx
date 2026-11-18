@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { DATES, type ShowDate } from '../lib/event';
 
 const badge: Record<ShowDate['availability'], { label: string; cls: string }> = {
@@ -18,6 +18,15 @@ interface Props {
 export default function DateCarousel({ value, onChange }: Props) {
   const strip = useRef<HTMLDivElement>(null);
   const drag = useRef({ down: false, x: 0, left: 0, moved: false });
+
+  useEffect(() => {
+    const el = strip.current;
+    const card = el?.querySelector<HTMLElement>(`[data-date="${value}"]`);
+    if (!el || !card) return;
+    const a = el.getBoundingClientRect();
+    const b = card.getBoundingClientRect();
+    el.scrollBy({ left: b.left + b.width / 2 - (a.left + a.width / 2), behavior: 'smooth' });
+  }, [value]);
 
   const nudge = (dir: number) => strip.current?.scrollBy({ left: dir * 340, behavior: 'smooth' });
 
@@ -44,7 +53,7 @@ export default function DateCarousel({ value, onChange }: Props) {
 
       <div
         ref={strip}
-        className="date-strip flex cursor-grab gap-3 overflow-x-auto px-4 py-4 md:px-12 active:cursor-grabbing"
+        className="date-strip flex cursor-grab gap-3 overflow-x-auto px-4 py-4 md:px-16 active:cursor-grabbing"
         onPointerDown={(e) => {
           if (e.pointerType !== 'mouse') return;
           drag.current = { down: true, x: e.clientX, left: strip.current!.scrollLeft, moved: false };
@@ -76,7 +85,12 @@ export default function DateCarousel({ value, onChange }: Props) {
               }}
             >
               <div className="flex items-center justify-between">
-                <span className={`eyebrow text-[10.5px] ${active ? 'text-white' : 'text-haze'}`}>{d.weekday}</span>
+                <span className="flex items-center gap-2">
+                  <span className={`eyebrow text-[10.5px] ${active ? 'text-white' : 'text-haze'}`}>{d.weekday}</span>
+                  {d.note && !soldOut && (
+                    <span className="rounded-full bg-gradient-to-r from-violet to-magenta px-1.5 py-px text-[9px] font-semibold uppercase tracking-wider">{d.note}</span>
+                  )}
+                </span>
                 {active && (
                   <span className="grid h-5 w-5 place-items-center rounded-full bg-white text-[#1b0f2e]">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round">
@@ -91,11 +105,6 @@ export default function DateCarousel({ value, onChange }: Props) {
               </div>
               <div className="mt-3 text-[12.5px] text-mist">{d.time}</div>
               <div className={`mt-0.5 text-[12px] font-medium ${badge[d.availability].cls}`}>{badge[d.availability].label}</div>
-              {d.note && !soldOut && (
-                <div className="absolute -top-2.5 right-3 rounded-full bg-gradient-to-r from-violet to-magenta px-2 py-0.5 text-[9.5px] font-semibold uppercase tracking-wider">
-                  {d.note}
-                </div>
-              )}
             </div>
           );
         })}

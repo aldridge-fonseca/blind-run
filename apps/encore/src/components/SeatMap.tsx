@@ -72,6 +72,25 @@ export default function SeatMap({ seats, selected, locked, onToggle }: Props) {
           <div className="eyebrow text-[clamp(8px,1cqw,12px)] font-semibold tracking-[0.5em] text-white/85">Stage</div>
         </div>
 
+        {/* tier zones */}
+        {TIERS.map((t) => {
+          const first = place(ROWS.indexOf(t.rows[0]), 1).y;
+          const last = place(ROWS.indexOf(t.rows[t.rows.length - 1]), 1).y;
+          return (
+            <div
+              key={t.id}
+              className="pointer-events-none absolute"
+              style={{
+                left: pctX(LABEL - 0.6),
+                right: pctX(LABEL - 0.6),
+                top: pctY(first - 0.75),
+                height: pctY(last - first + 1.5 + CURVE),
+                background: `radial-gradient(ellipse 60% 70% at 50% 45%, ${t.color}17, ${t.color}06 70%, transparent)`,
+              }}
+            />
+          );
+        })}
+
         {/* row labels */}
         {ROWS.map((r, i) => {
           const left = place(i, 1);

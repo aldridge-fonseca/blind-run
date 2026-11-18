@@ -18,14 +18,14 @@ function Atmosphere() {
   );
 }
 
-function Step({ n, title, children }: { n: string; title: string; children?: React.ReactNode }) {
+function Step({ n, title, sub }: { n: string; title: string; sub?: string }) {
   return (
-    <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
+    <div className="mb-4">
       <div className="flex items-center gap-4">
-        <span className="font-mono text-[12px] text-haze">{n}</span>
+        <span className="w-5 font-mono text-[12px] text-haze">{n}</span>
         <h2 className="font-display text-[clamp(22px,2.2vw,30px)] font-semibold tracking-tight">{title}</h2>
       </div>
-      {children}
+      {sub && <p className="mt-1 pl-9 text-[13px] text-haze">{sub}</p>}
     </div>
   );
 }
@@ -86,9 +86,7 @@ export default function App() {
 
         <main className="mx-auto max-w-[1360px] px-4 sm:px-8">
           <section id="dates" className="scroll-mt-6">
-            <Step n="01" title="Choose your night">
-              <span className="text-[13px] text-haze">9 shows · {EVENT.venue}</span>
-            </Step>
+            <Step n="01" title="Choose your night" sub={`9 shows · ${EVENT.venue}, ${EVENT.city}`} />
             <div className="-mx-4 sm:mx-0">
               <DateCarousel value={dateId} onChange={pickDate} />
             </div>
@@ -96,9 +94,10 @@ export default function App() {
 
           <section className="mt-14 grid gap-8 lg:grid-cols-[minmax(0,1fr)_400px] lg:items-start">
             <div>
-              <Step n="02" title="Pick your seats">
+              <Step n="02" title="Pick your seats" />
+              <div className="mb-5 pl-9">
                 <SeatLegend />
-              </Step>
+              </div>
               <div className="glass relative overflow-hidden rounded-[28px] px-3 pb-6 pt-2 sm:px-8 sm:pb-8">
                 <div className="pointer-events-none absolute left-1/2 top-0 h-40 w-[70%] -translate-x-1/2 rounded-full bg-violet/25 blur-3xl" />
                 <SeatMap seats={seats} selected={selected} locked={!date} onToggle={toggle} />
@@ -109,7 +108,7 @@ export default function App() {
               </div>
             </div>
 
-            <div className="lg:sticky lg:top-6 lg:pt-[60px]">
+            <div className="lg:sticky lg:top-6 lg:pt-[96px]">
               <BookingSummary date={date} qty={qty} onQty={changeQty} seats={chosen} onRemove={(id) => setSelected((s) => s.filter((x) => x !== id))} onCheckout={() => setCheckout(true)} />
             </div>
           </section>
@@ -121,8 +120,9 @@ export default function App() {
         </main>
       </div>
 
-      {/* mobile checkout bar */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0d0b16]/90 px-4 py-3 backdrop-blur-xl lg:hidden">
+      {/* mobile checkout dock */}
+      {date && (
+      <div className="fade-in fixed inset-x-3 bottom-3 z-40 rounded-3xl border border-white/10 bg-[#120f1d]/85 py-3 pl-5 pr-3 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] backdrop-blur-xl lg:hidden">
         <div className="flex items-center justify-between gap-4">
           <div>
             <div className="text-[12px] text-haze">
@@ -135,6 +135,7 @@ export default function App() {
           </button>
         </div>
       </div>
+      )}
 
       {checkout && date && <CheckoutModal date={date} seats={chosen} onClose={() => setCheckout(false)} onPaid={(b) => { setCheckout(false); setBuyer(b); window.scrollTo({ top: 0 }); }} />}
     </div>
