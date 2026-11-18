@@ -43,6 +43,8 @@ export function End({ run, local }: { run: Run; local: number }) {
   const arrow = clamp((local - 700) / 400);
   const num = easeOutBack(clamp((local - 900) / 700));
   const groups = groupBarriers(run);
+  // Many criteria: one line per barrier, so the list stays above the timeline at 1080p.
+  const dense = groups.length > 3 || groups.reduce((n, g) => n + g.items.length, 0) > 4;
   const fixed = o.blindFixed;
   const evidence = evidenceLinks(run);
 
@@ -72,16 +74,16 @@ export function End({ run, local }: { run: Run; local: number }) {
       <div className="relative mt-10 grid grid-cols-[1.35fr_1fr] items-start gap-8">
         <section aria-label="Barriers found and fixed" className="rounded-[26px] border border-line bg-panel p-8" style={rise(local, 1400)}>
           <h2 className="text-[15px] font-semibold uppercase tracking-[0.22em] text-dim">Barriers found{fixed ? ' and fixed' : ''} · by WCAG criterion</h2>
-          <ul className="mt-5 space-y-4">
+          <ul className={`mt-5 ${dense ? 'space-y-3' : 'space-y-4'}`}>
             {groups.map((g, gi) => (
               <li key={g.wcag} className="flex gap-5" style={rise(local, 1700 + gi * 200, 600, 12)}>
-                <span className="w-[86px] shrink-0 font-mono text-[26px] font-medium text-fg">{g.wcag}</span>
+                <span className={`w-[86px] shrink-0 font-mono font-medium text-fg ${dense ? 'text-[22px]' : 'text-[26px]'}`}>{g.wcag}</span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[19px] font-medium text-dim">{WCAG[g.wcag] ?? 'WCAG'}</p>
+                  <p className={`font-medium text-dim ${dense ? 'text-[15px]' : 'text-[19px]'}`}>{WCAG[g.wcag] ?? 'WCAG'}</p>
                   {g.items.map((b) => (
-                    <div key={b.id} className="mt-1.5">
-                      <p className="line-clamp-2 text-[20px] leading-snug">{b.title}</p>
-                      <p className="mt-1 flex items-center gap-2 text-[14px] text-faint">
+                    <div key={b.id} className={dense ? 'mt-0.5 flex min-w-0 items-baseline gap-3' : 'mt-1.5'}>
+                      <p className={dense ? 'min-w-0 truncate text-[18px] leading-snug' : 'line-clamp-2 text-[20px] leading-snug'}>{b.title}</p>
+                      <p className={`flex shrink-0 items-center gap-2 text-[14px] text-faint ${dense ? '' : 'mt-1'}`}>
                         {b.planted && <span className="rounded-full bg-focus/15 px-2 py-px text-focus">planted on purpose</span>}
                         {b.foundBy && <span>found by {b.foundBy === 'blind' ? 'the blind run' : b.foundBy === 'explore' ? 'kane-cli explore' : b.foundBy}</span>}
                       </p>

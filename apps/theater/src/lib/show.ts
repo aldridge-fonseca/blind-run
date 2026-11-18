@@ -195,14 +195,15 @@ export function outcome(run: Run) {
   const first = blinds[0] ?? null;
   const last = blinds.at(-1) ?? null;
   const lanes = [...run.lanes.values()];
-  const credits = lanes.reduce((n, l) => n + (l.meta?.credits ?? l.runEnd?.credits_consumed ?? 0), 0);
+  // The engine's run-level tally includes Kane runs that are not replayed (e.g. a re-verification it discarded).
+  const credits = run.meta.kane?.credits ?? lanes.reduce((n, l) => n + (l.meta?.credits ?? l.runEnd?.credits_consumed ?? 0), 0);
   return {
     sighted,
     before: first,
     after: blinds.length > 1 ? last : null,
     blindFixed: blinds.length > 1 && last?.status === 'passed',
     credits,
-    kaneRuns: lanes.length,
+    kaneRuns: run.meta.kane?.runs ?? lanes.length,
     attempts: run.fixes.size,
     barriers: run.meta.outcome?.barriers ?? [],
   };

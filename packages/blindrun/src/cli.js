@@ -81,6 +81,20 @@ function startServer(command, cwd) {
   };
 }
 
+/** Every Kane call in the run, including re-verifications whose first try was discarded. */
+export async function kaneTotals(runDir, sequence) {
+  let runs = 0;
+  let credits = 0;
+  for (const item of sequence) {
+    try { credits += Number((await readJson(join(runDir, item.dir, 'lane.json'))).credits) || 0; runs++; } catch { /* attempt without a rerun */ }
+    try {
+      const recheck = (await readJson(join(runDir, item.dir, 'result.json'))).recheck;
+      if (recheck) { credits += Number(recheck.extraCredits) || 0; runs++; }
+    } catch { /* lanes have no result.json */ }
+  }
+  return { runs, credits: Math.round(credits * 100) / 100 };
+}
+
 function laneEntry(lane, dir, t0, runStart) {
   return { kind: 'lane', lane, dir, t0, t1: Date.now() - runStart };
 }
@@ -203,7 +217,7 @@ async function demoCommand({ options }) {
     log(`audit (after): ${auditAfter.filter((b) => b.present).map((b) => b.id).join(' ') || 'no planted barriers present'}`);
     const fixedDiff = (await run('git', ['diff', baseline, '--', ENCORE.appPath + '/src'], { cwd: worktree })).stdout;
     if (fixedDiff.trim()) await writeFile(join(runDir, 'fix.patch'), fixedDiff);
-    await writeRun({ outcome: { blindBefore: blind.status, blindAfter: last.status, barriers: encoreBarriers({ before: auditBefore, after: auditAfter, blindLanes }) } });
+    await writeRun({ kane: await kaneTotals(runDir, sequence), outcome: { blindBefore: blind.status, blindAfter: last.status, barriers: encoreBarriers({ before: auditBefore, after: auditAfter, blindLanes }) } });
     if (options.voice !== false) {
       const apiKey = await loadKey('ELEVENLABS_API_KEY');
       if (apiKey) await synthesizeRun(runDir, { apiKey, log }).catch((error) => log(`voice skipped: ${error.message}`));

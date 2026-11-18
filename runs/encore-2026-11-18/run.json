@@ -42,6 +42,10 @@
       "t1": 1767066
     }
   ],
+  "kane": {
+    "runs": 6,
+    "credits": 271.06
+  },
   "outcome": {
     "blindBefore": "failed",
     "blindAfter": "passed",

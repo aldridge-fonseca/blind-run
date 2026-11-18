@@ -53,7 +53,7 @@ function summarize(id: string, dir: string) {
       sightedMs: sightedLane?.durationMs ?? null,
       before: blinds[0] ? { status: blinds[0].status, ms: blinds[0].durationMs } : null,
       after: blinds.length > 1 ? { status: blinds.at(-1)!.status, ms: blinds.at(-1)!.durationMs } : null,
-      credits: Math.round(credits * 10) / 10,
+      credits: Math.round((run.kane?.credits ?? credits) * 10) / 10,
     };
     return { ...run, id, fixture, thumb: thumb ? `${sighted}/${thumb}` : null, stats };
   } catch (err) {

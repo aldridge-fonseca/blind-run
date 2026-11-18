@@ -20,6 +20,8 @@ export type RunJson = {
   expect?: string;
   app?: { name?: string; commit?: string | null };
   kaneVersion?: string;
+  /** Totals over every Kane call in the run, including ones the show does not replay. */
+  kane?: { runs: number; credits: number };
   sequence?: RunSequenceItem[];
   outcome?: { blindBefore?: string; blindAfter?: string; barriers?: Barrier[] };
 };
