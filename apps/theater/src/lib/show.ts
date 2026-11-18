@@ -140,9 +140,17 @@ export function parseMoment(show: Show, value: string | null): number | null {
   if (!m || (!m[1] && !m[2])) return null;
   let t = 0;
   if (m[1]) {
-    const c = show.chapters.find((ch) => ch.id === m[1].toLowerCase());
+    let id = m[1].toLowerCase();
+    let c = show.chapters.find((ch) => ch.id === id);
+    // "verdict-1" means one second before the verdict unless a chapter is literally named that.
+    const back = !c && id.match(/^(.*)-(\d+(?:\.\d+)?)$/);
+    if (back) {
+      id = back[1];
+      c = show.chapters.find((ch) => ch.id === id);
+      t -= Number(back[2]) * 1000;
+    }
     if (!c) return null;
-    t = c.start;
+    t += c.start;
   }
   if (m[2]) t += Number(m[2]) * 1000;
   return Math.min(Math.max(0, t), show.duration);

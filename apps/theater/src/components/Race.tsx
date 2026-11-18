@@ -183,9 +183,9 @@ function SightedPanel({ view, local, lens, expect, replay }: { view: LaneView; l
           </span>
         )}
         {passed && (
-          <div className="absolute inset-x-0 bottom-6 flex justify-center" style={{ opacity: clamp(pop * 1.5), transform: `scale(${0.85 + 0.15 * pop})` }}>
-            <div className="flex items-center gap-3 rounded-full border border-pass/40 bg-black/80 py-2.5 pl-2.5 pr-6 text-[19px] font-semibold text-fg backdrop-blur-xl">
-              <span className="grid size-9 place-items-center rounded-full bg-pass text-black"><Check size={20} /></span>
+          <div className="absolute right-5 top-5" style={{ opacity: clamp(pop * 1.5), transform: `scale(${0.85 + 0.15 * pop})`, transformOrigin: 'top right' }}>
+            <div className="flex items-center gap-3 rounded-full border border-pass/40 bg-black/85 py-2 pl-2 pr-5 text-[18px] font-semibold text-fg shadow-[0_10px_40px_-8px_rgb(0_0_0_/_.8)] backdrop-blur-xl">
+              <span className="grid size-8 place-items-center rounded-full bg-pass text-black"><Check size={18} /></span>
               {expect ? <>Verified “{expect}”</> : 'Task complete'}
             </div>
           </div>
@@ -291,7 +291,7 @@ function BlindPanel({ view, local, revealPage, analyser, expect, round, sighted 
           <Speaker size={16} /> Screen reader
         </div>
         <KeyFlash lane={lane} laneT={laneT} />
-        <div className="absolute inset-x-10 bottom-[118px]">
+        <div className="absolute inset-x-10 bottom-[118px]" style={{ opacity: failed ? 1 - 0.45 * clamp(sinceEnd / 600) : 1 }}>
           {history.map((a, k) => (
             <p key={`${a.t}-${k}`} className="mb-3 line-clamp-1 text-[26px] font-medium leading-tight text-white" style={{ opacity: k === 0 ? 0.32 : 0.14 }}>
               {a.text}
@@ -306,7 +306,7 @@ function BlindPanel({ view, local, revealPage, analyser, expect, round, sighted 
           <Waveform analyser={analyser} fallback={speaking * 0.9} width={PANEL_W - 64} height={64} />
         </div>
         {failed && (
-          <div className="absolute inset-x-0 top-[38%] flex justify-center" style={{ opacity: clamp(pop * 1.5), transform: `scale(${0.9 + 0.1 * pop})` }}>
+          <div className="absolute inset-x-0 top-5 flex justify-center" style={{ opacity: clamp(pop * 1.5), transform: `scale(${0.9 + 0.1 * pop})` }}>
             <div className="flex items-center gap-4 rounded-full border border-fail/50 bg-[#1a0606]/90 py-3 pl-3 pr-7 text-[24px] font-semibold text-white shadow-[0_20px_60px_-10px_rgb(255_69_58_/_.5)] backdrop-blur-xl">
               <span className="grid size-11 place-items-center rounded-full bg-fail text-black"><Cross size={22} /></span>
               Blocked · Kane stopped after {(lane.durationMs / 1000).toFixed(1)} s
@@ -439,7 +439,7 @@ function RevealLayer({ lane, laneT, sighted }: { lane: Lane; laneT: number; sigh
 
 function StepChips({ lane, laneT }: { lane: Lane; laneT: number }) {
   const { done, running } = currentStep(lane, laneT);
-  const shown = done.slice(-7);
+  const shown = done.slice(-5);
   return (
     <div className="mt-5 flex h-[74px] items-center gap-2.5 overflow-hidden rounded-[18px] border border-line bg-panel px-4" aria-hidden="true">
       <span className="mr-1 shrink-0 font-mono text-[13px] uppercase tracking-wider text-faint">Kane</span>
@@ -451,7 +451,7 @@ function StepChips({ lane, laneT }: { lane: Lane; laneT: number }) {
         return (
           <span
             key={s.n}
-            className={`flex h-10 max-w-[260px] shrink-0 items-center gap-2 rounded-[11px] border px-3 font-mono text-[15px] font-medium ${failed ? 'border-fail/60 bg-fail-soft text-fail' : 'border-white/15 bg-white/[0.06] text-fg'}`}
+            className={`flex h-10 max-w-[230px] shrink-0 items-center gap-2 rounded-[11px] border px-3 font-mono text-[15px] font-medium ${failed ? 'border-fail/60 bg-fail-soft text-fail' : 'border-white/15 bg-white/[0.06] text-fg'}`}
             style={{ opacity: clamp(p * 1.4), transform: `scale(${0.8 + 0.2 * p})` }}
           >
             {failed ? <Cross size={14} /> : glyph && <span className="text-dim">{glyph}</span>}

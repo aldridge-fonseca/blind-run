@@ -45,7 +45,14 @@ export class AudioEngine {
         this.ctx = null;
       }
     }
-    void this.ctx?.resume().catch(() => {});
+    void this.ctx
+      ?.resume()
+      .then(() => this.listeners.forEach((fn) => fn()))
+      .catch(() => {});
+  }
+
+  get running() {
+    return this.ctx?.state === 'running';
   }
 
   setMuted(muted: boolean) {

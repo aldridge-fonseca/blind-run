@@ -70,6 +70,7 @@ function Player({ run, present }: { run: Run; present: boolean }) {
   const [keys, setKeys] = useState(() => store.get('keys', true));
   const [helpOpen, setHelpOpen] = useState(false);
   const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
+  const [soundOn, setSoundOn] = useState(false);
   const [announce, setAnnounce] = useState('');
 
   const show = useMemo(() => buildShow(run, trim), [run, trim]);
@@ -101,7 +102,10 @@ function Player({ run, present }: { run: Run; present: boolean }) {
 
   useEffect(() => {
     audio.preload([...run.lanes.values()].flatMap((l) => l.audio));
-    const sync = () => setAnalyser(audio.analyser);
+    const sync = () => {
+      setAnalyser(audio.analyser);
+      setSoundOn(audio.running);
+    };
     audio.listeners.add(sync);
     const unlock = () => audio.unlock();
     addEventListener('pointerdown', unlock, { once: true });
@@ -275,6 +279,11 @@ function Player({ run, present }: { run: Run; present: boolean }) {
           <ShowView run={run} show={show} t={t} settings={settings} />
         </Stage>
         <div role="status" aria-live="polite" className="sr-only">{announce}</div>
+        {!soundOn && !muted && run.lanes.size > 0 && [...run.lanes.values()].some((l) => l.audio.length) && (
+          <button onClick={() => audio.unlock()} className="fixed left-1/2 top-4 -translate-x-1/2 rounded-full border border-line-strong bg-black/80 px-4 py-2 text-[13px] text-dim backdrop-blur">
+            Sound is off · click or press any key to hear the screen reader
+          </button>
+        )}
         <HelpDialog open={helpOpen} onClose={() => setHelpOpen(false)} keys={keys} setKeys={setKeys} />
       </main>
     );
