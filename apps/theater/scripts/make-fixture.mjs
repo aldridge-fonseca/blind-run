@@ -179,7 +179,7 @@ try {
   const v = before.lane.verdict;
   fs.writeFileSync(path.join(fixDir, 'brief.md'), `# Fix brief (attempt 1)\n\nKane CLI ran the task as a blind, keyboard-only user and reported a confirmed product bug.\n\n- **Bug:** ${v.bug_title}\n- **Evidence:** ${before.lane.verdict.signals[0].excerpt}\n- **Suggestion:** ${v.suggestion}\n\nScreen reader heard:\n${before.announcements.map((a) => `- ${a.text}`).join('\n')}\n\nRules: edit only \`src/**\`. Do not touch tests, objectives, or the runner.\n`);
   fs.writeFileSync(path.join(fixDir, 'agent.log'), 'FIXTURE: no agent ran. This diff was written by hand to exercise the Theater.\n');
-  fs.writeFileSync(path.join(fixDir, 'result.json'), JSON.stringify({ attempt: 1, status: 'applied', agent: 'fixture (hand-written diff)', filesChanged: ['src/seat-page.html'], durationMs: 41000, fixture: true }, null, 2));
+  fs.writeFileSync(path.join(fixDir, 'result.json'), JSON.stringify({ attempt: 1, status: 'applied', agent: 'Hand-written diff (fixture)', filesChanged: ['src/seat-page.html'], fixture: true }, null, 2));
 
   if (withAudio) for (const lane of [before, after]) await voiceLane(lane);
 

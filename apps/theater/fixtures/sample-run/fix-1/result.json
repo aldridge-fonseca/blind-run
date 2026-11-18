@@ -1,10 +1,9 @@
 {
   "attempt": 1,
   "status": "applied",
-  "agent": "fixture (hand-written diff)",
+  "agent": "Hand-written diff (fixture)",
   "filesChanged": [
     "src/seat-page.html"
   ],
-  "durationMs": 41000,
   "fixture": true
 }
