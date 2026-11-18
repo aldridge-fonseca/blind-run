@@ -11,7 +11,7 @@
     "demo": "pnpm --filter theater build && echo 'Blind Run Theater: open http://localhost:4320/?run=latest' && pnpm --filter theater preview",
     "live": "node packages/blindrun/bin/blindrun.js demo",
     "blindrun": "node packages/blindrun/bin/blindrun.js",
-    "test": "pnpm -r --if-present test",
+    "test": "pnpm -r --if-present test && node --test \"tests/*.test.mjs\"",
     "typecheck": "pnpm -r --if-present typecheck",
     "build": "pnpm -r --if-present build"
   }

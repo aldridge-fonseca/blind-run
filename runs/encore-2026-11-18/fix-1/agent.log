@@ -34,7 +34,7 @@ $ claude -p --restricted --safe-mode --no-session-persistence --permission-mode 
 [claude] Now the quantity stepper.
 [tool] Edit apps/encore/src/components/BookingSummary.tsx
 [tool] Grep tailwind|react"
-[tool error] /tmp/claude-1000/w2b/blindrun-encore-2026-11-18/apps/encore/package.json is outside /tmp/claude-1000/w2b/blindrun-encore-2026-11-18/apps/encore/src; --restricted confines the file tools to the working directory.
+[tool error] /tmp/blindrun-encore-2026-11-18/apps/encore/package.json is outside /tmp/blindrun-encore-2026-11-18/apps/encore/src; --restricted confines the file tools to the working directory.
 [tool] Edit apps/encore/src/components/BookingSummary.tsx
 [tool] Edit apps/encore/src/components/BookingSummary.tsx
 [tool] Edit apps/encore/src/components/BookingSummary.tsx

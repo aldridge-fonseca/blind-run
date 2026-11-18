@@ -1,0 +1,60 @@
+{
+  "command": "kane-cli run --analyzer-only --cdp-endpoint http://127.0.0.1:9333 --agent --assertion-mode dom --condition <C1> ... --condition <C5>",
+  "kaneVersion": "0.10.6",
+  "setup": "One headless Chrome per build, opened directly on the page (the only tab, checked before and after). --analyzer-only judges the current page and ignores --url.",
+  "builds": {
+    "base": {
+      "what": "apps/encore at tag encore-baseline (511ba26)",
+      "url": "http://127.0.0.1:4311/"
+    },
+    "fixed": {
+      "what": "encore-baseline + runs/encore-2026-11-18/fix.patch (Claude Code's two attempts)",
+      "url": "http://127.0.0.1:4312/"
+    }
+  },
+  "conditions": [
+    "Every seat in the 'Pick your seats' seat map is a keyboard-focusable control (a button, or an element with tabindex 0) with an accessible name such as 'Row F, Seat 14'.",
+    "The date options under 'Choose your night' are keyboard-focusable controls (buttons, radios, or elements with tabindex 0), so the Tab key can reach them.",
+    "The ticket quantity minus and plus buttons each have an accessible name (aria-label or visible text), not just an icon.",
+    "The tier prices in the seat legend have a text contrast ratio of at least 4.5:1 against their background.",
+    "In the 'Pick your seats' seat map, every seat has an accessible name such as 'Row F, Seat 14', and the seat map can be reached with the Tab key (at least one seat has tabindex 0; a roving-tabindex grid with arrow-key movement counts)."
+  ],
+  "results": {
+    "base": {
+      "condition_results": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "condition_reasons": [
+        "Checking seat control keyboard focusability: value: 'false' -> 'false'; equals 'true' -> FAIL",
+        "Checking date option keyboard focusability: value: 'false' -> 'false'; equals 'true' -> FAIL",
+        "Checking ticket quantity button accessible names: value: 'false' -> 'false'; equals 'true' -> FAIL",
+        "Checking seat legend tier price contrast: value: 'false' -> 'false'; equals 'true' -> FAIL",
+        "Checking seat names and seat-map Tab reachability: value: 'false' -> 'false'; equals 'true' -> FAIL"
+      ],
+      "credits": 11.84114,
+      "durationS": 38.88
+    },
+    "fixed": {
+      "condition_results": [
+        false,
+        true,
+        true,
+        false,
+        false
+      ],
+      "condition_reasons": [
+        "Checking seat-map control focusability and accessible names: value: 'false' -> 'false'; equals 'true' -> FAIL",
+        "Checking date-option keyboard focusability: value: 'true' -> 'true'; equals 'true' -> PASS",
+        "Checking ticket quantity button accessible names: value: 'true' -> 'true'; equals 'true' -> PASS",
+        "Checking seat-legend price contrast: value: 'false' -> 'false'; equals 'true' -> FAIL",
+        "Checking seat-map names and Tab reachability: value: 'false' -> 'false'; equals 'true' -> FAIL"
+      ],
+      "credits": 13.08887,
+      "durationS": 38.51
+    }
+  }
+}
