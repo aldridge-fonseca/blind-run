@@ -78,7 +78,9 @@ export function parseKane(events: Record<string, unknown>[], origin: number): { 
   return { steps, runEnd };
 }
 
-async function loadLane(base: string, dir: string, kind: 'sighted' | 'blind'): Promise<Lane | null> {
+type RunAudio = { t: number; file: string; text: string; lane?: string; source?: string };
+
+async function loadLane(base: string, dir: string, kind: 'sighted' | 'blind', runAudio: RunAudio[] = []): Promise<Lane | null> {
   const laneBase = `${base}/${dir}`;
   const [meta, kaneText, frames, annText, audio] = await Promise.all([
     getJson<LaneJson>(`${laneBase}/lane.json`),
@@ -99,7 +101,11 @@ async function loadLane(base: string, dir: string, kind: 'sighted' | 'blind'): P
     (runEnd?.duration ? runEnd.duration * 1000 : Math.max(steps.at(-1)?.t ?? 0, frameList.at(-1)?.t ?? 0, announcements.at(-1)?.t ?? 0) + 1000);
   const rawStatus = String(meta?.status ?? runEnd?.status ?? 'unknown');
   const status = rawStatus === 'passed' ? 'passed' : rawStatus === 'failed' ? 'failed' : 'unknown';
-  const audioClips: AudioClip[] = (audio ?? []).filter((a) => a.file).map((a) => ({ ...a, url: `${laneBase}/${a.file}` }));
+  // Audio lives either beside the lane or in the run-level audio.json, tagged with the lane dir.
+  const audioClips: AudioClip[] = audio?.length
+    ? audio.filter((a) => a.file).map((a) => ({ ...a, url: `${laneBase}/${a.file}` }))
+    : runAudio.filter((a) => a.lane === dir && a.file && a.source !== 'narration').map((a) => ({ t: a.t, file: a.file, text: a.text, url: `${base}/${a.file}` }));
+  audioClips.sort((a, b) => a.t - b.t);
   const video = meta?.video ? `${laneBase}/${meta.video}` : !frameList.length ? await probeVideo(laneBase) : null;
   return {
     dir, kind, meta, steps, runEnd, frames: frameList, video, announcements, audio: audioClips, durationMs, status,
@@ -119,14 +125,15 @@ async function probeVideo(laneBase: string): Promise<string | null> {
   return null;
 }
 
-async function loadFix(base: string, dir: string, attempt: number): Promise<Fix> {
+async function loadFix(base: string, dir: string, attempt: number, runAudio: RunAudio[]): Promise<Fix> {
   const fixBase = `${base}/${dir}`;
-  const [diffText, brief, result] = await Promise.all([
+  const [diffText, brief, result, lane] = await Promise.all([
     getText(`${fixBase}/diff.patch`),
     getText(`${fixBase}/brief.md`),
     getJson<Record<string, unknown>>(`${fixBase}/result.json`),
+    loadLane(base, dir, 'blind', runAudio),
   ]);
-  return { dir, attempt, diffText, files: diffText ? parseDiff(diffText) : [], brief, result, base: fixBase };
+  return { dir, attempt, diffText, files: diffText ? parseDiff(diffText) : [], brief, result, base: fixBase, lane };
 }
 
 /** Without a sequence in run.json, probe the conventional directory names. */
@@ -134,11 +141,13 @@ async function guessSequence(base: string): Promise<RunSequenceItem[]> {
   const seq: RunSequenceItem[] = [];
   const exists = async (p: string) => (await getText(`${base}/${p}`)) != null;
   if ((await exists('sighted/lane.json')) || (await exists('sighted/kane.ndjson'))) seq.push({ kind: 'lane', lane: 'sighted', dir: 'sighted' });
+  if ((await exists('blind/lane.json')) || (await exists('blind/kane.ndjson'))) seq.push({ kind: 'lane', lane: 'blind', dir: 'blind' });
   for (let i = 0; i < 6; i++) {
     if (i > 0 && (await exists(`fix-${i}/diff.patch`))) seq.push({ kind: 'fix', attempt: i, dir: `fix-${i}` });
     if ((await exists(`blind-${i}/lane.json`)) || (await exists(`blind-${i}/kane.ndjson`))) seq.push({ kind: 'lane', lane: 'blind', dir: `blind-${i}` });
-    else if (i > 0) break;
+    else if (i > 0 && !(await exists(`fix-${i}/diff.patch`))) break;
   }
+  if ((await exists('blind-after/lane.json')) || (await exists('blind-after/kane.ndjson'))) seq.push({ kind: 'lane', lane: 'blind', dir: 'blind-after' });
   return seq;
 }
 
@@ -147,15 +156,18 @@ export async function loadRun(id: string): Promise<Run> {
   const meta = await getJson<RunJson>(`${base}/run.json`);
   if (!meta) throw new Error(`Run “${id}” was not found (no ${base}/run.json).`);
   const sequence = meta.sequence?.length ? meta.sequence : await guessSequence(base);
+  const runAudio = (await getJson<RunAudio[]>(`${base}/audio.json`)) ?? [];
   const lanes = new Map<string, Lane>();
   const fixes = new Map<string, Fix>();
   await Promise.all(
     sequence.map(async (item) => {
       if (item.kind === 'lane') {
-        const lane = await loadLane(base, item.dir, item.lane);
+        const lane = await loadLane(base, item.dir, item.lane, runAudio);
         if (lane) lanes.set(item.dir, lane);
       } else if (item.kind === 'fix') {
-        fixes.set(item.dir, await loadFix(base, item.dir, item.attempt));
+        const fix = await loadFix(base, item.dir, item.attempt, runAudio);
+        fixes.set(item.dir, fix);
+        if (fix.lane) lanes.set(item.dir, fix.lane);
       }
     }),
   );

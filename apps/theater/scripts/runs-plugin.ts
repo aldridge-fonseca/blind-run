@@ -5,7 +5,12 @@ import path from 'node:path';
 import type { Plugin } from 'vite';
 
 const theaterRoot = path.resolve(import.meta.dirname, '..');
-const sources = [path.resolve(theaterRoot, '../../runs'), path.resolve(theaterRoot, 'fixtures')];
+// THEATER_RUNS=/path/a:/path/b adds more run directories (e.g. runs recorded elsewhere).
+const sources = [
+  ...(process.env.THEATER_RUNS ?? '').split(':').filter(Boolean).map((p) => path.resolve(p)),
+  path.resolve(theaterRoot, '../../runs'),
+  path.resolve(theaterRoot, 'fixtures'),
+];
 
 function runDirs(): Map<string, string> {
   const found = new Map<string, string>();

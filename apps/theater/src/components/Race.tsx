@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { laneTimeAt, warpRate, type LaneView } from '../lib/show';
 import type { Announcement, KaneStep, Lane } from '../lib/types';
 import { clamp, easeOutBack, fmtClock, lastAt, reveal, rise } from '../lib/util';
@@ -31,7 +31,7 @@ export function Race({ sighted, blind, local, round, expect, lens, revealPage, a
   return (
     <div className="absolute inset-x-0 top-[100px] bottom-[96px] flex items-center justify-center gap-[56px]">
       {sighted ? <SightedPanel view={sighted} local={local} lens={lens} expect={expect} replay={round > 1} /> : <MissingPanel label="Sighted" />}
-      {blind ? <BlindPanel view={blind} local={local} revealPage={revealPage} analyser={analyser} expect={expect} round={round} /> : <MissingPanel label="Blind" />}
+      {blind ? <BlindPanel view={blind} local={local} revealPage={revealPage} analyser={analyser} expect={expect} round={round} sighted={sighted?.lane ?? null} /> : <MissingPanel label="Blind" />}
     </div>
   );
 }
@@ -244,7 +244,7 @@ function Dots() {
 
 const WORD_MS = 150;
 
-function BlindPanel({ view, local, revealPage, analyser, expect, round }: { view: LaneView; local: number; revealPage: boolean; analyser: AnalyserNode | null; expect?: string; round: number }) {
+function BlindPanel({ view, local, revealPage, analyser, expect, round, sighted }: { view: LaneView; local: number; revealPage: boolean; analyser: AnalyserNode | null; expect?: string; round: number; sighted: Lane | null }) {
   const { lane } = view;
   const { laneT, ended, rate, sinceEnd } = laneState(view, local);
   const st = laneStatus(lane, laneT, ended);
@@ -282,7 +282,7 @@ function BlindPanel({ view, local, revealPage, analyser, expect, round }: { view
           boxShadow: passed ? '0 0 0 1px rgb(48 209 88 / .25), 0 30px 80px -20px rgb(48 209 88 / .25)' : failed ? `0 0 0 1px rgb(255 69 58 / ${failGlow * 0.3}), 0 30px 90px -20px rgb(255 69 58 / ${failGlow * 0.35})` : '0 30px 80px -30px rgb(0 0 0 / .8)',
         }}
       >
-        {revealPage && <RevealLayer lane={lane} laneT={laneT} />}
+        {revealPage && <RevealLayer lane={lane} laneT={laneT} sighted={sighted} />}
       </Screen>
       {revealPage && <div className="pointer-events-none relative rounded-b-[22px] bg-gradient-to-t from-black via-black/85 to-transparent" style={{ width: PANEL_W, height: 330, marginTop: -330 }} />}
       {/* Captions and waveform sit over the whole black screen, not just the page box. */}
@@ -364,13 +364,58 @@ function KeyFlash({ lane, laneT }: { lane: Lane; laneT: number }) {
   );
 }
 
-function RevealLayer({ lane, laneT }: { lane: Lane; laneT: number }) {
-  const vp = lane.viewport ?? { width: 1280, height: 800 };
+const occlusion = new Map<string, Promise<boolean>>();
+/** True when a lane's frames are the black blindfold Kane saw (mean luminance near zero). */
+function useOccluded(lane: Lane): boolean | null {
+  const [v, setV] = useState<boolean | null>(null);
+  useEffect(() => {
+    const f = lane.frames[Math.floor(lane.frames.length * 0.6)];
+    if (!f) return setV(null);
+    let p = occlusion.get(lane.base);
+    if (!p) {
+      p = new Promise<boolean>((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const c = document.createElement('canvas');
+          c.width = 32;
+          c.height = 20;
+          const g = c.getContext('2d')!;
+          g.drawImage(img, 0, 0, 32, 20);
+          const d = g.getImageData(0, 0, 32, 20).data;
+          let sum = 0;
+          for (let i = 0; i < d.length; i += 4) sum += d[i] + d[i + 1] + d[i + 2];
+          resolve(sum / (d.length / 4) / 3 < 6);
+        };
+        img.onerror = () => resolve(false);
+        img.src = f.url;
+      });
+      occlusion.set(lane.base, p);
+    }
+    let live = true;
+    p.then((x) => live && setV(x));
+    return () => {
+      live = false;
+    };
+  }, [lane]);
+  return v;
+}
+
+function RevealLayer({ lane, laneT, sighted }: { lane: Lane; laneT: number; sighted: Lane | null }) {
+  const occluded = useOccluded(lane);
+  const vp = lane.viewport ?? sighted?.viewport ?? { width: 1280, height: 800 };
   const pts = lane.announcements.filter((a) => a.rect && a.t <= laneT).map((a) => ({ ...a.rect!, t: a.t }));
   const cur = pts.at(-1);
+  // Kane's own blind frames are black. Then the page layout comes from the sighted run, and says so.
+  const useSighted = occluded && sighted && sighted.frames.length > 0;
+  const layout = useSighted ? sighted.frames[Math.min(sighted.frames.length - 1, 1)] : null;
   return (
     <div className="absolute inset-0" aria-hidden="true">
-      <Frames lane={lane} laneT={laneT} style={{ opacity: 0.3, filter: 'grayscale(1) brightness(1.1)' }} />
+      {layout ? (
+        <img src={layout.url} alt="" className="absolute inset-0 size-full object-cover" style={{ opacity: 0.3, filter: 'grayscale(1) brightness(1.1)' }} />
+      ) : (
+        !occluded && <Frames lane={lane} laneT={laneT} style={{ opacity: 0.3, filter: 'grayscale(1) brightness(1.1)' }} />
+      )}
+      {layout && <span className="absolute bottom-3 right-4 text-[12px] font-medium uppercase tracking-[0.14em] text-white/50">Layout from the sighted run · Kane saw black</span>}
       <svg viewBox={`0 0 ${vp.width} ${vp.height}`} className="absolute inset-0 size-full">
         {pts.length > 1 && (
           <polyline points={pts.map((p) => `${p.x + p.w / 2},${p.y + p.h / 2}`).join(' ')} fill="none" stroke="#ffd60a" strokeOpacity="0.55" strokeWidth="3" strokeDasharray="2 9" strokeLinecap="round" />
@@ -378,7 +423,8 @@ function RevealLayer({ lane, laneT }: { lane: Lane; laneT: number }) {
         {pts.map((p, k) => <circle key={k} cx={p.x + p.w / 2} cy={p.y + p.h / 2} r={7} fill="#ffd60a" fillOpacity={k === pts.length - 1 ? 1 : 0.45} />)}
         {cur && <rect x={cur.x - 6} y={cur.y - 6} width={cur.w + 12} height={cur.h + 12} rx={14} fill="none" stroke="#ffd60a" strokeWidth={4} style={{ filter: 'drop-shadow(0 0 12px rgb(255 214 10 / .6))' }} />}
       </svg>
-      {!lane.frames.length && <Waiting text="No page capture for this lane" />}
+      {!lane.frames.length && !layout && <Waiting text="No page capture for this lane" />}
+      {!pts.length && <span className="absolute left-1/2 top-4 -translate-x-1/2 text-[13px] text-white/45">No focus positions recorded</span>}
     </div>
   );
 }

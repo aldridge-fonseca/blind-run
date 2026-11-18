@@ -125,6 +125,11 @@ function Player({ run, present }: { run: Run; present: boolean }) {
   useEffect(() => store.set('muted', muted), [muted]);
   useEffect(() => store.set('keys', keys), [keys]);
 
+  // Exposed for scripts/record.mjs and debugging; harmless in production.
+  useEffect(() => {
+    (window as unknown as { __theater: unknown }).__theater = { run, show, clock };
+  }, [run, show, clock]);
+
   const t = useClock(clock, (s) => s.t);
   const playing = useClock(clock, (s) => s.playing);
   const speed = useClock(clock, (s) => s.speed);

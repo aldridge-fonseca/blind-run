@@ -188,6 +188,8 @@ export function evidenceLinks(run: Run) {
       const fix = run.fixes.get(s.dir);
       if (fix?.diffText) links.push({ label: `${s.dir}/diff.patch`, href: `${fix.base}/diff.patch` });
       if (fix?.brief) links.push({ label: `${s.dir}/brief.md`, href: `${fix.base}/brief.md` });
+      if (fix?.lane) links.push({ label: `${s.dir}/kane.ndjson`, href: `${fix.base}/kane.ndjson` });
+      if (fix?.lane?.runEnd?.test_url) links.push({ label: `${s.dir} · Kane report`, href: fix.lane.runEnd.test_url, external: true });
     }
   }
   return links;

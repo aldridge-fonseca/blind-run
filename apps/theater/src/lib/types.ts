@@ -124,6 +124,8 @@ export type Fix = {
   brief: string | null;
   result: Record<string, unknown> | null;
   base: string;
+  /** The blind rerun recorded inside the fix directory, if the engine put it there. */
+  lane: Lane | null;
 };
 
 export type Run = {

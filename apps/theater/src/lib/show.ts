@@ -93,31 +93,18 @@ export function buildShow(run: Run, trim: boolean): Show {
   };
   const view = (lane: Lane | undefined | null): LaneView | null => (lane ? { lane, warp: buildWarp(lane, trim) } : null);
 
-  const items = run.sequence;
-  const sightedItem = items.find((s) => s.kind === 'lane' && s.lane === 'sighted');
-  const sighted = sightedItem ? run.lanes.get(sightedItem.dir) ?? null : null;
-  const blindItems = items.filter((s) => s.kind === 'lane' && s.lane === 'blind');
+  const sighted = sightedLane(run);
+  const blindItems = blindTimeline(run).filter((b) => b.lane);
 
   push({ kind: 'intro', id: 'intro', title: 'The task', short: 'Task' }, INTRO);
 
   let round = 0;
   let fixCount = 0;
-  for (const item of items) {
-    if (item.kind === 'fix') {
-      const fix = run.fixes.get(item.dir);
-      if (!fix) continue;
-      fixCount++;
-      const typingMs = fixTypingMs(fix);
-      push({ kind: 'fix', id: fixCount > 1 ? `fix-${fixCount}` : 'fix', title: `Agent fixing${fix.attempt > 1 ? ` · attempt ${fix.attempt}` : ''}`, short: 'Fix', fix, typingMs }, typingMs + 7000);
-      continue;
-    }
-    if (item.lane !== 'blind') continue;
-    const blind = run.lanes.get(item.dir);
-    if (!blind) continue;
+  const race = (blind: Lane) => {
     round++;
     const s = view(sighted);
-    const b = view(blind);
-    const dur = Math.max(s?.warp.duration ?? 0, b!.warp.duration) + RACE_TAIL;
+    const b = view(blind)!;
+    const dur = Math.max(s?.warp.duration ?? 0, b.warp.duration) + RACE_TAIL;
     const first = round === 1;
     push(
       { kind: 'race', id: first ? 'race' : round === 2 ? 'rerun' : `rerun-${round - 1}`, title: first ? 'Sighted vs. blind' : 'Blind rerun', short: first ? 'Race' : 'Rerun', round, sighted: s, blind: b },
@@ -126,6 +113,14 @@ export function buildShow(run: Run, trim: boolean): Show {
     if (blind.status === 'failed') {
       push({ kind: 'verdict', id: round === 1 ? 'verdict' : `verdict-${round}`, title: 'Kane verdict', short: 'Verdict', lane: blind, attempt: round }, VERDICT);
     }
+  };
+  for (const lane of blindTimeline(run)) {
+    if (lane.fix) {
+      fixCount++;
+      const typingMs = fixTypingMs(lane.fix);
+      push({ kind: 'fix', id: fixCount > 1 ? `fix-${fixCount}` : 'fix', title: `Agent fixing${lane.fix.attempt > 1 ? ` · attempt ${lane.fix.attempt}` : ''}`, short: 'Fix', fix: lane.fix, typingMs }, typingMs + 7000);
+    }
+    if (lane.lane && lane.shown) race(lane.lane);
   }
   if (!blindItems.length && sighted) {
     push({ kind: 'race', id: 'race', title: 'Sighted run', short: 'Run', round: 1, sighted: view(sighted), blind: null }, view(sighted)!.warp.duration + RACE_TAIL);
@@ -159,11 +154,36 @@ export function formatMoment(show: Show, t: number): string {
   return off < 0.05 ? c.id : `${c.id}+${off.toFixed(1)}`;
 }
 
+function sightedLane(run: Run): Lane | null {
+  const item = run.sequence.find((s) => s.kind === 'lane' && s.lane === 'sighted');
+  return item ? run.lanes.get(item.dir) ?? null : null;
+}
+
+type BlindStep = { lane: Lane | null; fix: Fix | null; shown: boolean };
+
+/**
+ * Blind attempts in order: standalone blind lanes, and reruns the engine recorded inside fix-N/.
+ * A passing rerun inside a fix is not replayed when a later standalone blind lane confirms it.
+ */
+export function blindTimeline(run: Run): BlindStep[] {
+  const out: BlindStep[] = [];
+  run.sequence.forEach((item, i) => {
+    if (item.kind === 'fix') {
+      const fix = run.fixes.get(item.dir);
+      if (!fix) return;
+      const laterBlind = run.sequence.slice(i + 1).some((s) => s.kind === 'lane' && s.lane === 'blind' && run.lanes.has(s.dir));
+      out.push({ fix, lane: fix.lane, shown: !!fix.lane && (fix.lane.status === 'failed' || !laterBlind) });
+    } else if (item.lane === 'blind' && run.lanes.has(item.dir)) {
+      out.push({ fix: null, lane: run.lanes.get(item.dir)!, shown: true });
+    }
+  });
+  return out;
+}
+
 /** Facts for the end card. */
 export function outcome(run: Run) {
-  const blinds = run.sequence.filter((s) => s.kind === 'lane' && s.lane === 'blind').map((s) => run.lanes.get(s.dir)!).filter(Boolean);
-  const sightedItem = run.sequence.find((s) => s.kind === 'lane' && s.lane === 'sighted');
-  const sighted = sightedItem ? run.lanes.get(sightedItem.dir) ?? null : null;
+  const blinds = blindTimeline(run).filter((b) => b.lane).map((b) => b.lane!);
+  const sighted = sightedLane(run);
   const first = blinds[0] ?? null;
   const last = blinds.at(-1) ?? null;
   const lanes = [...run.lanes.values()];
