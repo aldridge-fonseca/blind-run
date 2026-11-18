@@ -1,0 +1,28 @@
+name: Encore
+options:
+  bundleIdPrefix: com.blindrun
+  deploymentTarget: "16.0"
+targets:
+  Encore:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources
+      - path: Web
+        type: folder
+        buildPhase: resources
+    info:
+      path: Encore-Info.plist
+      properties:
+        CFBundleName: Encore
+        CFBundleDisplayName: Encore
+        CFBundleShortVersionString: "0.1"
+        CFBundleVersion: "1"
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.blindrun.encore
+      CODE_SIGNING_ALLOWED: "NO"
+      CODE_SIGNING_REQUIRED: "NO"
+      TARGETED_DEVICE_FAMILY: "1,2"

@@ -1,14 +1,27 @@
-name: Mobile — Kane CLI on Android emulator
+name: Mobile — Kane CLI on a mobile target
 
-# Runs Encore (the demo booking app) inside a Capacitor WebView-shell .apk on a
-# real Android emulator, on a macOS Apple-Silicon runner — the only GitHub-hosted
-# runner kane-cli supports for --target emulator/simulator. The same planted
-# accessibility barriers ship in the APK, so a "blind" (accessibility-only)
-# objective exercises them exactly like a TalkBack/Switch Access user would.
+# Runs Encore (the demo booking app) as a native app on a real mobile target in
+# CI, driven by kane-cli --target on a macOS Apple-Silicon runner — the only
+# GitHub-hosted runner kane-cli supports for --target emulator/simulator. The
+# same planted accessibility barriers ship inside the app, so a "blind"
+# (accessibility-only) objective exercises them like a VoiceOver/Switch user.
+#
+#   simulator → Encore as an unsigned WKWebView-shell .app on an iOS simulator
+#               (runs as a native process — the reliable target on GHA runners)
+#   emulator  → Encore as a Capacitor WebView-shell .apk on an Android emulator
+#               (requires HVF hardware accel; GitHub arm64 runners refuse it —
+#               qemu exits "HVF error: HV_UNSUPPORTED". Kept for self-hosted or
+#               local macOS runners where acceleration exists.)
 
 on:
   workflow_dispatch:
     inputs:
+      target:
+        description: Mobile target for the Kane runs
+        required: true
+        default: simulator
+        type: choice
+        options: [simulator, emulator]
       lanes:
         description: Which Kane objectives to run
         required: true
@@ -16,27 +29,27 @@ on:
         type: choice
         options: [both, sighted, blind]
       device_name:
-        description: Emulator device name for the run (auto-detected from `devices list` when left blank or when it differs)
+        description: Device name for the run ("auto" picks the first discovered; for simulator an iPhone is preferred)
         required: true
         default: auto
       os_version:
-        description: Emulator Android version for the run
+        description: Device OS version for the run ("auto" picks the discovered version)
         required: true
-        default: "15"
+        default: auto
       avd_name:
-        description: AVD to create (no spaces)
+        description: "(emulator) AVD to create — no spaces"
         required: true
         default: Pixel_8_Pro
       device_profile:
-        description: avdmanager -d hardware profile
+        description: "(emulator) avdmanager -d hardware profile"
         required: true
         default: pixel_8_pro
       system_image:
-        description: sdkmanager system image for the AVD
+        description: "(emulator) sdkmanager system image for the AVD"
         required: true
         default: system-images;android-35;google_apis;arm64-v8a
       setup_only:
-        description: Stop after doctor/devices probe — no Kane runs (0 credits)
+        description: Stop after toolchain probe — no Kane runs (0 credits)
         required: false
         type: boolean
         default: false
@@ -49,10 +62,11 @@ env:
   KANE_VERSION: "0.10.6"
   LT_USERNAME: ${{ secrets.LT_USERNAME }}
   LT_ACCESS_KEY: ${{ secrets.LT_ACCESS_KEY }}
+  TARGET: ${{ github.event.inputs.target }}
 
 jobs:
   mobile:
-    runs-on: macos-15 # arm64 Apple Silicon — required for --target emulator
+    runs-on: macos-15 # arm64 Apple Silicon — required for --target emulator|simulator
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
@@ -62,6 +76,7 @@ jobs:
           node-version: 24
 
       - uses: actions/setup-java@v4
+        if: ${{ inputs.target == 'emulator' }}
         with:
           distribution: temurin
           java-version: "21" # Capacitor 8 android lib compiles with Java 21
@@ -72,10 +87,15 @@ jobs:
       - name: Install encore + mobile shell deps
         run: pnpm install --frozen-lockfile --filter encore --filter encore-mobile
 
-      - name: Build Encore (web assets bundled into the APK)
-        run: pnpm --filter encore build
+      - name: Build Encore (web assets bundled into the app)
+        # --base=./ → relative asset URLs, required for file:// loading in the
+        # iOS WKWebView (Capacitor's https://localhost origin is unaffected).
+        run: pnpm --filter encore build --base=./
+
+      # ---- Android app (emulator target) -------------------------------------
 
       - name: Generate Android shell and build debug APK
+        if: ${{ inputs.target == 'emulator' }}
         working-directory: apps/mobile
         run: |
           cp -R ../encore/dist ./www
@@ -87,6 +107,26 @@ jobs:
           ./gradlew assembleDebug --no-daemon
           ls -la app/build/outputs/apk/debug/
 
+      # ---- iOS app (simulator target) ----------------------------------------
+
+      - name: Build iOS simulator app (WebView shell)
+        if: ${{ inputs.target == 'simulator' }}
+        working-directory: apps/mobile
+        run: |
+          brew install xcodegen
+          ditto ../encore/dist Web
+          test -f Web/index.html
+          xcodegen --spec project.yml
+          xcodebuild -project Encore.xcodeproj -scheme Encore \
+            -sdk iphonesimulator -configuration Debug \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+          ls build/Build/Products/Debug-iphonesimulator/
+          ditto -c -k --sequesterRsrc --keepParent \
+            build/Build/Products/Debug-iphonesimulator/Encore.app encore-ios.zip
+          unzip -l encore-ios.zip | head -15
+
+      # ---- Kane --------------------------------------------------------------
+
       - name: Install kane-cli
         run: npm i -g @testmuai/kane-cli@${KANE_VERSION}
 
@@ -95,10 +135,11 @@ jobs:
 
       - name: Mobile toolchain install
         run: |
-          kane-cli devices list --target emulator --agent || true
-          kane-cli doctor --target emulator --install < /dev/null
+          kane-cli devices list --target ${TARGET} --agent || true
+          kane-cli doctor --target ${TARGET} --install < /dev/null
 
       - name: Provision Android emulator (AVD)
+        if: ${{ inputs.target == 'emulator' }}
         run: |
           set -x
           SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
@@ -119,10 +160,9 @@ jobs:
           ln -sfn "$SDK/system-images" "$MSDK/android-sdk/system-images"
           ln -sfn "$SDK/platforms" "$MSDK/android-sdk/platforms"
           "$SDK/emulator/emulator" -list-avds || true
-          grep -E "hw.device.name|image.sysdir" "$HOME/.android/avd/${{ inputs.avd_name }}.avd/config.ini" || true
 
       - name: Boot Android emulator
-        if: ${{ !inputs.setup_only }}
+        if: ${{ inputs.target == 'emulator' && !inputs.setup_only }}
         run: |
           mkdir -p runs/mobile-ci
           SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
@@ -136,41 +176,50 @@ jobs:
             > runs/mobile-ci/emulator-boot.log 2>&1 &
           EMU_PID=$!
           echo "emulator pid $EMU_PID"
-          "$ADB" wait-for-device
+          booted=""
           for i in $(seq 1 150); do
+            kill -0 $EMU_PID 2>/dev/null || { echo "emulator process died"; tail -80 runs/mobile-ci/emulator-boot.log; exit 1; }
             booted=$("$ADB" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
             [ "$booted" = "1" ] && break
-            kill -0 $EMU_PID 2>/dev/null || { echo "emulator process died"; tail -50 runs/mobile-ci/emulator-boot.log; exit 1; }
             sleep 4
           done
           "$ADB" devices
-          "$ADB" shell getprop ro.build.version.release || true
           [ "$booted" = "1" ]
+
+      - name: Ensure an iOS simulator exists
+        if: ${{ inputs.target == 'simulator' }}
+        run: node apps/mobile/scripts/ensure-sim.mjs
 
       - name: Mobile toolchain probe
         run: |
           mkdir -p runs/mobile-ci
-          kane-cli devices list --target emulator --agent | tee runs/mobile-ci/devices-emulator.jsonl || true
+          kane-cli devices list --target ${TARGET} --agent | tee "runs/mobile-ci/devices-${TARGET}.jsonl" || true
           kane-cli balance || true
-          # Resolve the device the run should use: prefer the discovered one;
-          # the device_name input overrides when it is not "auto".
+          # Resolve the device the run should use: prefer a discovered device
+          # (an iPhone on simulator); the device_name input overrides "auto".
+          PREFER=""; [ "${TARGET}" = "simulator" ] && PREFER="iphone"
           node apps/mobile/scripts/resolve-device.mjs \
-            runs/mobile-ci/devices-emulator.jsonl \
+            "runs/mobile-ci/devices-${TARGET}.jsonl" \
             runs/mobile-ci/device.env \
-            "${{ inputs.device_name }}" "${{ inputs.os_version }}"
+            "${{ inputs.device_name }}" "${{ inputs.os_version }}" "$PREFER"
 
       - name: Stage run directory
         run: |
           mkdir -p runs/mobile-ci
-          cp apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk runs/mobile-ci/encore.apk
+          if [ "${TARGET}" = "emulator" ]; then
+            cp apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk runs/mobile-ci/encore.apk
+            echo "APP_FILE=encore.apk" >> runs/mobile-ci/device.env
+          else
+            cp apps/mobile/encore-ios.zip runs/mobile-ci/encore-ios.zip
+            echo "APP_FILE=encore-ios.zip" >> runs/mobile-ci/device.env
+          fi
           {
             echo "run_id=${{ github.run_id }}"
             echo "commit=${{ github.sha }}"
-            echo "avd=${{ inputs.avd_name }} (${{ inputs.device_profile }})"
-            echo "system_image=${{ inputs.system_image }}"
+            echo "target=${TARGET}"
             cat runs/mobile-ci/device.env 2>/dev/null || echo "device=unresolved"
             echo "kane_version=${{ env.KANE_VERSION }}"
-            echo "app=com.blindrun.encore (Capacitor WebView shell of apps/encore)"
+            echo "app=com.blindrun.encore (native WebView shell of apps/encore)"
           } > runs/mobile-ci/ci.txt
 
       - name: Kane run — sighted (touch) objective
@@ -182,12 +231,12 @@ jobs:
         run: |
           set +e
           . ./device.env
-          echo "device=$DEVICE_NAME os=$OS_VERSION"
+          echo "target=${TARGET} device=$DEVICE_NAME os=$OS_VERSION app=$APP_FILE"
           kane-cli run "$OBJECTIVE" \
-            --target emulator \
+            --target ${TARGET} \
             --device-name "$DEVICE_NAME" \
             --os-version "$OS_VERSION" \
-            --app ./encore.apk \
+            --app "./$APP_FILE" \
             --agent --bug-detection continue \
             --max-steps 40 --timeout 900 \
             --name mobile-sighted \
@@ -200,16 +249,16 @@ jobs:
         working-directory: runs/mobile-ci
         env:
           KANE_CLI_EMULATOR_BOOT_TIMEOUT_MS: "900000"
-          OBJECTIVE: "You are a blind Android user. You cannot see the screen: you may only use controls that Android accessibility services such as TalkBack or Switch Access expose to you — elements with a proper role and an accessible name. In the Encore app, book 2 tickets for the Friday Nov 21 show, seats F14 and F15, then check out with Full name 'Ari Vale', Email 'ari@example.com', card number 4242424242424242, expiry 12/28, CVC 123, and verify 'You're going!' appears. If a control you need is not reachable or has no accessible name, do not work around it: report it plainly as a product bug."
+          OBJECTIVE: "You are a blind mobile user. You cannot see the screen: you may only use controls that assistive technology such as VoiceOver or Switch Control would expose — elements with a proper role and an accessible name. In the Encore app, book 2 tickets for the Friday Nov 21 show, seats F14 and F15, then check out with Full name 'Ari Vale', Email 'ari@example.com', card number 4242424242424242, expiry 12/28, CVC 123, and verify 'You're going!' appears. If a control you need is not reachable or has no accessible name, do not work around it: report it plainly as a product bug."
         run: |
           set +e
           . ./device.env
-          echo "device=$DEVICE_NAME os=$OS_VERSION"
+          echo "target=${TARGET} device=$DEVICE_NAME os=$OS_VERSION app=$APP_FILE"
           kane-cli run "$OBJECTIVE" \
-            --target emulator \
+            --target ${TARGET} \
             --device-name "$DEVICE_NAME" \
             --os-version "$OS_VERSION" \
-            --app ./encore.apk \
+            --app "./$APP_FILE" \
             --agent --bug-detection continue \
             --max-steps 40 --timeout 900 \
             --name mobile-blind \
