@@ -1,0 +1,23 @@
+{
+  "name": "@blind-run/blindrun",
+  "version": "0.1.0",
+  "description": "Run sighted and blind browser checks with Kane CLI, capture evidence, and close the loop with a code fix.",
+  "type": "module",
+  "bin": {
+    "blindrun": "./bin/blindrun.js"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "README.md",
+    "ARTIFACTS.md"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "build": "node --check bin/blindrun.js && node --check src/engine.js"
+  },
+  "license": "MIT"
+}
