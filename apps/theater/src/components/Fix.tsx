@@ -163,7 +163,11 @@ function Status({ local, typingMs, result }: { local: number; typingMs: number; 
     { at: typeEnd + 600, label: 'Patch applied, app rebuilt' },
     { at: typeEnd + 2200, label: 'Handing back to Kane for a blind rerun' },
   ];
-  const dur = typeof result.durationMs === 'number' ? fmtSeconds(result.durationMs) : null;
+  // The engine nests the agent's own timing under result.agent; result.durationMs is the blind rerun's.
+  const agent = (result.agent ?? null) as { durationMs?: number; costUsd?: number; turns?: number } | null;
+  const ms = agent ? agent.durationMs : result.durationMs;
+  const dur = typeof ms === 'number' ? fmtSeconds(ms) : null;
+  const cost = typeof agent?.costUsd === 'number' ? ` · ${agent.turns ?? '?'} turns · $${agent.costUsd.toFixed(2)}` : '';
   return (
     <div className="rounded-[22px] border border-line bg-panel px-6 py-5" style={rise(local, 1100)}>
       <ul className="space-y-2.5">
@@ -181,7 +185,7 @@ function Status({ local, typingMs, result }: { local: number; typingMs: number; 
           );
         })}
       </ul>
-      {dur && <p className="mt-3 text-[14px] text-faint">Agent wall time: {dur}</p>}
+      {dur && <p className="mt-3 text-[14px] text-faint">Agent wall time: {dur}{cost}</p>}
     </div>
   );
 }
