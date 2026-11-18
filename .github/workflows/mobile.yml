@@ -71,6 +71,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Select Xcode (simctl needs full Xcode, not CommandLineTools)
+        run: |
+          xcodebuild -version || true
+          xcrun simctl list devices >/dev/null 2>&1 || \
+            sudo xcode-select -s "$(ls -d /Applications/Xcode*.app/Contents/Developer | sort -V | tail -1)"
+          xcode-select -p
+          xcrun simctl list devices available | head -8
+
       - uses: actions/setup-node@v4
         with:
           node-version: 24
