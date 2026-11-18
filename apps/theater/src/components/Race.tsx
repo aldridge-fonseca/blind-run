@@ -284,6 +284,7 @@ function BlindPanel({ view, local, revealPage, analyser, expect, round }: { view
       >
         {revealPage && <RevealLayer lane={lane} laneT={laneT} />}
       </Screen>
+      {revealPage && <div className="pointer-events-none relative rounded-b-[22px] bg-gradient-to-t from-black via-black/85 to-transparent" style={{ width: PANEL_W, height: 330, marginTop: -330 }} />}
       {/* Captions and waveform sit over the whole black screen, not just the page box. */}
       <div className="pointer-events-none relative" style={{ width: PANEL_W, height: SCREEN_H, marginTop: -SCREEN_H }}>
         <div className="absolute left-7 top-6 flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.2em] text-faint">
@@ -369,7 +370,7 @@ function RevealLayer({ lane, laneT }: { lane: Lane; laneT: number }) {
   const cur = pts.at(-1);
   return (
     <div className="absolute inset-0" aria-hidden="true">
-      <Frames lane={lane} laneT={laneT} style={{ opacity: 0.22, filter: 'grayscale(0.4)' }} />
+      <Frames lane={lane} laneT={laneT} style={{ opacity: 0.3, filter: 'grayscale(1) brightness(1.1)' }} />
       <svg viewBox={`0 0 ${vp.width} ${vp.height}`} className="absolute inset-0 size-full">
         {pts.length > 1 && (
           <polyline points={pts.map((p) => `${p.x + p.w / 2},${p.y + p.h / 2}`).join(' ')} fill="none" stroke="#ffd60a" strokeOpacity="0.55" strokeWidth="3" strokeDasharray="2 9" strokeLinecap="round" />

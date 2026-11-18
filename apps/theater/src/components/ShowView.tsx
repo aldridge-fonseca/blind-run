@@ -12,7 +12,7 @@ export type ViewSettings = { lens: LensId; revealPage: boolean; analyser: Analys
 const FADE = 700;
 
 /** Renders the stage at show time `t`: the current chapter, cross-faded with the previous one. */
-export function ShowView({ run, show, t, settings }: { run: Run; show: Show; t: number; settings: ViewSettings }) {
+export function ShowView({ run, show, t, settings, rail = true }: { run: Run; show: Show; t: number; settings: ViewSettings; rail?: boolean }) {
   const idx = Math.max(0, show.chapters.findIndex((c) => t >= c.start && t < c.end));
   const ch = show.chapters[t >= show.duration ? show.chapters.length - 1 : idx];
   const local = t - ch.start;
@@ -29,7 +29,7 @@ export function ShowView({ run, show, t, settings }: { run: Run; show: Show; t: 
       <div className="absolute inset-0" style={{ opacity: prev && !continues(prev, ch) ? fadeIn : 1 }}>
         <ChapterBody run={run} show={show} chapter={ch} local={local} settings={settings} />
       </div>
-      <ChapterRail show={show} t={t} />
+      {rail && <ChapterRail show={show} t={t} />}
     </>
   );
 }

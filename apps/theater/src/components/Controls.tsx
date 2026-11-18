@@ -135,11 +135,11 @@ function Timeline({ show, t, onSeek }: { show: Show; t: number; onSeek: (t: numb
                 <button
                   onClick={() => onSeek(c.start)}
                   aria-current={active ? 'step' : undefined}
-                  aria-label={`Chapter ${i + 1}: ${c.title}, at ${fmtShort(c.start)}`}
                   className={`max-w-full truncate rounded-md px-1.5 py-0.5 text-left text-[12px] font-semibold uppercase tracking-[0.12em] hover:text-fg ${active ? 'text-fg' : 'text-faint'}`}
                 >
-                  <span aria-hidden="true" className="mr-1.5 font-mono text-faint">{i + 1}</span>
+                  <span className="mr-1.5 font-mono text-faint">{i + 1}<span className="sr-only"> </span></span>
                   {c.short}
+                  <span className="sr-only">: {c.title}, starts at {fmtShort(c.start)}</span>
                 </button>
               </li>
             );

@@ -59,8 +59,13 @@ const store = {
 
 function Player({ run, present }: { run: Run; present: boolean }) {
   const [trim, setTrim] = useState(() => store.get('trim', true));
-  const [lens, setLens] = useState<LensId>(() => store.get('lens', 'none'));
-  const [revealPage, setRevealPage] = useState(() => store.get('reveal', false));
+  // URL parameters (?lens=tunnel&reveal=1) win over remembered settings, so links reproduce a view.
+  const params = new URLSearchParams(location.search);
+  const [lens, setLens] = useState<LensId>(() => {
+    const q = params.get('lens');
+    return LENSES.some((l) => l.id === q) ? (q as LensId) : store.get('lens', 'none');
+  });
+  const [revealPage, setRevealPage] = useState(() => (params.has('reveal') ? params.get('reveal') !== '0' : store.get('reveal', false)));
   const [muted, setMuted] = useState(() => store.get('muted', false));
   const [keys, setKeys] = useState(() => store.get('keys', true));
   const [helpOpen, setHelpOpen] = useState(false);
@@ -287,7 +292,7 @@ function Player({ run, present }: { run: Run; present: boolean }) {
       </header>
       <main className="min-h-0 p-3">
         <Stage label={stageLabel}>
-          <ShowView run={run} show={show} t={t} settings={settings} />
+          <ShowView run={run} show={show} t={t} settings={settings} rail={false} />
         </Stage>
       </main>
       <Controls

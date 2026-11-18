@@ -34,7 +34,7 @@ export function Verdict({ lane, local }: { lane: Lane; local: number }) {
           </div>
 
           <Field label="verdict.bug_title" at={900} local={local}>
-            <h3 className="text-[54px] font-semibold leading-[1.05] tracking-[-0.025em] text-white" style={{ textWrap: 'balance' }}>{v.bug_title ?? end?.one_liner ?? 'Blind run failed'}</h3>
+            <h2 className="text-[54px] font-semibold leading-[1.05] tracking-[-0.025em] text-white" style={{ textWrap: 'balance' }}>{v.bug_title ?? end?.one_liner ?? 'Blind run failed'}</h2>
           </Field>
 
           {v.one_liner && (

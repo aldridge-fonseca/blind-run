@@ -106,7 +106,7 @@ export function End({ run, local }: { run: Run; local: number }) {
             <ul className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2.5">
               {evidence.map((e) => (
                 <li key={e.href}>
-                  <a href={e.href} target="_blank" rel="noreferrer" className="flex items-center gap-2.5 font-mono text-[16px] text-dim underline decoration-white/15 underline-offset-4 hover:text-fg">
+                  <a href={e.href} target="_blank" rel="noreferrer" className="flex min-h-10 items-center gap-2.5 font-mono text-[16px] text-dim underline decoration-white/15 underline-offset-4 hover:text-fg">
                     {e.external ? <External size={16} /> : <File size={16} />}
                     {e.label}
                   </a>
