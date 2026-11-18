@@ -121,6 +121,32 @@ jobs:
           "$SDK/emulator/emulator" -list-avds || true
           grep -E "hw.device.name|image.sysdir" "$HOME/.android/avd/${{ inputs.avd_name }}.avd/config.ini" || true
 
+      - name: Boot Android emulator
+        if: ${{ !inputs.setup_only }}
+        run: |
+          mkdir -p runs/mobile-ci
+          SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          ADB="$(find "$HOME/.testmuai/kaneai/mobile/deps" -name adb -type f | head -1)"
+          [ -x "$ADB" ] || ADB="$SDK/platform-tools/adb"
+          echo "adb: $ADB"
+          "$ADB" start-server
+          "$SDK/emulator/emulator" -avd "${{ inputs.avd_name }}" \
+            -no-window -no-audio -no-boot-anim -no-snapshot \
+            -gpu swiftshader_indirect \
+            > runs/mobile-ci/emulator-boot.log 2>&1 &
+          EMU_PID=$!
+          echo "emulator pid $EMU_PID"
+          "$ADB" wait-for-device
+          for i in $(seq 1 150); do
+            booted=$("$ADB" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
+            [ "$booted" = "1" ] && break
+            kill -0 $EMU_PID 2>/dev/null || { echo "emulator process died"; tail -50 runs/mobile-ci/emulator-boot.log; exit 1; }
+            sleep 4
+          done
+          "$ADB" devices
+          "$ADB" shell getprop ro.build.version.release || true
+          [ "$booted" = "1" ]
+
       - name: Mobile toolchain probe
         run: |
           mkdir -p runs/mobile-ci
@@ -151,6 +177,7 @@ jobs:
         if: ${{ !inputs.setup_only && (inputs.lanes == 'both' || inputs.lanes == 'sighted') }}
         working-directory: runs/mobile-ci
         env:
+          KANE_CLI_EMULATOR_BOOT_TIMEOUT_MS: "900000"
           OBJECTIVE: "Book concert tickets in the Encore app. Pick the Friday Nov 21 show card under 'Choose your night', set Tickets to 2 with the plus button, tap seats F14 and F15 on the seat map, tap Checkout, and pay with: Full name 'Ari Vale', Email 'ari@example.com', card number 4242424242424242, expiry 12/28, CVC 123. Then verify the confirmation screen says 'You're going!' and shows Order #ENC-4821."
         run: |
           set +e
@@ -172,6 +199,7 @@ jobs:
         if: ${{ !inputs.setup_only && (inputs.lanes == 'both' || inputs.lanes == 'blind') }}
         working-directory: runs/mobile-ci
         env:
+          KANE_CLI_EMULATOR_BOOT_TIMEOUT_MS: "900000"
           OBJECTIVE: "You are a blind Android user. You cannot see the screen: you may only use controls that Android accessibility services such as TalkBack or Switch Access expose to you — elements with a proper role and an accessible name. In the Encore app, book 2 tickets for the Friday Nov 21 show, seats F14 and F15, then check out with Full name 'Ari Vale', Email 'ari@example.com', card number 4242424242424242, expiry 12/28, CVC 123, and verify 'You're going!' appears. If a control you need is not reachable or has no accessible name, do not work around it: report it plainly as a product bug."
         run: |
           set +e
@@ -199,6 +227,12 @@ jobs:
             echo "== $f (exit $(cat "exit-${lane}.txt" 2>/dev/null || echo '?'))"
             grep '"run_end"' "$f" | tail -1 || true
           done
+
+      - name: Collect diagnostics
+        if: always()
+        run: |
+          cp "$HOME"/.testmuai/kaneai/mobile/emulator-*.log runs/mobile-ci/ 2>/dev/null || true
+          [ -d runs/mobile-ci/.testmuai ] && cp -R runs/mobile-ci/.testmuai runs/mobile-ci/testmuai-out || true
 
       - uses: actions/upload-artifact@v4
         if: always()
