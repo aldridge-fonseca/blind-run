@@ -1,0 +1,150 @@
+{
+  "mode": "explore",
+  "url": "http://127.0.0.1:4310/",
+  "prompt": "Explore the booking flow with the keyboard and note accessibility problems",
+  "args": [
+    "explore",
+    "run",
+    "--url",
+    "http://127.0.0.1:4310/",
+    "--prompt",
+    "Explore the booking flow with the keyboard and note accessibility problems",
+    "--max-leases",
+    "3",
+    "--local-orchestration",
+    "--browser",
+    "local",
+    "--headless",
+    "--policy",
+    "read_only",
+    "--no-recheck",
+    "--agent",
+    "--project",
+    "01M7QHXQB1AXR898JWPSKBWHP9"
+  ],
+  "exitCode": 0,
+  "durationMs": 146283,
+  "done": {
+    "type": "done",
+    "state": "stopped",
+    "remark": {
+      "code": "budget",
+      "message": "the run's budget ran out (budget_leases)"
+    },
+    "exit_code": 0,
+    "exploration_id": "01a1ef1f-04bc-720d-8fde-da04eeb47e8a",
+    "run_id": "01a1ef1f-0589-7d78-af36-26e957c52039",
+    "committed": 3,
+    "pending": 0,
+    "last_seq": 3,
+    "stop_reason": "budget_leases",
+    "complete": false,
+    "run_dir": "/home/aldridge/.testmuai/kaneai/explorations/01a1ef1f-04bc-720d-8fde-da04eeb47e8a/runs/01a1ef1f-0589-7d78-af36-26e957c52039",
+    "teardown": {
+      "pid": null,
+      "contexts": 1,
+      "pages": [
+        "127.0.0.1:4310/"
+      ]
+    },
+    "credits": {
+      "total": 15.873785,
+      "calls": 20,
+      "by_node": {
+        "popup_prefs/read": 0.4673,
+        "exploration_judge/skill": 1.0626,
+        "reasoning/v2": 13.91188,
+        "page_observer": 0.432005
+      },
+      "by_phase": {
+        "popup_prefs": 0.4673,
+        "judge": 1.0626,
+        "walk": 14.343885
+      },
+      "request_ids": [
+        "99c25622-69eb-48ba-980b-a7905e2fe56c",
+        "ec89f93f-f969-4b87-b2d4-5142386714d0",
+        "e38af079-8806-4427-b7b4-151a40329006",
+        "3e24d14d-07ed-491f-ac94-49e9a4426967",
+        "fc9439cb-45a3-4d24-9ae8-989330145a7c",
+        "015d0a5d-b036-4ded-81f1-5f0fac9062c7",
+        "ce561241-42d2-4ff9-ab03-70258bbfdd4c",
+        "00d886e0-65d0-479b-b774-2141ce812d16",
+        "2a2164a7-e311-4f65-ade3-de681d35fd85",
+        "e51af517-c375-4622-a923-f00a6e1d0b5a",
+        "90b2a4a7-cabf-4257-809a-8ddb6d71173b",
+        "74946060-3b58-45f1-a2ef-e4f010aa7888",
+        "46fda29a-b769-41a3-9a88-f3dca8694198",
+        "0ba696ca-a9a0-4beb-adb6-1b2b27ee2215",
+        "632d6c4b-12fc-4072-887e-8b81b00d58d1",
+        "37e3c5d4-323e-4355-91f1-1bd8a5739ee3",
+        "2092fcf8-a228-4690-b2f3-5084ad1c7fbf",
+        "257064e7-35c5-49cd-9da0-0173cc77800d",
+        "c9d4b324-fc2e-413d-8d74-35dc1f2ef0a6",
+        "c4dedee7-0d88-488d-8c60-7109bd85770b"
+      ]
+    },
+    "credits_consumed": 12.4745175,
+    "parallelism": {
+      "max_parallel": 1,
+      "peak": 1,
+      "average": 0.892,
+      "opened": 1
+    },
+    "v": 1,
+    "ts": "2026-11-18T14:48:14.332Z"
+  },
+  "findings": [
+    {
+      "id": "1a094898143b2c85395701c77f683623522c17e91a2d16e4660788bdacc49480",
+      "kind": "accessibility",
+      "severity": "high",
+      "title": "Buttons must have discernible text (2 elements on 127.0.0.1:4310/)",
+      "description": "On 127.0.0.1:4310/, 2 elements break the rule button-name.",
+      "axeRule": "button-name",
+      "recommendation": "https://dequeuniversity.com/rules/axe/4.14/button-name?application=axeAPI",
+      "confirmed": false
+    },
+    {
+      "id": "1f898cc42c6171f20cb8cd5911cce98a9fb6efa14442805d2d7efdc99805b246",
+      "kind": "accessibility",
+      "severity": "medium",
+      "title": "Elements must meet minimum color contrast ratio thresholds (14 elements on 127.0.0.1:4310/)",
+      "description": "On 127.0.0.1:4310/, 14 elements break the rule color-contrast.",
+      "axeRule": "color-contrast",
+      "recommendation": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+      "confirmed": false
+    },
+    {
+      "id": "c28ab2063044a75b7892738701eeb5e524688484534013c0dcf14d37bef90b0e",
+      "kind": "accessibility",
+      "severity": "medium",
+      "title": "Scrollable region must have keyboard access (1 element on 127.0.0.1:4310/)",
+      "description": "On 127.0.0.1:4310/, 1 element breaks the rule scrollable-region-focusable.",
+      "axeRule": "scrollable-region-focusable",
+      "recommendation": "https://dequeuniversity.com/rules/axe/4.14/scrollable-region-focusable?application=axeAPI",
+      "confirmed": false
+    }
+  ],
+  "credits": 15.873785,
+  "recordTypes": [
+    "stream_start",
+    "exploration_created",
+    "explore_run_started",
+    "explore_start",
+    "run_start",
+    "lease_start",
+    "lease_end",
+    "map_delta",
+    "progress",
+    "delta_committed",
+    "skill_updated",
+    "lease_step",
+    "step_event",
+    "step_start",
+    "step_end",
+    "explore_end",
+    "done"
+  ],
+  "target": "encore-baseline (511ba26), before any fix"
+}

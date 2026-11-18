@@ -12,7 +12,7 @@ const help = `blindrun: does your app work with your eyes closed? Kane CLI finds
 Usage:
   blindrun run <url> <task> --expect <text> [--out runs/<id>] [--lanes sighted,blind]
   blindrun fix <runDir> --app <dir> [--build "pnpm build"] [--serve "pnpm preview"] [--max-attempts 3]
-  blindrun explore <url> [--out <dir>] [--prompt <text>]
+  blindrun explore <url> [--out <dir>] [--prompt <text>] [--project <id>] [--max-leases 3]
   blindrun voice <runDir>
   blindrun demo [--out runs/<id>] [--port 4310] [--max-attempts 3] [--no-voice] [--keep-worktree]
 
@@ -242,7 +242,7 @@ export async function main(args = process.argv.slice(2)) {
     const url = parsed.positional[0];
     if (!url) throw new Error('explore needs <url>');
     const outDir = resolve(parsed.options.out ?? join('runs', `explore-${stamp()}`));
-    const result = await runExplore({ url, outDir, prompt: parsed.options.prompt, maxLeases: Number(parsed.options['max-leases'] ?? 3), log });
+    const result = await runExplore({ url, outDir, prompt: parsed.options.prompt, maxLeases: Number(parsed.options['max-leases'] ?? 3), project: parsed.options.project, log });
     log(`explore exit ${result.exitCode}; ${result.findings.length} finding record(s)`);
     process.stdout.write(`${outDir}\n`);
     return;

@@ -43,8 +43,31 @@
     }
   ],
   "kane": {
-    "runs": 6,
-    "credits": 271.06
+    "runs": 7,
+    "credits": 286.93,
+    "note": "includes two discarded re-verification tries and one kane-cli explore run"
+  },
+  "explore": {
+    "mode": "kane-cli explore (local, read_only, 3 leases)",
+    "target": "encore-baseline (511ba26), before any fix",
+    "credits": 15.873785,
+    "findings": [
+      {
+        "severity": "high",
+        "title": "Buttons must have discernible text (2 elements on 127.0.0.1:4310/)",
+        "axeRule": "button-name"
+      },
+      {
+        "severity": "medium",
+        "title": "Elements must meet minimum color contrast ratio thresholds (14 elements on 127.0.0.1:4310/)",
+        "axeRule": "color-contrast"
+      },
+      {
+        "severity": "medium",
+        "title": "Scrollable region must have keyboard access (1 element on 127.0.0.1:4310/)",
+        "axeRule": "scrollable-region-focusable"
+      }
+    ]
   },
   "outcome": {
     "blindBefore": "failed",
@@ -64,7 +87,8 @@
         "wcag": "4.1.2",
         "title": "Ticket quantity − / + buttons have no accessible name",
         "planted": true,
-        "foundBy": "audit",
+        "foundBy": "explore",
+        "explore": "Buttons must have discernible text (2 elements on 127.0.0.1:4310/)",
         "presentBefore": true,
         "fixed": true
       },
@@ -74,6 +98,7 @@
         "title": "Date picker is a mouse-only carousel of <div>s",
         "planted": true,
         "foundBy": "blind",
+        "explore": "Scrollable region must have keyboard access (1 element on 127.0.0.1:4310/)",
         "presentBefore": true,
         "fixed": true
       },
@@ -100,7 +125,8 @@
         "wcag": "1.4.3",
         "title": "Tier prices are low-contrast text",
         "planted": true,
-        "foundBy": "audit",
+        "foundBy": "explore",
+        "explore": "Elements must meet minimum color contrast ratio thresholds (14 elements on 127.0.0.1:4310/)",
         "presentBefore": true,
         "fixed": false
       }

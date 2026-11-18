@@ -1,0 +1,1 @@
+watch live: kane-cli explore view --exploration-id 01a1ef1f-04bc-720d-8fde-da04eeb47e8a

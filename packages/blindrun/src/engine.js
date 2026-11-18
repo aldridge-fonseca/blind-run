@@ -1,5 +1,6 @@
 import { spawn } from 'node:child_process';
-import { mkdir, unlink, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, unlink, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { withRecordedChrome } from './chrome.js';
 import { parseKaneNdjson, summarizeKane } from './parsers.js';
@@ -123,20 +124,37 @@ export async function runLane({ url, task, expect, laneDir, blind, timeout = 900
 }
 
 /** `kane-cli explore` on this machine (read-only, one lease). Records the stream verbatim and what it found. */
-export async function runExplore({ url, outDir, prompt = 'Explore the booking flow with the keyboard and note accessibility problems', maxLeases = 3, log = () => {} }) {
+export async function runExplore({ url, outDir, prompt = 'Explore the booking flow with the keyboard and note accessibility problems', maxLeases = 3, project, log = () => {} }) {
   await mkdir(outDir, { recursive: true });
-  const args = ['explore', 'run', '--url', url, '--prompt', prompt, '--max-leases', String(maxLeases), '--local-orchestration', '--browser', 'local', '--headless', '--policy', 'read_only', '--no-recheck', '--agent'];
+  const args = ['explore', 'run', '--url', url, '--prompt', prompt, '--max-leases', String(maxLeases), '--local-orchestration', '--browser', 'local', '--headless', '--policy', 'read_only', '--no-recheck', '--agent', ...(project ? ['--project', project] : [])];
   const [cmd, cmdArgs] = kaneCommand(args);
   log(`kane explore: ${args.join(' ')}`);
   const started = Date.now();
-  const out = await collectProcess(spawn(cmd, cmdArgs, { stdio: ['ignore', 'pipe', 'pipe'] }), { timeoutMs: 20 * 60 * 1000 });
+  // explore writes step_*.json and run_summary.json into its working directory; keep those out of the caller's tree.
+  const cwd = await mkdtemp(join(tmpdir(), 'blindrun-explore-'));
+  const out = await collectProcess(spawn(cmd, cmdArgs, { cwd, stdio: ['ignore', 'pipe', 'pipe'] }), { timeoutMs: 20 * 60 * 1000 });
   await writeFile(join(outDir, 'explore.ndjson'), out.stdout);
   if (out.stderr.trim()) await writeFile(join(outDir, 'explore.stderr.txt'), out.stderr);
   const { records } = parseKaneNdjson(out.stdout);
   const done = records.findLast((record) => record.type === 'done') ?? null;
-  const findings = records.filter((record) => /finding|issue|a11y|axe/i.test(String(record.type)));
-  const credits = records.reduce((n, record) => n + (Number(record.credits_consumed) || 0), 0);
+  // Findings (including Kane's axe-core accessibility checks) are committed to the local exploration map,
+  // not streamed; read them from the run directory Kane reports.
+  const findings = done?.run_dir ? await readExploreFindings(done.run_dir) : [];
+  const credits = Number(done?.credits?.total ?? 0);
   const result = { mode: 'explore', url, prompt, args, exitCode: out.exitCode, durationMs: Date.now() - started, done, findings, credits, recordTypes: [...new Set(records.map((record) => record.type))] };
   await saveJson(join(outDir, 'findings.json'), result);
   return result;
+}
+
+async function readExploreFindings(runDir) {
+  let text = '';
+  try { text = await readFile(join(runDir, 'pending-deltas.ndjson'), 'utf8'); } catch { return []; }
+  const byId = new Map();
+  for (const record of parseKaneNdjson(text).records) {
+    for (const f of (record.delta ?? record).findings ?? []) {
+      const rule = String(f.recommendation ?? '').match(/rules\/axe\/[\d.]+\/([a-z0-9-]+)/)?.[1] ?? null;
+      byId.set(f.id, { id: f.id, kind: f.kind, severity: f.severity, title: f.title, description: f.description, axeRule: rule, recommendation: f.recommendation, confirmed: f.confirmed });
+    }
+  }
+  return [...byId.values()];
 }

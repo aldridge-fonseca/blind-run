@@ -15,11 +15,11 @@ export const ENCORE = {
   expect: "You're going! Order #ENC-4821 · Row F · Seats 14–15",
   barriers: [
     { id: 'B1', wcag: '2.1.1', title: 'Seat map seats are click-only <div>s', words: /seats?\b.{0,60}(focus|keyboard|tab|div|reach)|(focus|keyboard|tab|reach).{0,60}\bseats?\b/i },
-    { id: 'B2', wcag: '4.1.2', title: 'Ticket quantity − / + buttons have no accessible name', words: /(quantity|ticket|plus|minus|\+|−).{0,40}(no|missing|without|unlabel{1,2}ed).{0,20}(name|label)|unlabel{1,2}ed (quantity|plus|minus|\+)/i },
-    { id: 'B3', wcag: '2.1.1', title: 'Date picker is a mouse-only carousel of <div>s', words: /(date|friday|night|show|carousel).{0,60}(focus|keyboard|tab|div|reach)|(focus|keyboard|tab|reach).{0,60}(date|friday|night|carousel)/i },
+    { id: 'B2', wcag: '4.1.2', axe: 'button-name', title: 'Ticket quantity − / + buttons have no accessible name', words: /(quantity|ticket|plus|minus|\+|−).{0,40}(no|missing|without|unlabel{1,2}ed).{0,20}(name|label)|unlabel{1,2}ed (quantity|plus|minus|\+)/i },
+    { id: 'B3', wcag: '2.1.1', axe: 'scrollable-region-focusable', title: 'Date picker is a mouse-only carousel of <div>s', words: /(date|friday|night|show|carousel).{0,60}(focus|keyboard|tab|div|reach)|(focus|keyboard|tab|reach).{0,60}(date|friday|night|carousel)/i },
     { id: 'B4', wcag: '2.4.3', title: 'Checkout modal does not take focus; close button unlabeled', words: /modal|dialog|checkout (window|overlay)|focus (did not|does not) move/i },
     { id: 'B5', wcag: '1.3.1', title: 'Card fields are labelled by placeholder only', words: /card (number|field)|expiry|cvc|placeholder|label/i },
-    { id: 'B6', wcag: '1.4.3', title: 'Tier prices are low-contrast text', words: /contrast/i },
+    { id: 'B6', wcag: '1.4.3', axe: 'color-contrast', title: 'Tier prices are low-contrast text', words: /contrast/i },
   ],
 };
 
@@ -119,12 +119,13 @@ async function auditOnce(url, { chromePath } = {}) {
 }
 
 /** Barrier list for run.json: planted barriers, who found them, and whether the fix removed them. */
-export function encoreBarriers({ before, after, blindLanes, exploreText = '' }) {
+export function encoreBarriers({ before, after, blindLanes, exploreFindings = [] }) {
   return ENCORE.barriers.map((b) => {
     const was = before.find((x) => x.id === b.id);
     const now = after?.find((x) => x.id === b.id);
     const named = blindLanes.some((lane) => lane.status === 'failed' && b.words.test(String(lane.reason ?? '')));
-    const foundBy = named ? 'blind' : b.words.test(exploreText) ? 'explore' : 'audit';
-    return { id: b.id, wcag: b.wcag, title: b.title, planted: true, foundBy, presentBefore: was?.present ?? null, ...(now ? { fixed: was?.present === true && now.present === false } : {}) };
+    const explored = exploreFindings.find((f) => b.axe && f.axeRule === b.axe);
+    const foundBy = named ? 'blind' : explored ? 'explore' : 'audit';
+    return { id: b.id, wcag: b.wcag, title: b.title, planted: true, foundBy, ...(explored ? { explore: explored.title } : {}), presentBefore: was?.present ?? null, ...(now ? { fixed: was?.present === true && now.present === false } : {}) };
   });
 }
