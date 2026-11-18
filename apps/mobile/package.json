@@ -1,0 +1,19 @@
+{
+  "name": "encore-mobile",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Encore packaged as a native mobile shell (Capacitor WebView) so Kane CLI can test it on emulators and devices.",
+  "scripts": {
+    "add:android": "cap add android",
+    "sync": "cap sync android",
+    "apk": "cd android && ./gradlew assembleDebug"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.6.2",
+    "@capacitor/core": "8.6.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.6.2"
+  }
+}

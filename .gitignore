@@ -9,3 +9,7 @@ dist/
 .DS_Store
 tmp/
 runs/_scratch/
+runs/mobile-ci/
+apps/mobile/android/
+apps/mobile/ios/
+apps/mobile/www/
